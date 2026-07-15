@@ -179,6 +179,7 @@
   <div class="sync-bar">
     <div class="sync-dot" id="sync-dot"></div>
     <span id="sync-text">Sincronizado</span>
+    <button onclick="silentRefresh()" title="Actualizar ahora" style="margin-left:auto;border:none;background:transparent;cursor:pointer;font-size:14px;padding:0;color:var(--text-faint)" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text-faint)'">↻</button>
   </div>
 </nav>
 
@@ -1302,7 +1303,38 @@ function viewTask(t){
     </div>`;
 }
 
-loadData();
+// ── Auto-refresh silencioso ────────────────────────────────
+let autoRefreshInterval = null;
+const REFRESH_INTERVAL = 2 * 60 * 1000; // 2 minutos
+
+async function silentRefresh(){
+  // No refresca si hay un modal abierto o el usuario está escribiendo
+  if(document.getElementById('modal').style.display==='flex') return;
+  try{
+    const data = await api('getAll');
+    state.tareas          = data.tareas          || [];
+    state.personas        = data.personas        || [];
+    state.coordinaciones  = data.coordinaciones  || [];
+    state.tareasHeaders   = data.tareasHeaders   || [];
+    state.personasHeaders = data.personasHeaders || [];
+    state.opciones        = data.opciones        || {};
+    renderSidebarCoords();
+    render();
+    // Actualizar indicador con hora
+    const txt = document.getElementById('sync-text');
+    const now = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+    if(txt) txt.textContent = `Actualizado ${now}`;
+  } catch(e){
+    // Fallo silencioso — no mostrar error al usuario en refresco automático
+  }
+}
+
+function startAutoRefresh(){
+  if(autoRefreshInterval) clearInterval(autoRefreshInterval);
+  autoRefreshInterval = setInterval(silentRefresh, REFRESH_INTERVAL);
+}
+
+loadData().then(()=>startAutoRefresh());
 </script>
 </body>
 </html>
