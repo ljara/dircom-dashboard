@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Uso — Dashboard DIRCOM UFRO</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  :root {
+    --purple:#7F77DD;--purple-dk:#534AB7;--purple-lt:#EEEDFE;
+    --green:#1D9E75;--green-lt:#E1F5EE;
+    --amber:#EF9F27;--amber-lt:#FAEEDA;
+    --red:#E24B4A;--red-lt:#FCEBEB;
+    --blue:#378ADD;--blue-lt:#E6F1FB;
+    --gray:#888780;--gray-lt:#F1EFE8;
+    --text:#1a1a1a;--text-mid:#444;--text-muted:#666;--text-faint:#999;
+    --bg:#F8F8F6;--surface:#fff;
+    --border:rgba(0,0,0,0.09);--radius:10px;--radius-sm:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+  /* Layout */
+  .page{max-width:820px;margin:0 auto;padding:40px 24px 80px}
+
+  /* Header */
+  .header{background:linear-gradient(135deg,var(--purple) 0%,var(--purple-dk) 100%);border-radius:16px;padding:36px 40px 28px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden}
+  .header::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06)}
+  .header .org{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-bottom:6px}
+  .header h1{font-size:28px;font-weight:800;margin-bottom:6px;line-height:1.1}
+  .header .sub{font-size:14px;opacity:.8;font-weight:400}
+  .stripe{height:4px;background:linear-gradient(90deg,var(--green),var(--blue),var(--purple),var(--amber));border-radius:2px;margin-bottom:32px}
+
+  /* Sección */
+  .section{margin-bottom:28px}
+  .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+  .card h3{font-size:15px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:13px;color:var(--text-mid);line-height:1.65;margin-bottom:8px}
+  .card p:last-child{margin-bottom:0}
+  .card ul{list-style:none;margin-top:6px}
+  .card ul li{font-size:13px;color:var(--text-mid);padding:4px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border)}
+  .card ul li:last-child{border-bottom:none}
+  .card ul li::before{content:'›';color:var(--purple);font-weight:700;font-size:16px;line-height:1.2;flex-shrink:0}
+
+  /* Pasos del flujo */
+  .flow-steps{display:flex;flex-direction:column;gap:0}
+  .flow-step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
+  .flow-step:last-child{border-bottom:none}
+  .step-num{width:32px;height:32px;border-radius:50%;background:var(--purple);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .step-content{flex:1}
+  .step-title{font-size:14px;font-weight:600;margin-bottom:4px}
+  .step-desc{font-size:13px;color:var(--text-muted);line-height:1.6}
+  .step-tip{background:var(--purple-lt);border-radius:var(--radius-sm);padding:8px 12px;margin-top:8px;font-size:12px;color:var(--purple-dk)}
+  .step-tip strong{font-weight:600}
+
+  /* URLs */
+  .url-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .url-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+  .url-card .rol{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);margin-bottom:4px}
+  .url-card .nombre{font-size:13px;font-weight:600;margin-bottom:6px}
+  .url-card .url{font-size:11px;background:var(--gray-lt);padding:5px 8px;border-radius:4px;font-family:monospace;color:var(--purple-dk);word-break:break-all;display:block}
+
+  /* Estados */
+  .status-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .status-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+  .status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .status-label{font-size:13px;font-weight:500}
+  .status-desc{font-size:11px;color:var(--text-muted);margin-top:1px}
+
+  /* Reglas */
+  .regla{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:8px}
+  .regla-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+  .regla p{font-size:13px;color:var(--text-mid);line-height:1.5;margin:0}
+  .regla p strong{color:var(--text)}
+
+  /* Badge */
+  .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+
+  /* Alerta */
+  .alert{border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:12px;font-size:13px;line-height:1.6}
+
+  /* Footer */
+  .footer{text-align:center;padding:24px;color:var(--text-faint);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
+
+  @media print{
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .page{padding:20px;max-width:100%}
+    .no-print{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="org">Universidad de La Frontera</div>
+    <h1>Manual de Uso<br>Dashboard DIRCOM</h1>
+    <div class="sub">Guía para jefes de coordinación y directora · Versión 1.0</div>
+  </div>
+  <div class="stripe"></div>
+
+  <!-- Acceso -->
+  <div class="section">
+    <div class="section-title">🔗 Acceso al dashboard</div>
+    <div class="card">
+      <h3>📌 URLs por rol</h3>
+      <p>Cada persona accede con su propia URL. Guárdala en favoritos — es tu punto de entrada siempre.</p>
+      <div class="url-grid" style="margin-top:12px">
+        <div class="url-card">
+          <div class="rol">Directora</div>
+          <div class="nombre">Natalia Ávila</div>
+          <span class="url">ljara.github.io/dircom-dashboard</span>
+        </div>
+        <div class="url-card">
+          <div class="rol">Coordinadora · Campañas de Marketing</div>
+          <div class="nombre">Andrea Poblete</div>
+          <span class="url">ljara.github.io/dircom-dashboard?coord=marketing</span>
+        </div>
+        <div class="url-card">
+          <div class="rol">Coordinador · Diseño y Marca</div>
+          <div class="nombre">Andrés Marquardt</div>
+          <span class="url">ljara.github.io/dircom-dashboard?coord=diseno</span>
+        </div>
+        <div class="url-card">
+          <div class="rol">Coordinador · Protocolo</div>
+          <div class="nombre">José Sanhueza</div>
+          <span class="url">ljara.github.io/dircom-dashboard?coord=protocolo</span>
+        </div>
+        <div class="url-card">
+          <div class="rol">UFRO Medios</div>
+          <div class="nombre">Nadia Arias</div>
+          <span class="url">ljara.github.io/dircom-dashboard?coord=radio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flujo de trabajo -->
+  <div class="section">
+    <div class="section-title">🔄 Flujo de trabajo</div>
+    <div class="card">
+      <h3>Los 4 momentos de una tarea</h3>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Recepción — ingresar al dashboard de inmediato</div>
+            <div class="step-desc">Cuando llega un requerimiento a la coordinación (por correo, WhatsApp, reunión o cualquier canal), el coordinador o coordinadora lo ingresa al dashboard en ese momento. No después, no "cuando tenga tiempo".</div>
+            <div class="step-tip"><strong>Campos obligatorios:</strong> Título · Solicitante · Coordinación · Tipo de requerimiento · Fecha límite</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Asignación — directo al responsable</div>
+            <div class="step-desc">Al ingresar la tarea, el coordinador/a asigna directamente a quien la ejecutará. Sin aprobaciones ni reuniones previas. Si no sabe aún quién la hará, la deja sin asignar y la asigna antes del fin del día.</div>
+            <div class="step-tip"><strong>La tarea aparece como "Por hacer"</strong> hasta que el responsable comience a trabajar en ella.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Ejecución — actualizar el estado en tiempo real</div>
+            <div class="step-desc">El responsable cambia el estado a <strong>En progreso</strong> cuando comienza. Al terminar el entregable, lo cambia a <strong>Revisión</strong> para que el coordinador/a lo valide. No al final del día — cuando ocurre el cambio.</div>
+            <div class="step-tip"><strong>El jefe verá un aviso naranja</strong> en su dashboard cuando haya tareas esperando su revisión.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Cierre — marcar como completada</div>
+            <div class="step-desc">Una vez que el coordinador/a valida el entregable, marca la tarea como <strong>Completada</strong>. La directora revisa el dashboard cada viernes y genera el reporte ejecutivo con un clic.</div>
+            <div class="step-tip"><strong>Botón "Generar reporte"</strong> en el dashboard general — produce un PDF listo para enviar a la jefatura.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estados -->
+  <div class="section">
+    <div class="section-title">⚡ Estados de una tarea</div>
+    <div class="card">
+      <div class="status-grid">
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--gray)"></div>
+          <div>
+            <div class="status-label">Por hacer</div>
+            <div class="status-desc">Asignada, aún no iniciada</div>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--blue)"></div>
+          <div>
+            <div class="status-label">En progreso</div>
+            <div class="status-desc">El responsable está trabajando</div>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--amber)"></div>
+          <div>
+            <div class="status-label">Revisión</div>
+            <div class="status-desc">Terminada, esperando validación del jefe</div>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--green)"></div>
+          <div>
+            <div class="status-label">Completada</div>
+            <div class="status-desc">Validada y cerrada</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reglas -->
+  <div class="section">
+    <div class="section-title">📋 Las 3 reglas del sistema</div>
+    <div class="regla" style="background:var(--purple-lt)">
+      <div class="regla-num" style="background:var(--purple)">1</div>
+      <p><strong>Todo requerimiento que entra, entra al dashboard.</strong> No existe tarea que no esté registrada. Si llegó por WhatsApp, se ingresa al dashboard. Si llegó en una reunión, se ingresa al dashboard.</p>
+    </div>
+    <div class="regla" style="background:var(--blue-lt)">
+      <div class="regla-num" style="background:var(--blue)">2</div>
+      <p><strong>El estado se actualiza cuando cambia, no al final del día.</strong> El dashboard es útil solo si refleja la realidad en tiempo real. Un estado desactualizado es peor que ningún sistema.</p>
+    </div>
+    <div class="regla" style="background:var(--amber-lt)">
+      <div class="regla-num" style="background:var(--amber)">3</div>
+      <p><strong>Sin fecha límite no se ingresa.</strong> Si el solicitante no entrega una fecha, el coordinador o coordinadora define una razonable antes de guardar la tarea.</p>
+    </div>
+  </div>
+
+  <!-- Funciones principales -->
+  <div class="section">
+    <div class="section-title">🛠 Funciones principales</div>
+    <div class="card">
+      <h3>Para coordinadores/as</h3>
+      <ul>
+        <li>Entras directo a tu coordinación — solo ves tus tareas por defecto</li>
+        <li>El banner naranja te avisa cuando hay tareas esperando tu revisión</li>
+        <li>Puedes ver todas las coordinaciones navegando el sidebar</li>
+        <li>Busca cualquier tarea por nombre, solicitante o responsable desde el buscador del sidebar</li>
+        <li>Ordena tus tareas por fecha límite, prioridad o estado desde la vista "Todas las tareas"</li>
+        <li>Si archivas una tarea por error, la recuperas desde la Papelera</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Para la directora</h3>
+      <ul>
+        <li>El dashboard general muestra el estado de todas las coordinaciones de un vistazo</li>
+        <li>La tarjeta "Vencidas" en rojo muestra tareas fuera de plazo — haz clic para ver el listado</li>
+        <li>Filtra por período: Todo / Esta semana / Este mes para ajustar las métricas</li>
+        <li>El botón "Generar reporte" produce un PDF ejecutivo completo con gráficos y tablas</li>
+        <li>Cada coordinación muestra badge ⚠ con el número de tareas vencidas</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Alertas importantes</h3>
+      <div class="alert" style="background:var(--red-lt);color:#791F1F;border:1px solid #FCEBEB">
+        <strong>⚠ Tarea vencida</strong> — aparece en rojo en el listado y en la tarjeta del dashboard. Requiere atención inmediata del coordinador o coordinadora.
+      </div>
+      <div class="alert" style="background:var(--amber-lt);color:#633806;border:1px solid #EF9F2733">
+        <strong>⏳ En revisión</strong> — el banner naranja aparece en tu vista cuando tienes tareas pendientes de validar. No requiere que alguien te avise — el sistema te lo muestra al entrar.
+      </div>
+    </div>
+  </div>
+
+  <!-- Preguntas frecuentes -->
+  <div class="section">
+    <div class="section-title">❓ Preguntas frecuentes</div>
+    <div class="card">
+      <ul>
+        <li><strong>¿Qué pasa si elimino una tarea por error?</strong> Las tareas no se eliminan directamente — se archivan. Ve a Papelera en el sidebar y recupérala con "↩ Restaurar".</li>
+        <li><strong>¿Puedo ver las tareas de otras coordinaciones?</strong> Sí. Aunque tu URL filtra tu coordinación por defecto, puedes hacer clic en cualquier coordinación del sidebar para ver sus tareas.</li>
+        <li><strong>¿Cada cuánto se actualizan los datos?</strong> El dashboard se sincroniza automáticamente cada 2 minutos. También puedes presionar el botón ↻ en la esquina inferior del sidebar para actualizar de inmediato.</li>
+        <li><strong>¿Puedo agregar nuevas opciones de tipo de requerimiento o categoría?</strong> Sí. Ve a 🏷 Opciones en el sidebar y agrega o elimina valores desde ahí.</li>
+        <li><strong>¿Cómo genero el reporte semanal?</strong> Desde el dashboard general, selecciona el período "Esta semana" y presiona "Generar reporte". Se abre una ventana para imprimir o guardar como PDF.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    Dirección de Comunicaciones · Universidad de La Frontera · Dashboard v1.0<br>
+    Para soporte técnico contactar al equipo informático de la DIRCOM
+  </div>
+
+  <div class="no-print" style="text-align:center;margin-top:24px">
+    <button onclick="window.print()" style="padding:10px 24px;background:var(--purple);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-family:inherit;cursor:pointer;font-weight:500">
+      📄 Descargar como PDF
+    </button>
+  </div>
+
+</div>
+</body>
+</html>
