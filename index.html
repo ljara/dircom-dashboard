@@ -160,7 +160,7 @@
   <div class="sidebar-logo">
     <div class="org">Universidad de La Frontera</div>
     <div class="name">Comunicaciones</div>
-    <div class="sub">Panel de gestión</div>
+    <div class="sub" id="sidebar-rol">Panel de gestión</div>
   </div>
   <div class="sidebar-nav">
     <div class="nav-label">Vistas</div>
@@ -211,8 +211,27 @@ let state = {
   tareas:[], personas:[], coordinaciones:[],
   tareasHeaders:[], personasHeaders:[],
   opciones:{},
-  view:'dashboard', filterCoord:null, filterStatus:'all'
+  view:'dashboard', filterCoord:null, filterStatus:'all',
+  filtroPeriodo:'todo',
+  // Rol detectado desde URL: 'director' o coordId específico
+  urlCoord: null
 };
+
+// ── Leer parámetro URL al iniciar ──────────────────────────
+function initUrlParams(){
+  const params = new URLSearchParams(window.location.search);
+  const coord = params.get('coord');
+  if(coord){
+    state.urlCoord = coord;
+    // Si hay coord en URL, arrancar en vista de tareas filtrada
+    state.filterCoord = coord;
+    state.view = 'tareas';
+  }
+}
+
+// ── Rol actual ─────────────────────────────────────────────
+function esDirector(){ return !state.urlCoord; }
+function coordActual(){ return state.urlCoord; }
 
 // ── Color helpers ──────────────────────────────────────────
 function coordColor(idx){ return PALETTE[idx % PALETTE.length]; }
@@ -245,6 +264,7 @@ function setSyncing(val){
 }
 
 async function loadData(){
+  initUrlParams();
   try{
     const data = await api('getAll');
     state.tareas          = data.tareas          || [];
@@ -296,10 +316,31 @@ function filterByCoord(id){ state.filterCoord=id; state.view='tareas'; render();
 function renderSidebarCoords(){
   const el=document.getElementById('sidebar-coords');
   if(!el) return;
+
+  // Actualizar rol en sidebar
+  const rolEl = document.getElementById('sidebar-rol');
+  if(rolEl){
+    if(esDirector()){
+      rolEl.textContent = 'Vista: Directora';
+      rolEl.style.color = 'var(--purple)';
+      rolEl.style.fontWeight = '500';
+    } else {
+      const m = getCoordMeta(state.urlCoord);
+      rolEl.textContent = `Vista: ${m.icon} ${m.name}`;
+      rolEl.style.color = 'var(--text-muted)';
+    }
+  }
+
   el.innerHTML = state.coordinaciones.map((c,i)=>{
-    const color=coordColor(i);
-    return `<button class="nav-item" onclick="filterByCoord('${c.id}')">
-      <span class="coord-dot" style="background:${color.hex}"></span> ${c.nombre}
+    const color = coordColor(i);
+    // Indicador: tareas en revisión de esta coordinación
+    const enRevision = activeTareas().filter(t=>String(t.coordId)===String(c.id)&&t.status==='review').length;
+    // Resaltar si es la coord del URL
+    const esMia = state.urlCoord && String(state.urlCoord)===String(c.id);
+    return `<button class="nav-item${esMia?' active':''}" onclick="filterByCoord('${c.id}')" style="${esMia?'':''}">
+      <span class="coord-dot" style="background:${color.hex}"></span>
+      <span style="flex:1;text-align:left">${c.nombre}</span>
+      ${enRevision?`<span style="background:var(--amber-light);color:#633806;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;flex-shrink:0" title="${enRevision} tarea${enRevision>1?'s':''} esperando revisión">✓ ${enRevision}</span>`:''}
     </button>`;
   }).join('');
 }
@@ -554,6 +595,21 @@ function renderTareasView(){
   let tasks=activeTareas();
   if(state.filterCoord) tasks=tasks.filter(t=>String(t.coordId)===String(state.filterCoord));
   if(state.filterStatus!=='all') tasks=tasks.filter(t=>t.status===state.filterStatus);
+
+  // Banner revisión pendiente para jefe de coordinación
+  const enRevision = state.urlCoord
+    ? activeTareas().filter(t=>String(t.coordId)===String(state.urlCoord)&&t.status==='review')
+    : [];
+  const bannerRevision = enRevision.length ? `
+    <div style="background:var(--amber-light);border:1px solid #EF9F27;border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="state.filterStatus='review';render()">
+      <span style="font-size:20px">⏳</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:#633806">${enRevision.length} tarea${enRevision.length>1?'s':''} esperando tu revisión</div>
+        <div style="font-size:11px;color:#7A4A00;margin-top:2px">Haz clic para verlas</div>
+      </div>
+      <span style="font-size:12px;color:#633806;font-weight:500">Ver →</span>
+    </div>` : '';
+
   return `
     <div class="topbar">
       <div><div class="page-title">${coord?(getCoordMeta(coord.id).icon+' '+coord.nombre):'Todas las tareas'}</div>
@@ -563,6 +619,7 @@ function renderTareasView(){
         <button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
       </div>
     </div>
+    ${bannerRevision}
     <div class="section">
       <div class="filters">
         ${['all','todo','progress','review','done'].map(s=>`<button class="filter-pill${state.filterStatus===s?' active':''}" onclick="state.filterStatus='${s}';render()">${s==='all'?'Todas':statusLabel(s)}</button>`).join('')}
