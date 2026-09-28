@@ -243,17 +243,84 @@ function getCoordMeta(id){
   return {name:coord.nombre,icon:coord.icon||'📁',hex:color.hex,bg:color.bg};
 }
 
-// ── API ────────────────────────────────────────────────────
-async function api(action, data){
-  let url = API + '?action=' + action;
-  if(data) url += '&data=' + encodeURIComponent(JSON.stringify(data));
-  setSyncing(true);
-  try{
-    const res = await fetch(url, {redirect:'follow'});
-    const json = await res.json();
-    if(json.error) throw new Error(json.error);
-    return json;
-  } finally { setSyncing(false); }
+// ── Supabase config ────────────────────────────────────────
+const SB_URL  = 'https://xqlxsbuyowthsyozvvkz.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxbHhzYnV5b3d0aHN5b3p2dmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2MTYyNTMsImV4cCI6MjEwNjE5MjI1M30.y0mR8o2EUku_e5yosO4kiTnVyy04E3MtaygiSWZf-Oc';
+const SB_HEADERS = {
+  'Content-Type':  'application/json',
+  'apikey':        SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Prefer':        'return=representation'
+};
+
+async function sbGet(table, params=''){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, {
+    headers: { ...SB_HEADERS, 'Prefer': 'return=representation' }
+  });
+  if(!res.ok) throw new Error(`Error leyendo ${table}: ${res.statusText}`);
+  return res.json();
+}
+
+async function sbPost(table, body){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: SB_HEADERS,
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ const e=await res.json(); throw new Error(e.message||res.statusText); }
+  return res.json();
+}
+
+async function sbPatch(table, id, body){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: SB_HEADERS,
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ const e=await res.json(); throw new Error(e.message||res.statusText); }
+  return res.json();
+}
+
+async function sbDelete(table, id){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: SB_HEADERS
+  });
+  if(!res.ok){ const e=await res.json(); throw new Error(e.message||res.statusText); }
+  return true;
+}
+
+// Normalizar campos de Supabase (snake_case → camelCase que usa el dashboard)
+function normalizeTarea(t){
+  return {
+    id:                 t.id,
+    titulo:             t.titulo,
+    descripcion:        t.descripcion||'',
+    coordId:            t.coord_id,
+    asignado:           t.asignado||'',
+    solicitante:        t.solicitante||'',
+    tipo_requerimiento: t.tipo_requerimiento||'',
+    categoria:          t.categoria||'',
+    status:             t.status||'todo',
+    prioridad:          t.prioridad||'media',
+    fecha:              t.fecha||'',
+    link:               t.link||'',
+    created:            t.created_at||''
+  };
+}
+
+function normalizePersona(p){
+  return {
+    id:       p.id,
+    nombre:   p.nombre,
+    rol:      p.rol||'',
+    coordId:  p.coord_id,
+    esJefe:   p.es_jefe===true||p.es_jefe==='true'?'true':'false'
+  };
+}
+
+function normalizeCoord(c){
+  return { id:c.id, nombre:c.nombre, icon:c.icon||'📁' };
 }
 
 function setSyncing(val){
@@ -263,18 +330,39 @@ function setSyncing(val){
   if(txt) txt.textContent=val?'Guardando…':'Sincronizado';
 }
 
+// ── loadData desde Supabase ────────────────────────────────
 async function loadData(){
   initUrlParams();
+  setSyncing(true);
   try{
-    const data = await api('getAll');
-    state.tareas          = data.tareas          || [];
-    state.personas        = data.personas        || [];
-    state.coordinaciones  = data.coordinaciones  || [];
-    state.tareasHeaders   = data.tareasHeaders   || [];
-    state.personasHeaders = data.personasHeaders || [];
-    state.opciones        = data.opciones        || {};
+    const [coords, personas, tareas, opcRows] = await Promise.all([
+      sbGet('coordinaciones', 'order=created_at'),
+      sbGet('personas',       'order=nombre'),
+      sbGet('tareas',         'order=created_at.desc'),
+      sbGet('opciones',       'order=tipo,orden')
+    ]);
+
+    state.coordinaciones = coords.map(normalizeCoord);
+    state.personas       = personas.map(normalizePersona);
+    state.tareas         = tareas.map(normalizeTarea);
+
+    // Reconstruir opciones como {tipo_requerimiento:[...], categoria:[...]}
+    state.opciones = {};
+    opcRows.forEach(o=>{
+      if(!state.opciones[o.tipo]) state.opciones[o.tipo]=[];
+      state.opciones[o.tipo].push(o.valor);
+    });
+
+    // Headers dinámicos — con Supabase los campos son fijos, pero mantenemos
+    // compatibilidad con el resto del código
+    state.tareasHeaders   = ['id','titulo','descripcion','coordId','asignado','solicitante','tipo_requerimiento','categoria','status','prioridad','fecha','link','created'];
+    state.personasHeaders = ['id','nombre','rol','coordId','esJefe'];
+
     renderSidebarCoords();
-  } catch(e){ showToast('Error al cargar: '+e.message); }
+  } catch(e){
+    showToast('Error al cargar datos: '+e.message);
+    console.error(e);
+  } finally { setSyncing(false); }
   document.getElementById('loading').style.display='none';
   render();
 }
@@ -839,53 +927,52 @@ async function submitTarea(existingId){
   const extraData = {};
   extras.forEach(f=>{ const el=document.getElementById('f-extra-'+f); if(el) extraData[f]=el.value; });
 
-  const data={
+  const body={
     titulo,
-    descripcion:document.getElementById('f-desc').value,
-    coordId:document.getElementById('f-coord').value,
-    solicitante:document.getElementById('f-solicitante').value,
-    tipo_requerimiento:document.getElementById('f-tipo_requerimiento').value,
-    categoria:document.getElementById('f-categoria').value,
-    asignado:document.getElementById('f-asig').value,
-    prioridad:document.getElementById('f-prior').value,
-    status:document.getElementById('f-status').value,
-    fecha:document.getElementById('f-fecha').value,
-    link:document.getElementById('f-link').value,
+    descripcion:        document.getElementById('f-desc').value,
+    coord_id:           document.getElementById('f-coord').value,
+    solicitante:        document.getElementById('f-solicitante').value,
+    tipo_requerimiento: document.getElementById('f-tipo_requerimiento').value,
+    categoria:          document.getElementById('f-categoria').value,
+    asignado:           document.getElementById('f-asig').value,
+    prioridad:          document.getElementById('f-prior').value,
+    status:             document.getElementById('f-status').value,
+    fecha:              document.getElementById('f-fecha').value||null,
+    link:               document.getElementById('f-link').value,
     ...extraData
   };
 
   closeModal();
+  setSyncing(true);
   try{
-    if(existingId){ data.id=existingId; await api('updateTarea',data); }
-    else { await api('addTarea',data); }
+    if(existingId){
+      await sbPatch('tareas', existingId, body);
+    } else {
+      const id = 't' + Date.now();
+      await sbPost('tareas', { id, ...body });
+    }
     await loadData();
     showToast(existingId?'Tarea actualizada ✓':'Tarea agregada ✓');
-  } catch(e){ showToast('Error: '+e.message); }
+  } catch(e){ showToast('Error: '+e.message); setSyncing(false); }
 }
 
 async function submitPersona(existingId){
   const nombre=document.getElementById('p-nombre').value.trim();
   if(!nombre){ showToast('El nombre es obligatorio'); return; }
-
-  const extras = extraFields(state.personasHeaders, SYSTEM_FIELDS_PERSONA);
-  const extraData = {};
-  extras.forEach(f=>{ const el=document.getElementById('p-extra-'+f); if(el) extraData[f]=el.value; });
-
-  const data={
+  const body={
     nombre,
-    rol:document.getElementById('p-rol').value,
-    coordId:document.getElementById('p-coord').value,
-    esJefe:document.getElementById('p-jefe').value,
-    ...extraData
+    rol:      document.getElementById('p-rol').value,
+    coord_id: document.getElementById('p-coord').value,
+    es_jefe:  document.getElementById('p-jefe').value==='true'
   };
-
   closeModal();
+  setSyncing(true);
   try{
-    if(existingId){ data.id=existingId; await api('updatePersona',data); }
-    else { await api('addPersona',data); }
+    if(existingId){ await sbPatch('personas', existingId, body); }
+    else { await sbPost('personas', { id:'p'+Date.now(), ...body }); }
     await loadData();
     showToast(existingId?'Persona actualizada ✓':'Persona agregada ✓');
-  } catch(e){ showToast('Error: '+e.message); }
+  } catch(e){ showToast('Error: '+e.message); setSyncing(false); }
 }
 
 async function submitCoord(){
@@ -893,16 +980,17 @@ async function submitCoord(){
   const nombre=document.getElementById('c-nombre').value.trim();
   if(!id||!nombre){ showToast('ID y nombre son obligatorios'); return; }
   if(state.coordinaciones.find(c=>c.id===id)){ showToast('Ya existe una coordinación con ese ID'); return; }
-  const data={id,nombre,icon:document.getElementById('c-icon').value.trim()||'📁'};
+  const body={id,nombre,icon:document.getElementById('c-icon').value.trim()||'📁'};
   closeModal();
-  try{ await api('addCoordinacion',data); await loadData(); showToast('Coordinación agregada ✓'); }
-  catch(e){ showToast('Error: '+e.message); }
+  setSyncing(true);
+  try{ await sbPost('coordinaciones', body); await loadData(); showToast('Coordinación agregada ✓'); }
+  catch(e){ showToast('Error: '+e.message); setSyncing(false); }
 }
 
 async function changeStatus(id,status){
   state.tareas=state.tareas.map(t=>t.id===id?{...t,status}:t);
   render();
-  try{ await api('updateTarea',{id,status}); showToast('Estado actualizado ✓'); }
+  try{ await sbPatch('tareas', id, {status}); showToast('Estado actualizado ✓'); }
   catch(e){ showToast('Error al actualizar.'); await loadData(); }
 }
 
@@ -910,7 +998,7 @@ async function deleteTask(id){
   if(!confirm('¿Eliminar esta tarea?')) return;
   state.tareas=state.tareas.filter(t=>t.id!==id);
   render();
-  try{ await api('deleteTarea',{id}); showToast('Tarea eliminada'); }
+  try{ await sbDelete('tareas', id); showToast('Tarea eliminada'); }
   catch(e){ showToast('Error.'); await loadData(); }
 }
 
@@ -918,7 +1006,7 @@ async function deletePersona(id){
   if(!confirm('¿Eliminar esta persona?')) return;
   state.personas=state.personas.filter(p=>p.id!==id);
   render();
-  try{ await api('deletePersona',{id}); showToast('Persona eliminada'); }
+  try{ await sbDelete('personas', id); showToast('Persona eliminada'); }
   catch(e){ showToast('Error.'); await loadData(); }
 }
 
@@ -926,7 +1014,7 @@ async function deleteCoord(id){
   if(!confirm('¿Eliminar esta coordinación? Las tareas y personas asociadas quedarán sin coordinación.')) return;
   state.coordinaciones=state.coordinaciones.filter(c=>c.id!==id);
   render();
-  try{ await api('deleteCoordinacion',{id}); await loadData(); showToast('Coordinación eliminada'); }
+  try{ await sbDelete('coordinaciones', id); await loadData(); showToast('Coordinación eliminada'); }
   catch(e){ showToast('Error.'); await loadData(); }
 }
 
@@ -969,7 +1057,7 @@ async function archiveTask(id){
   state.tareas=state.tareas.map(t=>t.id===id?{...t,status:'archivada'}:t);
   render();
   try{
-    await api('updateTarea',{id,status:'archivada'});
+    await sbPatch('tareas', id, {status:'archivada'});
     showToast('Tarea archivada — puedes restaurarla desde la Papelera');
   } catch(e){ showToast('Error al archivar: '+e.message); }
 }
@@ -978,7 +1066,7 @@ async function restoreTask(id){
   state.tareas=state.tareas.map(t=>t.id===id?{...t,status:'todo'}:t);
   render();
   try{
-    await api('updateTarea',{id,status:'todo'});
+    await sbPatch('tareas', id, {status:'todo'});
     showToast('Tarea restaurada ✓');
   } catch(e){ showToast('Error al restaurar: '+e.message); }
 }
@@ -987,7 +1075,7 @@ async function deleteTaskPermanent(id){
   if(!confirm('¿Eliminar definitivamente? Esta acción no se puede deshacer.')) return;
   state.tareas=state.tareas.filter(t=>t.id!==id);
   render();
-  try{ await api('deleteTarea',{id}); showToast('Tarea eliminada definitivamente'); }
+  try{ await sbDelete('tareas', id); showToast('Tarea eliminada definitivamente'); }
   catch(e){ showToast('Error al eliminar.'); await loadData(); }
 }
 
@@ -997,7 +1085,7 @@ async function emptyTrash(){
   state.tareas=state.tareas.filter(t=>t.status!=='archivada');
   render();
   try{
-    for(const t of archivadas){ await api('deleteTarea',{id:t.id}); }
+    await Promise.all(archivadas.map(t=>sbDelete('tareas',t.id)));
     showToast('Papelera vaciada');
   } catch(e){ showToast('Error al vaciar papelera.'); await loadData(); }
 }
@@ -1365,25 +1453,25 @@ let autoRefreshInterval = null;
 const REFRESH_INTERVAL = 2 * 60 * 1000; // 2 minutos
 
 async function silentRefresh(){
-  // No refresca si hay un modal abierto o el usuario está escribiendo
   if(document.getElementById('modal').style.display==='flex') return;
   try{
-    const data = await api('getAll');
-    state.tareas          = data.tareas          || [];
-    state.personas        = data.personas        || [];
-    state.coordinaciones  = data.coordinaciones  || [];
-    state.tareasHeaders   = data.tareasHeaders   || [];
-    state.personasHeaders = data.personasHeaders || [];
-    state.opciones        = data.opciones        || {};
+    const [coords, personas, tareas, opcRows] = await Promise.all([
+      sbGet('coordinaciones', 'order=created_at'),
+      sbGet('personas',       'order=nombre'),
+      sbGet('tareas',         'order=created_at.desc'),
+      sbGet('opciones',       'order=tipo,orden')
+    ]);
+    state.coordinaciones = coords.map(normalizeCoord);
+    state.personas       = personas.map(normalizePersona);
+    state.tareas         = tareas.map(normalizeTarea);
+    state.opciones = {};
+    opcRows.forEach(o=>{ if(!state.opciones[o.tipo]) state.opciones[o.tipo]=[]; state.opciones[o.tipo].push(o.valor); });
     renderSidebarCoords();
     render();
-    // Actualizar indicador con hora
-    const txt = document.getElementById('sync-text');
-    const now = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-    if(txt) txt.textContent = `Actualizado ${now}`;
-  } catch(e){
-    // Fallo silencioso — no mostrar error al usuario en refresco automático
-  }
+    const txt=document.getElementById('sync-text');
+    const now=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+    if(txt) txt.textContent=`Actualizado ${now}`;
+  } catch(e){ /* fallo silencioso */ }
 }
 
 function startAutoRefresh(){
