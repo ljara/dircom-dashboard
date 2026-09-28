@@ -162,6 +162,18 @@
     <div class="name">Comunicaciones</div>
     <div class="sub" id="sidebar-rol">Panel de gestión</div>
   </div>
+  <div style="padding:10px 12px 0">
+    <div style="position:relative">
+      <input id="sidebar-search" type="text" placeholder="🔍 Buscar tarea…"
+        style="width:100%;padding:7px 10px 7px 32px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg);color:var(--text)"
+        oninput="onSidebarSearch(this.value)"
+        onkeydown="if(event.key==='Escape'){this.value='';onSidebarSearch('')}">
+      <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none">🔍</span>
+      <button id="search-clear" onclick="document.getElementById('sidebar-search').value='';onSidebarSearch('')"
+        style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--text-muted)">✕</button>
+    </div>
+    <div id="sidebar-search-results" style="display:none;margin-top:6px;max-height:240px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow)"></div>
+  </div>
   <div class="sidebar-nav">
     <div class="nav-label">Vistas</div>
     <button class="nav-item active" id="nav-dashboard" onclick="setView('dashboard')"><span class="icon">⊞</span> Dashboard general</button>
@@ -213,9 +225,8 @@ let state = {
   tareasHeaders:[], personasHeaders:[],
   opciones:{},
   view:'dashboard', filterCoord:null, filterStatus:'all',
-  filtroPeriodo:'todo',
-  // Rol detectado desde URL: 'director' o coordId específico
-  urlCoord: null
+  filtroPeriodo:'todo', urlCoord:null,
+  busqueda:''
 };
 
 // ── Leer parámetro URL al iniciar ──────────────────────────
@@ -685,6 +696,17 @@ function renderTareasView(){
   let tasks=activeTareas();
   if(state.filterCoord) tasks=tasks.filter(t=>String(t.coordId)===String(state.filterCoord));
   if(state.filterStatus!=='all') tasks=tasks.filter(t=>t.status===state.filterStatus);
+  if(state.busqueda){
+    const q=state.busqueda.toLowerCase();
+    tasks=tasks.filter(t=>
+      (t.titulo||'').toLowerCase().includes(q)||
+      (t.solicitante||'').toLowerCase().includes(q)||
+      (t.asignado||'').toLowerCase().includes(q)||
+      (t.descripcion||'').toLowerCase().includes(q)||
+      (t.tipo_requerimiento||'').toLowerCase().includes(q)||
+      (t.categoria||'').toLowerCase().includes(q)
+    );
+  }
 
   // Banner revisión pendiente para jefe de coordinación
   const enRevision = state.urlCoord
@@ -703,7 +725,7 @@ function renderTareasView(){
   return `
     <div class="topbar">
       <div><div class="page-title">${coord?(getCoordMeta(coord.id).icon+' '+coord.nombre):'Todas las tareas'}</div>
-      <div class="page-sub">${tasks.length} tareas</div></div>
+      <div class="page-sub">${tasks.length} tarea${tasks.length!==1?'s':''}${state.busqueda?` · búsqueda: "${state.busqueda}"`:''}</div></div>
       <div class="topbar-actions">
         ${state.filterCoord?`<button class="btn btn-ghost btn-sm" onclick="state.filterCoord=null;render()">✕ Quitar filtro</button>`:''}
         <button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
@@ -711,6 +733,16 @@ function renderTareasView(){
     </div>
     ${bannerRevision}
     <div class="section">
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center">
+        <div style="position:relative;flex:1">
+          <input id="tareas-search" type="text" placeholder="🔍 Buscar por título, solicitante, asignado…"
+            value="${state.busqueda}"
+            style="width:100%;padding:7px 10px 7px 32px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--bg);color:var(--text)"
+            oninput="state.busqueda=this.value;render()">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none">🔍</span>
+          ${state.busqueda?`<button onclick="state.busqueda='';render()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--text-muted)">✕</button>`:''}
+        </div>
+      </div>
       <div class="filters">
         ${['all','todo','progress','review','done'].map(s=>`<button class="filter-pill${state.filterStatus===s?' active':''}" onclick="state.filterStatus='${s}';render()">${s==='all'?'Todas':statusLabel(s)}</button>`).join('')}
         <div style="flex:1"></div>
@@ -1527,6 +1559,53 @@ function viewTask(t){
       <button class="btn" onclick="closeModal()">Cerrar</button>
       <button class="btn btn-edit" onclick='closeModal();openModal("tarea",${JSON.stringify(t)})'>✏ Editar tarea</button>
     </div>`;
+}
+
+// ── Buscador sidebar ───────────────────────────────────────
+function onSidebarSearch(q){
+  const clearBtn = document.getElementById('search-clear');
+  const resultsEl = document.getElementById('sidebar-search-results');
+  if(clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+
+  if(!q.trim()){
+    if(resultsEl) resultsEl.style.display='none';
+    return;
+  }
+
+  const lower = q.toLowerCase();
+  const matches = activeTareas().filter(t=>
+    (t.titulo||'').toLowerCase().includes(lower)||
+    (t.solicitante||'').toLowerCase().includes(lower)||
+    (t.asignado||'').toLowerCase().includes(lower)||
+    (t.descripcion||'').toLowerCase().includes(lower)
+  ).slice(0,8);
+
+  if(!resultsEl) return;
+
+  if(!matches.length){
+    resultsEl.style.display='block';
+    resultsEl.innerHTML=`<div style="padding:12px 14px;font-size:12px;color:var(--text-muted)">Sin resultados para "${q}"</div>`;
+    return;
+  }
+
+  resultsEl.style.display='block';
+  resultsEl.innerHTML = matches.map(t=>{
+    const m=getCoordMeta(t.coordId);
+    const hoy=new Date();hoy.setHours(0,0,0,0);
+    const vencida=t.fecha&&t.status!=='done'&&(()=>{try{return new Date(t.fecha)<hoy;}catch(e){return false;}})();
+    return `<div onclick='viewTask(${JSON.stringify(t)});document.getElementById("sidebar-search").value="";onSidebarSearch("")'
+      style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s"
+      onmouseover="this.style.background='var(--gray-light)'" onmouseout="this.style.background='transparent'">
+      <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+        ${vencida?'<span style="color:var(--red)">⚠</span> ':''}${t.titulo||''}
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;display:flex;gap:8px">
+        <span>${m.icon} ${m.name}</span>
+        ${t.asignado?`<span>👤 ${t.asignado}</span>`:''}
+        <span class="badge badge-${t.prioridad}" style="font-size:10px;padding:1px 6px">${priorLabel(t.prioridad)}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── Auto-refresh silencioso ────────────────────────────────
