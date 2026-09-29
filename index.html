@@ -164,7 +164,7 @@
 
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <p>Cargando datos desde Google Sheets…</p>
+  <p>Cargando datos…</p>
 </div>
 
 <nav class="sidebar">
@@ -983,17 +983,38 @@ async function submitTarea(existingId){
   };
 
   closeModal();
-  setSyncing(true);
+
+  // ── Optimistic update: actualizar UI inmediatamente ──
+  const tempId = existingId || ('t' + Date.now());
+  const optimisticTarea = normalizeTarea({
+    id: tempId, ...body,
+    coord_id: body.coord_id,
+    created_at: existingId
+      ? (state.tareas.find(t=>t.id===existingId)?.created || new Date().toISOString())
+      : new Date().toISOString()
+  });
+
+  if(existingId){
+    state.tareas = state.tareas.map(t => t.id===existingId ? optimisticTarea : t);
+  } else {
+    state.tareas = [optimisticTarea, ...state.tareas];
+  }
+  render();
+  showToast(existingId?'Tarea actualizada ✓':'Tarea agregada ✓');
+
+  // ── Confirmar en servidor en segundo plano ──
   try{
     if(existingId){
       await callAPI('updateTarea', {id:existingId, ...body});
     } else {
-      const id = 't' + Date.now();
       await callAPI('addTarea', body);
     }
+    // Recargar para sincronizar ID real del servidor
     await loadData();
-    showToast(existingId?'Tarea actualizada ✓':'Tarea agregada ✓');
-  } catch(e){ showToast('Error: '+e.message); setSyncing(false); }
+  } catch(e){
+    showToast('Error al guardar: '+e.message);
+    await loadData(); // revertir
+  }
 }
 
 async function submitPersona(existingId){
@@ -1006,13 +1027,26 @@ async function submitPersona(existingId){
     es_jefe:  document.getElementById('p-jefe').value==='true'
   };
   closeModal();
-  setSyncing(true);
+
+  // ── Optimistic update ──
+  const tempId = existingId || ('p' + Date.now());
+  const optimisticPersona = normalizePersona({
+    id: tempId, ...body,
+    es_jefe: body.es_jefe
+  });
+  if(existingId){
+    state.personas = state.personas.map(p => p.id===existingId ? optimisticPersona : p);
+  } else {
+    state.personas = [...state.personas, optimisticPersona];
+  }
+  render();
+  showToast(existingId?'Persona actualizada ✓':'Persona agregada ✓');
+
   try{
     if(existingId){ await callAPI('updatePersona', {id:existingId, ...body}); }
     else { await callAPI('addPersona', body); }
     await loadData();
-    showToast(existingId?'Persona actualizada ✓':'Persona agregada ✓');
-  } catch(e){ showToast('Error: '+e.message); setSyncing(false); }
+  } catch(e){ showToast('Error al guardar: '+e.message); await loadData(); }
 }
 
 async function submitCoord(){
@@ -1022,9 +1056,15 @@ async function submitCoord(){
   if(state.coordinaciones.find(c=>c.id===id)){ showToast('Ya existe una coordinación con ese ID'); return; }
   const body={id,nombre,icon:document.getElementById('c-icon').value.trim()||'📁'};
   closeModal();
-  setSyncing(true);
-  try{ await callAPI('addCoordinacion', body); await loadData(); showToast('Coordinación agregada ✓'); }
-  catch(e){ showToast('Error: '+e.message); setSyncing(false); }
+
+  // Optimistic update
+  state.coordinaciones = [...state.coordinaciones, normalizeCoord(body)];
+  renderSidebarCoords();
+  render();
+  showToast('Coordinación agregada ✓');
+
+  try{ await callAPI('addCoordinacion', body); await loadData(); }
+  catch(e){ showToast('Error: '+e.message); await loadData(); }
 }
 
 async function changeStatus(id,status){
