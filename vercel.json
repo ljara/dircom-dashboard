@@ -1,3 +1,9 @@
 {
-  "version": 2
+  "version": 2,
+  "regions": ["gru1"],
+  "functions": {
+    "api/data.js": {
+      "regions": ["gru1"]
+    }
+  }
 }
