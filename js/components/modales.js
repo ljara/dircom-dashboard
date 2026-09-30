@@ -152,6 +152,7 @@ function viewTask(t){
         ${field('Categoría', t.categoria ? escHtml(String(t.categoria)) : '<span style="color:var(--text-faint)">—</span>')}
         ${field('Fecha de creación', formatDate(t.created))}
         ${field('Fecha límite', t.fecha ? `📅 ${formatFecha(t.fecha)}` : '<span style="color:var(--text-faint)">Sin fecha</span>')}
+        ${t.status==='done' ? field('Fecha de término', t.completado ? formatDate(t.completado) : '<span style="color:var(--text-faint)">No registrada</span>') : ''}
         ${field('Asignado a', t.asignado
           ? `<span style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:50%;background:${avatarColor(t.asignado)}22;color:${avatarColor(t.asignado)};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">${getInitials(t.asignado)}</span>${escHtml(t.asignado)}</span>`
           : '<span style="color:var(--text-faint)">Sin asignar</span>')}

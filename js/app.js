@@ -52,4 +52,5 @@ function render(){
   else if(state.view==='calendario')     el.innerHTML=renderCalendario();
   else if(state.view==='opciones')       el.innerHTML=renderOpcionesView();
   else if(state.view==='papelera')       el.innerHTML=renderPapelera();
+  else if(state.view==='reportes')       el.innerHTML=renderReportesView();
 }

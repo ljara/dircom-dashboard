@@ -36,7 +36,8 @@ function normalizeTarea(t){
     prioridad:          t.prioridad||'media',
     fecha:              t.fecha||'',
     link:               t.link||'',
-    created:            t.created_at||''
+    created:            t.created_at||'',
+    completado:         t.completed_at||''
   };
 }
 

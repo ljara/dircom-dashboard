@@ -45,7 +45,7 @@ async function archiveTask(id){
 }
 
 async function restoreTask(id){
-  state.tareas=state.tareas.map(t=>t.id===id?{...t,status:'todo'}:t);
+  state.tareas=state.tareas.map(t=>t.id===id?{...t,status:'todo',completado:''}:t);
   render();
   try{
     await callAPI('updateTarea', {id, status:'todo'});

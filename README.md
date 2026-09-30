@@ -18,19 +18,23 @@ dircom-dashboard/
 │   ├── state.js               Estado global y rol según la URL (?coord=)
 │   ├── utils.js               Utilidades (fechas, colores, etiquetas, avisos)
 │   ├── api.js                 Llamadas a /api/data y normalización de datos
+│   ├── metricas.js            Cálculo de KPI por período (fechas, agregados, comparación)
 │   ├── components/
 │   │   ├── listas.js          Listas de tareas y personas
 │   │   ├── modales.js         Formularios y detalle de tarea
-│   │   └── buscador.js        Buscador de la barra lateral
+│   │   ├── buscador.js        Buscador de la barra lateral
+│   │   └── tablas.js          Indicadores y tablas de reporte (pantalla y PDF)
 │   ├── views/                 Una vista por archivo
 │   │   ├── dashboard.js
 │   │   ├── tareas.js
 │   │   ├── personas.js
 │   │   ├── coordinaciones.js
 │   │   ├── calendario.js
+│   │   ├── reportes.js
 │   │   ├── opciones.js
 │   │   └── papelera.js
-│   ├── reporte.js             Reporte ejecutivo imprimible / PDF
+│   ├── reporte.js             Reporte de gestión imprimible / PDF
+│   ├── exportar.js            Exportación a Excel (CSV)
 │   ├── acciones.js            Crear, editar, cambiar estado y eliminar
 │   ├── app.js                 Navegación y render principal
 │   └── main.js                Arranque y actualización automática
@@ -54,6 +58,30 @@ Variables de entorno necesarias para `api/data.js`:
 
 Tablas usadas en Supabase: `coordinaciones`, `personas`, `tareas`, `opciones`.
 
+Desde v2.3.0 la tabla `tareas` necesita la columna `completed_at` (fecha de término), que
+`api/data.js` fija al marcar una tarea como completada y borra si se reabre:
+
+```sql
+alter table tareas add column if not exists completed_at timestamptz;
+```
+
+## Reportes
+
+Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
+y comparación con el período anterior de igual duración.
+
+| Indicador | Cálculo |
+|---|---|
+| Creadas / Completadas | Tareas cuya fecha de creación / de término cae en el período |
+| Pendientes / Vencidas al cierre | Estado al último día del período |
+| Tiempo de resolución | Días entre creación y término (promedio y mediana) |
+| Cumplimiento de plazos | Completadas en o antes de su fecha límite ÷ completadas con fecha límite |
+
+Desglose por persona, coordinación, tipo de requerimiento, categoría y solicitante.
+Salidas: **PDF** (ventana de impresión) y **Excel (CSV)** con el detalle de cada tarea y columnas
+Sí/No para filtrar o armar tablas dinámicas. Las tareas en la papelera no se consideran; las
+completadas antes de v2.3.0 no tienen fecha de término y se informan aparte.
+
 ## Desarrollo local
 
 La interfaz se puede abrir directamente, pero los datos vienen de `/api/data`, que solo existe
@@ -75,7 +103,8 @@ vercel dev         # http://localhost:3000
 
 ## Historial de versiones
 
-- **v2.2.0** — Código separado en archivos (`css/`, `js/`, `img/`), sin cambios de funcionalidad
+- **v2.3.0** — Vista Reportes: período configurable, KPI, comparación, PDF y exportación a Excel; registro de fecha de término
+- v2.2.0 — Código separado en archivos (`css/`, `js/`, `img/`), sin cambios de funcionalidad
 - v2.1.2 — Celdas del calendario con tamaño fijo
 - v2.1.1 — Favicon
 - v2.1.0 — Vista de calendario

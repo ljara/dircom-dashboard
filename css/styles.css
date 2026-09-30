@@ -167,3 +167,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .persona-day-cell.has-tasks{border-color:var(--purple);background:var(--purple-light)}
 .persona-day-label{font-size:10px;color:var(--text-muted);margin-bottom:4px;font-weight:500}
 .persona-day-task{font-size:10px;padding:2px 4px;border-radius:2px;margin-bottom:2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Reportes */
+.rep-periodo{padding:12px 16px;overflow:visible}
+.rep-atajos{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.rep-controles{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text-muted)}
+.rep-controles label{display:flex;align-items:center;gap:6px}
+.rep-input{padding:6px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--surface);color:var(--text)}
+.rep-coord-fija{font-size:12px;font-weight:500;color:var(--text)}
+.rep-comparado{margin-left:auto;font-size:11px;color:var(--text-faint)}
+.rep-metrics{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.rep-metrics .m-value{font-size:22px}
+.metric .m-var{font-size:11px;font-weight:500;margin-top:6px}
+.rep-aviso{background:var(--amber-light);color:#633806;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:16px}
+.rep-tres{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.rep-tres .section{margin-bottom:0}
+.rep-glosario{font-size:11px;color:var(--text-faint);line-height:1.6;margin-top:16px}
+.tabla-wrap{overflow-x:auto}
+.tabla-kpi{width:100%;border-collapse:collapse;font-size:12px}
+.tabla-kpi th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg)}
+.tabla-kpi td{padding:7px 12px;border-bottom:1px solid var(--border)}
+.tabla-kpi tbody tr:last-child td{border-bottom:none}
+.tabla-kpi tbody tr:hover{background:var(--gray-light)}
+.tabla-kpi tfoot td{font-size:11px;color:var(--text-faint);font-style:italic;border-top:1px solid var(--border)}
+.tabla-kpi .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.num-alerta{color:var(--red);font-weight:600}
+.num-sub{color:var(--text-faint);font-size:10px}
+.tabla-vacia{padding:18px;text-align:center;font-size:12px;color:var(--text-muted)}

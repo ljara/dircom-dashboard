@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <!--
   Dashboard DIRCOM UFRO
-  Versión: 2.2.0
+  Versión: 2.3.0
   Fecha: 2026-09-30
   Changelog:
+  - v2.3.0: Vista Reportes — período configurable, KPIs, comparación, PDF y exportación a Excel; registro de fecha de término
   - v2.2.0: Código separado en archivos (css/, js/, img/) — sin cambios de funcionalidad
   - v2.1.2: Celdas del calendario con tamaño fijo (no se expanden con el contenido)
   - v2.1.1: Favicon agregado
@@ -54,6 +55,7 @@
     <button class="nav-item" id="nav-personas" onclick="setView('personas')"><span class="icon">👥</span> Equipo</button>
     <button class="nav-item" id="nav-coordinaciones" onclick="setView('coordinaciones')"><span class="icon">⚙</span> Coordinaciones</button>
     <button class="nav-item" id="nav-calendario" onclick="setView('calendario')"><span class="icon">📅</span> Calendario</button>
+    <button class="nav-item" id="nav-reportes" onclick="setView('reportes')"><span class="icon">📈</span> Reportes</button>
     <button class="nav-item" id="nav-opciones" onclick="setView('opciones')"><span class="icon">🏷</span> Opciones</button>
     <button class="nav-item" id="nav-papelera" onclick="setView('papelera')"><span class="icon">🗑</span> Papelera</button>
     <div class="nav-divider"></div>
@@ -82,9 +84,11 @@
 <script src="js/state.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/api.js"></script>
+<script src="js/metricas.js"></script>
 <script src="js/components/listas.js"></script>
 <script src="js/components/modales.js"></script>
 <script src="js/components/buscador.js"></script>
+<script src="js/components/tablas.js"></script>
 <script src="js/views/dashboard.js"></script>
 <script src="js/views/tareas.js"></script>
 <script src="js/views/personas.js"></script>
@@ -92,7 +96,9 @@
 <script src="js/views/calendario.js"></script>
 <script src="js/views/opciones.js"></script>
 <script src="js/views/papelera.js"></script>
+<script src="js/views/reportes.js"></script>
 <script src="js/reporte.js"></script>
+<script src="js/exportar.js"></script>
 <script src="js/acciones.js"></script>
 <script src="js/app.js"></script>
 <script src="js/main.js"></script>

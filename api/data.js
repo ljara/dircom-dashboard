@@ -34,6 +34,26 @@ async function sbPatch(table, id, body) {
   return res.json();
 }
 
+async function sbPatchWhere(table, where, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${where}`, {
+    method: 'PATCH', headers, body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.statusText); }
+  return res.json();
+}
+
+// Registra la fecha de término (completed_at) según el estado de la tarea:
+// - al pasar a 'done' se fija ahora, solo si no tenía (editar una tarea completada no la cambia)
+// - al volver a un estado pendiente se borra
+// - al archivar no se toca
+async function syncCompletedAt(id, status) {
+  if (status === 'done') {
+    await sbPatchWhere('tareas', `id=eq.${id}&completed_at=is.null`, { completed_at: new Date().toISOString() });
+  } else if (status && status !== 'archivada') {
+    await sbPatchWhere('tareas', `id=eq.${id}&completed_at=not.is.null`, { completed_at: null });
+  }
+}
+
 async function sbDelete(table, id) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
     method: 'DELETE', headers
@@ -82,13 +102,16 @@ export default async function handler(req, res) {
 
       case 'addTarea': {
         const id = 't' + Date.now();
-        const result = await sbPost('tareas', { id, ...data });
+        const { completed_at, ...body } = data;   // completed_at lo gestiona el servidor
+        if (body.status === 'done') body.completed_at = new Date().toISOString();
+        const result = await sbPost('tareas', { id, ...body });
         return res.json({ ok: true, id, data: result });
       }
 
       case 'updateTarea': {
-        const { id, ...body } = data;
+        const { id, completed_at, ...body } = data;
         await sbPatch('tareas', id, body);
+        await syncCompletedAt(id, body.status);
         return res.json({ ok: true });
       }
 

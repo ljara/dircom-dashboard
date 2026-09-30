@@ -110,7 +110,9 @@ async function submitCoord(){
 }
 
 async function changeStatus(id,status){
-  state.tareas=state.tareas.map(t=>t.id===id?{...t,status}:t);
+  // La fecha de término la registra el servidor; aquí se refleja de inmediato en pantalla
+  const completado = t => status==='done' ? (t.completado||new Date().toISOString()) : '';
+  state.tareas=state.tareas.map(t=>t.id===id?{...t,status,completado:completado(t)}:t);
   render();
   try{ await callAPI('updateTarea', {id, status}); showToast('Estado actualizado ✓'); }
   catch(e){ showToast('Error al actualizar.'); await loadData(); }

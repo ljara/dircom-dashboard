@@ -7,7 +7,9 @@ let state = {
   view:'dashboard', filterCoord:null, filterStatus:'all',
   filtroPeriodo:'todo', urlCoord:null,
   busqueda:'', ordenTareas:'created_desc',
-  calFecha: new Date(), calModo: 'mes', calPersonaFiltro: 'all'
+  calFecha: new Date(), calModo: 'mes', calPersonaFiltro: 'all',
+  // Reportes: período (fechas YYYY-MM-DD) y coordinación
+  repAtajo: 'mes', repDesde: null, repHasta: null, repCoord: 'all'
 };
 
 // ── Leer parámetro URL al iniciar ──────────────────────────
