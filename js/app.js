@@ -19,7 +19,7 @@ function renderSidebarCoords(){
   if(rolEl){
     if(esDirector()){
       rolEl.textContent = 'Vista: Directora';
-      rolEl.style.color = 'var(--purple)';
+      rolEl.style.color = 'var(--primary-dark)';
       rolEl.style.fontWeight = '500';
     } else {
       const m = getCoordMeta(state.urlCoord);

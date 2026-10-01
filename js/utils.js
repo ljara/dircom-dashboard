@@ -22,7 +22,7 @@ function formatFecha(d){
 function statusLabel(s){ return {todo:'Por hacer',progress:'En progreso',review:'Revisión',done:'Completada'}[s]||s; }
 function priorLabel(p){ return {alta:'Alta',media:'Media',baja:'Baja'}[p]||p; }
 function getInitials(n){ return (n||'').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase(); }
-const AV=['#7F77DD','#378ADD','#1D9E75','#EF9F27','#D4537E','#D85A30'];
+const AV=['#1F5A99','#378ADD','#1D9E75','#EF9F27','#D4537E','#D85A30'];
 function avatarColor(n){ let h=0;for(let c of(n||''))h=(h*31+c.charCodeAt(0))%AV.length;return AV[h]; }
 function tasksFor(id){ return state.tareas.filter(t=>String(t.coordId)===String(id)&&t.status!=='archivada'); }
 function completedPct(id){ const t=tasksFor(id);if(!t.length)return 0;return Math.round(t.filter(x=>x.status==='done').length/t.length*100); }

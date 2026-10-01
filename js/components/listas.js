@@ -41,7 +41,7 @@ function personaListHTML(personas){
     return `<div class="persona-item">
       <div class="avatar" style="background:${col}22;color:${col}">${getInitials(p.nombre)}</div>
       <div class="persona-info">
-        <div class="persona-name">${p.nombre} ${esJefe?'<span class="badge" style="background:var(--purple-light);color:var(--purple-dark);font-size:10px">Jefe/a</span>':''}</div>
+        <div class="persona-name">${p.nombre} ${esJefe?'<span class="badge" style="background:var(--primary-light);color:var(--primary-dark);font-size:10px">Jefe/a</span>':''}</div>
         <div class="persona-role">${p.rol||''}${m?' · '+m.name:''}</div>
       </div>
       <button class="btn btn-sm btn-edit" onclick='openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>

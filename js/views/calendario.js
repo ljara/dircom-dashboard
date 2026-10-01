@@ -101,7 +101,7 @@ function renderCalendario(){
         <div style="display:flex;gap:6px">
           ${semana.map(d=>`<div style="text-align:center;min-width:40px">
             <div style="font-size:10px;font-weight:600;color:var(--text-faint);text-transform:uppercase">${dias[semana.indexOf(d)]}</div>
-            <div style="font-size:13px;font-weight:${d.toDateString()===hoy.toDateString()?'700':'400'};color:${d.toDateString()===hoy.toDateString()?'var(--purple)':'var(--text-muted)'}">${d.getDate()}</div>
+            <div style="font-size:13px;font-weight:${d.toDateString()===hoy.toDateString()?'700':'400'};color:${d.toDateString()===hoy.toDateString()?'var(--primary-dark)':'var(--text-muted)'}">${d.getDate()}</div>
           </div>`).join('')}
         </div>
       </div>
@@ -122,7 +122,7 @@ function renderCalendario(){
               });
               const esHoy = dia.toDateString()===hoy.toDateString();
               return `<div class="persona-day-cell${tareasDia.length?' has-tasks':''}${esHoy?' today':''}">
-                <div class="persona-day-label" style="${esHoy?'color:var(--purple);font-weight:700':''}">
+                <div class="persona-day-label" style="${esHoy?'color:var(--primary-dark);font-weight:700':''}">
                   ${dias[semana.indexOf(dia)]} ${dia.getDate()}
                 </div>
                 ${tareasDia.map(t=>{
@@ -144,7 +144,7 @@ function renderCalendario(){
         <button onclick="(${navPrev.toString()})()">‹ Anterior</button>
         <div class="cal-month-title">${meses[mes]} ${anio}</div>
         <button onclick="(${navNext.toString()})()">Siguiente ›</button>
-        <button onclick="state.calFecha=new Date();render()" style="font-size:12px;color:var(--purple);border-color:var(--purple)">Hoy</button>
+        <button onclick="state.calFecha=new Date();render()" style="font-size:12px;color:var(--primary-dark);border-color:var(--primary)">Hoy</button>
       </div>
       <div class="cal-legend">
         ${['todo','progress','review','done'].map(s=>`

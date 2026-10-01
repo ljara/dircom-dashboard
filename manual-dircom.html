@@ -109,7 +109,7 @@
   <div class="header">
     <div class="org">Universidad de La Frontera</div>
     <h1>Manual de Uso<br>Dashboard DIRCOM</h1>
-    <div class="sub">Guía para jefes de coordinación y directora · Versión 1.0</div>
+    <div class="sub">Guía para jefes de coordinación y directora · Versión 1.1</div>
   </div>
   <div class="stripe"></div>
 
@@ -183,8 +183,8 @@
           <div class="step-num">4</div>
           <div class="step-content">
             <div class="step-title">Cierre — marcar como completada</div>
-            <div class="step-desc">Una vez que el coordinador/a valida el entregable, marca la tarea como <strong>Completada</strong>. La directora revisa el dashboard cada viernes y genera el reporte ejecutivo con un clic.</div>
-            <div class="step-tip"><strong>Botón "Generar reporte"</strong> en el dashboard general — produce un PDF listo para enviar a la jefatura.</div>
+            <div class="step-desc">Una vez que el coordinador/a valida el entregable, marca la tarea como <strong>Completada</strong>. El sistema registra en ese momento la fecha de término, que se usa para medir tiempos y cumplimiento de plazos. La directora revisa los indicadores cada viernes en la vista Reportes.</div>
+            <div class="step-tip"><strong>Vista "📈 Reportes"</strong> en el sidebar — elige el período y genera un PDF listo para enviar a la jefatura, o exporta a Excel para tu propio análisis.</div>
           </div>
         </div>
       </div>
@@ -237,7 +237,7 @@
     </div>
     <div class="regla" style="background:var(--blue-lt)">
       <div class="regla-num" style="background:var(--blue)">2</div>
-      <p><strong>El estado se actualiza cuando cambia, no al final del día.</strong> El dashboard es útil solo si refleja la realidad en tiempo real. Un estado desactualizado es peor que ningún sistema.</p>
+      <p><strong>El estado se actualiza cuando cambia, no al final del día.</strong> El dashboard es útil solo si refleja la realidad en tiempo real. Un estado desactualizado es peor que ningún sistema. Además, el día en que se marca una tarea como <strong>Completada</strong> es el que usan los reportes: si se marca tarde, los indicadores muestran atrasos que no existieron.</p>
     </div>
     <div class="regla" style="background:var(--amber-lt)">
       <div class="regla-num" style="background:var(--amber)">3</div>
@@ -272,11 +272,13 @@
         <strong>💡 Útil para coordinar</strong> — antes de asignar una tarea a Jorge o Bárbara, revisa la vista por persona para ver si ya tienen sesiones de grabación o fotografía agendadas ese día.
       </div>
     </div>
+    <div class="card">
+      <h3>Para la directora</h3>
       <ul>
         <li>El dashboard general muestra el estado de todas las coordinaciones de un vistazo</li>
         <li>La tarjeta "Vencidas" en rojo muestra tareas fuera de plazo — haz clic para ver el listado</li>
-        <li>Filtra por período: Todo / Esta semana / Este mes para ajustar las métricas</li>
-        <li>El botón "Generar reporte" produce un PDF ejecutivo completo con gráficos y tablas</li>
+        <li>Filtra por período: Todo / Esta semana / Este mes para ajustar las métricas del dashboard</li>
+        <li>El botón "📈 Reportes" lleva a los indicadores de gestión por período, con PDF y exportación a Excel</li>
         <li>Cada coordinación muestra badge ⚠ con el número de tareas vencidas</li>
       </ul>
     </div>
@@ -291,6 +293,53 @@
     </div>
   </div>
 
+  <!-- Reportes -->
+  <div class="section">
+    <div class="section-title">📈 Reportes e indicadores</div>
+    <div class="card">
+      <h3>Cómo generar un reporte</h3>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Elige el período</div>
+            <div class="step-desc">En 📈 Reportes, usa un atajo (Esta semana, Este mes, Mes anterior, Este trimestre, Trimestre anterior, Este año, Año anterior) o escribe las fechas <strong>Desde</strong> y <strong>Hasta</strong>.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Filtra por coordinación (opcional)</div>
+            <div class="step-desc">El selector permite ver todas las coordinaciones o solo una. Los jefes de coordinación ven automáticamente solo la suya.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Revisa, imprime o exporta</div>
+            <div class="step-desc"><strong>📄 Generar PDF</strong> abre un reporte con resumen ejecutivo, indicadores y tablas, listo para imprimir o guardar. <strong>⬇ Exportar Excel (CSV)</strong> descarga el detalle de cada tarea del período para hacer tablas dinámicas o gráficos propios.</div>
+            <div class="step-tip"><strong>Si el PDF no se abre</strong>, el navegador bloqueó la ventana emergente: permítela para el sitio del dashboard.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Qué mide cada indicador</h3>
+      <ul>
+        <li><span><strong>Tareas creadas</strong> — tareas ingresadas en el período: es la demanda que recibió la dirección.</span></li>
+        <li><span><strong>Completadas</strong> — tareas marcadas como Completada dentro del período.</span></li>
+        <li><span><strong>Pendientes al cierre</strong> — tareas sin completar al último día del período.</span></li>
+        <li><span><strong>Vencidas al cierre</strong> — pendientes cuya fecha límite ya había pasado al último día del período.</span></li>
+        <li><span><strong>Tiempo de resolución</strong> — días entre que se ingresa una tarea y se completa (promedio y mediana).</span></li>
+        <li><span><strong>Cumplimiento de plazos</strong> — porcentaje de tareas completadas en o antes de su fecha límite.</span></li>
+      </ul>
+      <p style="margin-top:10px">Cada indicador se compara con el período anterior de igual duración: la flecha es <span style="color:var(--green);font-weight:600">verde</span> cuando mejora y <span style="color:var(--red);font-weight:600">roja</span> cuando empeora. También verás el desglose por persona (carga de trabajo), coordinación, tipo de requerimiento, categoría y solicitante.</p>
+      <div class="alert" style="background:var(--amber-lt);color:#633806;border:1px solid #EF9F2733;margin-top:10px">
+        <strong>ℹ Tareas completadas antes de octubre de 2026</strong> — el sistema empezó a registrar la fecha de término en la versión 2.3. Esas tareas se informan aparte y no se incluyen en tiempos ni cumplimiento.
+      </div>
+    </div>
+  </div>
+
   <!-- Preguntas frecuentes -->
   <div class="section">
     <div class="section-title">❓ Preguntas frecuentes</div>
@@ -301,13 +350,15 @@
         <li><strong>¿Puedo ver las tareas de otras coordinaciones?</strong> Sí. Aunque tu URL filtra tu coordinación por defecto, puedes hacer clic en cualquier coordinación del sidebar para ver sus tareas.</li>
         <li><strong>¿Cada cuánto se actualizan los datos?</strong> El dashboard se sincroniza automáticamente cada 2 minutos. También puedes presionar el botón ↻ en la esquina inferior del sidebar para actualizar de inmediato.</li>
         <li><strong>¿Puedo agregar nuevas opciones de tipo de requerimiento o categoría?</strong> Sí. Ve a 🏷 Opciones en el sidebar y agrega o elimina valores desde ahí.</li>
-        <li><strong>¿Cómo genero el reporte semanal?</strong> Desde el dashboard general, selecciona el período "Esta semana" y presiona "Generar reporte". Se abre una ventana para imprimir o guardar como PDF.</li>
+        <li><strong>¿Cómo genero el reporte semanal?</strong> Ve a 📈 Reportes en el sidebar, elige "Esta semana" y presiona "📄 Generar PDF". Se abre una ventana para imprimir o guardar como PDF.</li>
+        <li><strong>¿Cómo analizo los datos en Excel?</strong> En 📈 Reportes presiona "⬇ Exportar Excel (CSV)". El archivo trae una fila por tarea, con columnas Sí/No como "Completada en el período" o "Vencida al cierre" para filtrar o armar tablas dinámicas.</li>
+        <li><strong>¿Por qué el tiempo de resolución aparece como "—"?</strong> Porque en el período no hay tareas completadas con fecha de término registrada. Se irá llenando a medida que el equipo marque tareas como Completada.</li>
       </ul>
     </div>
   </div>
 
   <div class="footer">
-    Dirección de Comunicaciones · Universidad de La Frontera · Dashboard v1.0<br>
+    Dirección de Comunicaciones · Universidad de La Frontera · Dashboard v2.3<br>
     Para soporte técnico contactar al equipo informático de la DIRCOM
   </div>
 
