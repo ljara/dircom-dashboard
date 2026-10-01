@@ -16,7 +16,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   :root {
-    --purple:#7F77DD;--purple-dk:#534AB7;--purple-lt:#EEEDFE;
+    --azul:#009BD9;--azul-dk:#00447F;--azul-lt:#E6F4FB;
     --green:#1D9E75;--green-lt:#E1F5EE;
     --amber:#EF9F27;--amber-lt:#FAEEDA;
     --red:#E24B4A;--red-lt:#FCEBEB;
@@ -38,7 +38,7 @@
   .header .org{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
   .header h1{font-size:28px;font-weight:800;margin-bottom:6px;line-height:1.1}
   .header .sub{font-size:14px;font-weight:400}
-  .stripe{height:4px;background:linear-gradient(90deg,var(--green),var(--blue),var(--purple),var(--amber));border-radius:2px;margin-bottom:32px}
+  .stripe{height:4px;background:linear-gradient(90deg,var(--green),var(--blue),var(--azul),var(--amber));border-radius:2px;margin-bottom:32px}
 
   /* Sección */
   .section{margin-bottom:28px}
@@ -53,17 +53,17 @@
   .card ul{list-style:none;margin-top:6px}
   .card ul li{font-size:13px;color:var(--text-mid);padding:4px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border)}
   .card ul li:last-child{border-bottom:none}
-  .card ul li::before{content:'›';color:var(--purple);font-weight:700;font-size:16px;line-height:1.2;flex-shrink:0}
+  .card ul li::before{content:'›';color:var(--azul);font-weight:700;font-size:16px;line-height:1.2;flex-shrink:0}
 
   /* Pasos del flujo */
   .flow-steps{display:flex;flex-direction:column;gap:0}
   .flow-step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
   .flow-step:last-child{border-bottom:none}
-  .step-num{width:32px;height:32px;border-radius:50%;background:var(--purple);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .step-num{width:32px;height:32px;border-radius:50%;background:var(--azul);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
   .step-content{flex:1}
   .step-title{font-size:14px;font-weight:600;margin-bottom:4px}
   .step-desc{font-size:13px;color:var(--text-muted);line-height:1.6}
-  .step-tip{background:var(--purple-lt);border-radius:var(--radius-sm);padding:8px 12px;margin-top:8px;font-size:12px;color:var(--purple-dk)}
+  .step-tip{background:var(--azul-lt);border-radius:var(--radius-sm);padding:8px 12px;margin-top:8px;font-size:12px;color:var(--azul-dk)}
   .step-tip strong{font-weight:600}
 
   /* URLs */
@@ -71,7 +71,7 @@
   .url-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
   .url-card .rol{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);margin-bottom:4px}
   .url-card .nombre{font-size:13px;font-weight:600;margin-bottom:6px}
-  .url-card .url{font-size:11px;background:var(--gray-lt);padding:5px 8px;border-radius:4px;font-family:monospace;color:var(--purple-dk);word-break:break-all;display:block}
+  .url-card .url{font-size:11px;background:var(--gray-lt);padding:5px 8px;border-radius:4px;font-family:monospace;color:var(--azul-dk);word-break:break-all;display:block}
 
   /* Estados */
   .status-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
@@ -231,8 +231,8 @@
   <!-- Reglas -->
   <div class="section">
     <div class="section-title">📋 Las 3 reglas del sistema</div>
-    <div class="regla" style="background:var(--purple-lt)">
-      <div class="regla-num" style="background:var(--purple)">1</div>
+    <div class="regla" style="background:var(--azul-lt)">
+      <div class="regla-num" style="background:var(--azul)">1</div>
       <p><strong>Todo requerimiento que entra, entra al dashboard.</strong> No existe tarea que no esté registrada. Si llegó por WhatsApp, se ingresa al dashboard. Si llegó en una reunión, se ingresa al dashboard.</p>
     </div>
     <div class="regla" style="background:var(--blue-lt)">
@@ -312,7 +312,7 @@
   </div>
 
   <div class="no-print" style="text-align:center;margin-top:24px">
-    <button onclick="window.print()" style="padding:10px 24px;background:var(--purple);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-family:inherit;cursor:pointer;font-weight:500">
+    <button onclick="window.print()" style="padding:10px 24px;background:var(--azul);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-family:inherit;cursor:pointer;font-weight:500">
       📄 Descargar como PDF
     </button>
   </div>

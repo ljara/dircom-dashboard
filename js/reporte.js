@@ -68,19 +68,17 @@ function generarReporte(){
   .metric .mc{font-size:9px;font-weight:600;margin-top:4px}
   .aviso{font-size:10px;color:#633806;background:#FAEEDA;border-radius:6px;padding:8px 12px;margin-top:10px}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .box{border:1px solid #eee;border-radius:8px;overflow:hidden;page-break-inside:avoid}
+  .box{border:1px solid #DCE8F1;border-radius:8px;overflow:hidden;page-break-inside:avoid}
   table{width:100%;border-collapse:collapse;font-size:10.5px}
-  thead{background:linear-gradient(90deg,#00447F 0%,#009BD9 100%)}
-  th{background:transparent;color:#FFFFFF;font-weight:700;padding:6px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
-  td{padding:5px 8px;border-bottom:1px solid #eee}
+  th{background:#EEF6FB;color:#00447F;font-weight:700;padding:7px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid #009BD9}
+  td{padding:5px 8px;border-bottom:1px solid #EDF2F6}
+  tbody tr:nth-child(even) td{background:#F8FBFD}
   tr:last-child td{border-bottom:none}
   tfoot td{color:#999;font-style:italic}
   .num{text-align:right;white-space:nowrap}
   .num-alerta{color:#E24B4A;font-weight:700}
   .num-sub{color:#999;font-size:9px}
   .tabla-vacia{color:#aaa;font-size:11px;text-align:center;padding:14px}
-  .table-red th{background:#FCEBEB;color:#791F1F}
-  .table-green th{background:#EAF3DE;color:#27500A}
   .glosario{font-size:9px;color:#999;line-height:1.6}
   .footer{background:#F1EFE8;padding:12px 40px;display:flex;justify-content:space-between;margin-top:24px}
   .footer span{font-size:10px;color:#aaa}
@@ -137,7 +135,7 @@ function generarReporte(){
   ${vencidas.length?`
   <div class="section">
     <div class="section-title" style="color:#E24B4A">⚠ Vencidas al cierre del período (${vencidas.length})</div>
-    <div class="box"><table class="table-red">
+    <div class="box"><table>
       <thead><tr><th>Tarea</th><th>Coordinación</th><th>Responsable</th><th class="num">Fecha límite</th><th class="num">Atraso</th></tr></thead>
       <tbody>${filasVencidas}</tbody>${masFilas(vencidas.length, 5)}
     </table></div>
@@ -146,7 +144,7 @@ function generarReporte(){
   ${completadas.length?`
   <div class="section">
     <div class="section-title" style="color:#639922">✅ Completadas en el período (${completadas.length})</div>
-    <div class="box"><table class="table-green">
+    <div class="box"><table>
       <thead><tr><th>Tarea</th><th>Coordinación</th><th>Responsable</th><th class="num">Término</th><th class="num">Resolución</th><th class="num">Plazo</th></tr></thead>
       <tbody>${filasCompletadas}</tbody>${masFilas(completadas.length, 6)}
     </table></div>
