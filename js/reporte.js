@@ -50,17 +50,17 @@ function generarReporte(){
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
-  .header{background:linear-gradient(135deg,#7F77DD 0%,#534AB7 100%);color:#fff;padding:32px 40px 24px}
+  .header{background:linear-gradient(135deg,#009BD9 0%,#00447F 100%);color:#fff;padding:32px 40px 24px}
   .header .org{font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
   .header h1{font-size:24px;font-weight:700;margin-bottom:4px}
   .header .sub{font-size:13px;opacity:.9}
   .header .fecha{font-size:11px;opacity:.65;margin-top:8px}
-  .stripe{height:5px;background:linear-gradient(90deg,#EF9F27,#E24B4A,#7F77DD,#1D9E75)}
+  .stripe{height:5px;background:linear-gradient(90deg,#EF9F27,#E24B4A,#009BD9,#1D9E75)}
   .section{padding:20px 40px 0}
   .section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:10px}
-  .intro{font-size:12px;color:#444;line-height:1.8;background:#F8F8F6;border-left:4px solid #7F77DD;padding:12px 16px;border-radius:0 6px 6px 0}
+  .intro{font-size:12px;color:#444;line-height:1.8;background:#F8F8F6;border-left:4px solid #009BD9;padding:12px 16px;border-radius:0 6px 6px 0}
   .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .metric{background:#F8F8F6;border-radius:8px;padding:12px;border-top:3px solid #7F77DD}
+  .metric{background:#F8F8F6;border-radius:8px;padding:12px;border-top:3px solid #009BD9}
   .metric.alerta{border-top-color:#E24B4A}
   .metric .ml{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px}
   .metric .mv{font-size:22px;font-weight:800;line-height:1.1}
@@ -70,7 +70,7 @@ function generarReporte(){
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .box{border:1px solid #eee;border-radius:8px;overflow:hidden;page-break-inside:avoid}
   table{width:100%;border-collapse:collapse;font-size:10.5px}
-  th{background:#EEEDFE;color:#534AB7;font-weight:700;padding:6px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+  th{background:#E5F5FB;color:#00447F;font-weight:700;padding:6px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
   td{padding:5px 8px;border-bottom:1px solid #eee}
   tr:last-child td{border-bottom:none}
   tfoot td{color:#999;font-style:italic}
