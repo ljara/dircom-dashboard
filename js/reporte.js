@@ -50,11 +50,11 @@ function generarReporte(){
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
-  .header{background:linear-gradient(135deg,#009BD9 0%,#00447F 100%);color:#fff;padding:32px 40px 24px}
-  .header .org{font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
+  .header{background:linear-gradient(135deg,#00447F 0%,#009BD9 100%);color:#FFFFFF;padding:32px 40px 24px}
+  .header .org{font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
   .header h1{font-size:24px;font-weight:700;margin-bottom:4px}
-  .header .sub{font-size:13px;opacity:.9}
-  .header .fecha{font-size:11px;opacity:.65;margin-top:8px}
+  .header .sub{font-size:13px}
+  .header .fecha{font-size:11px;margin-top:8px}
   .stripe{height:5px;background:linear-gradient(90deg,#EF9F27,#E24B4A,#009BD9,#1D9E75)}
   .section{padding:20px 40px 0}
   .section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:10px}
@@ -70,7 +70,8 @@ function generarReporte(){
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .box{border:1px solid #eee;border-radius:8px;overflow:hidden;page-break-inside:avoid}
   table{width:100%;border-collapse:collapse;font-size:10.5px}
-  th{background:#E5F5FB;color:#00447F;font-weight:700;padding:6px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+  thead{background:linear-gradient(90deg,#00447F 0%,#009BD9 100%)}
+  th{background:transparent;color:#FFFFFF;font-weight:700;padding:6px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
   td{padding:5px 8px;border-bottom:1px solid #eee}
   tr:last-child td{border-bottom:none}
   tfoot td{color:#999;font-style:italic}
