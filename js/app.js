@@ -33,6 +33,9 @@ function renderSidebarCoords(){
       rolEl.textContent = 'Vista: Directora';
       rolEl.style.color = 'var(--primary-dark)';
       rolEl.style.fontWeight = '500';
+    } else if(!state.urlCoord){
+      rolEl.textContent = 'Vista: General';
+      rolEl.style.color = 'var(--text-muted)';
     } else {
       const m = getCoordMeta(state.urlCoord);
       rolEl.textContent = `Vista: ${m.icon} ${m.name}`;

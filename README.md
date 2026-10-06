@@ -100,7 +100,8 @@ vercel dev         # http://localhost:3000
 - `https://<dominio>/?k=<DIRECTORA_KEY>` → vista de la Directora (todas las coordinaciones y Reportes).
 - `https://<dominio>/?coord=<id>` → abre en las tareas de esa coordinación, con aviso de tareas en revisión.
   La API solo entrega las tareas de esa coordinación y la vista Reportes no está disponible.
-- Sin `k` válida ni `coord`, la API responde 403.
+- `https://<dominio>/` → tablero general con todas las coordinaciones, sin las opciones de la directora (Reportes).
+- Con una `k` incorrecta la API responde 403 y la app muestra "Clave de directora incorrecta".
 
 > El rol lo decide `api/data.js` comparando `k` con `DIRECTORA_KEY`. Para cambiar la clave basta
 > con actualizar la variable en Vercel y volver a desplegar; el enlace anterior deja de funcionar.

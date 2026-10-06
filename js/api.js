@@ -77,8 +77,15 @@ async function loadData(){
     state.personasHeaders= ['id','nombre','rol','coordId','esJefe'];
     renderSidebarCoords();
   } catch(e){
-    showToast('Error al cargar datos: '+e.message);
     console.error('loadData error:', e);
+    document.getElementById('loading').style.display='none';
+    // Mostrar el motivo en pantalla en vez de un tablero vacío (ej. clave incorrecta)
+    document.getElementById('main-content').innerHTML =
+      `<div class="section" style="margin:40px auto;max-width:480px;text-align:center">
+        <div class="page-title">No se pudieron cargar los datos</div>
+        <div class="page-sub" style="margin-top:8px">${escHtml(e.message)}</div>
+      </div>`;
+    return;
   }
   document.getElementById('loading').style.display='none';
   render();

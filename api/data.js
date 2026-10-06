@@ -73,18 +73,20 @@ async function sbDeleteWhere(table, where) {
 }
 
 // ── Rol según el enlace ────────────────────────────────────
-// La directora entra con ?k=<DIRECTORA_KEY>; cada coordinación con ?coord=<id> y solo recibe sus tareas.
+// - ?k=<DIRECTORA_KEY> → directora (todo, incluido Reportes)
+// - ?coord=<id>        → coordinación (solo sus tareas)
+// - sin parámetros     → tablero general (todas las tareas, sin opciones de la directora)
 function esClaveDirectora(key) {
-  const secreto = process.env.DIRECTORA_KEY;
+  const secreto = (process.env.DIRECTORA_KEY || '').trim();
   if (!secreto || typeof key !== 'string') return false;
-  const a = Buffer.from(key), b = Buffer.from(secreto);
+  const a = Buffer.from(key.trim()), b = Buffer.from(secreto);
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
 function resolverAcceso(key, coord) {
-  if (esClaveDirectora(key)) return { rol: 'directora', coord: null };
+  if (key) return esClaveDirectora(key) ? { rol: 'directora', coord: null } : null;
   if (coord) return { rol: 'coordinacion', coord: String(coord) };
-  return null;
+  return { rol: 'general', coord: null };
 }
 
 export default async function handler(req, res) {
@@ -102,7 +104,7 @@ export default async function handler(req, res) {
       : req.body;
 
     const acceso = resolverAcceso(key, coord);
-    if (!acceso) return res.status(403).json({ error: 'Acceso no autorizado: usa el enlace entregado a tu coordinación' });
+    if (!acceso) return res.status(403).json({ error: 'Clave de directora incorrecta: revisa el enlace' });
 
     switch (action) {
 
