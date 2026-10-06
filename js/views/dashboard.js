@@ -108,7 +108,7 @@ function renderDashboard(){
         </div>
         <button class="btn" onclick="openModal('persona',null)">＋ Persona</button>
         <button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
-        <button class="btn" onclick="setView('reportes')" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a">📈 Reportes</button>
+        ${esDirector()?`<button class="btn" onclick="setView('reportes')" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a">📈 Reportes</button>`:''}
       </div>
     </div>
 

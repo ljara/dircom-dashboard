@@ -1,7 +1,19 @@
 // NavegaciÃ³n entre vistas, barra lateral y render principal
 
 // ── Navigation ─────────────────────────────────────────────
+// Vistas exclusivas de la directora (el servidor confirma el rol en getAll)
+const VISTAS_DIRECTORA = ['reportes'];
+
+function aplicarPermisos(){
+  VISTAS_DIRECTORA.forEach(v=>{
+    const nav=document.getElementById('nav-'+v);
+    if(nav) nav.style.display = esDirector() ? '' : 'none';
+  });
+  if(!esDirector() && VISTAS_DIRECTORA.includes(state.view)) state.view='tareas';
+}
+
 function setView(v){
+  if(!esDirector() && VISTAS_DIRECTORA.includes(v)) return;
   state.view=v; state.filterCoord=null; state.filterStatus='all';
   document.querySelectorAll('.nav-item[id]').forEach(el=>el.classList.remove('active'));
   const a=document.getElementById('nav-'+v);
@@ -45,6 +57,7 @@ function renderSidebarCoords(){
 // ── Render ─────────────────────────────────────────────────
 function render(){
   const el=document.getElementById('main-content');
+  aplicarPermisos();
   if(state.view==='dashboard')       el.innerHTML=renderDashboard();
   else if(state.view==='tareas')     el.innerHTML=renderTareasView();
   else if(state.view==='personas')   el.innerHTML=renderPersonasView();

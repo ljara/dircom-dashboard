@@ -1,6 +1,7 @@
 // Reporte ejecutivo imprimible / PDF del período elegido en la vista Reportes
 
 function generarReporte(){
+  if(!esDirector()) return;
   const { desde, hasta } = periodoReporte();
   const ant    = periodoAnterior(desde, hasta);
   const tareas = tareasParaReporte();

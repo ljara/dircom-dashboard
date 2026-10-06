@@ -55,6 +55,7 @@ Variables de entorno necesarias para `api/data.js`:
 |------------------------|-------------------------------------------|
 | `SUPABASE_URL`         | URL del proyecto Supabase                 |
 | `SUPABASE_SERVICE_KEY` | Service role key de Supabase (secreta)    |
+| `DIRECTORA_KEY`        | Clave del enlace de la directora (secreta) |
 
 Tablas usadas en Supabase: `coordinaciones`, `personas`, `tareas`, `opciones`.
 
@@ -96,14 +97,19 @@ vercel dev         # http://localhost:3000
 
 ## Vistas por rol
 
-- `https://<dominio>/` → vista de la Directora (todas las coordinaciones).
+- `https://<dominio>/?k=<DIRECTORA_KEY>` → vista de la Directora (todas las coordinaciones y Reportes).
 - `https://<dominio>/?coord=<id>` → abre en las tareas de esa coordinación, con aviso de tareas en revisión.
+  La API solo entrega las tareas de esa coordinación y la vista Reportes no está disponible.
+- Sin `k` válida ni `coord`, la API responde 403.
 
-> Nota: el rol depende solo de la URL; no hay autenticación.
+> El rol lo decide `api/data.js` comparando `k` con `DIRECTORA_KEY`. Para cambiar la clave basta
+> con actualizar la variable en Vercel y volver a desplegar; el enlace anterior deja de funcionar.
+> Generar una clave: `node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"`
 
 ## Historial de versiones
 
-- **v2.3.0** — Vista Reportes: período configurable, KPI, comparación, PDF y exportación a Excel; registro de fecha de término
+- **v2.4.0** — Vista de la directora protegida con clave; Reportes solo para la directora; cada coordinación recibe solo sus tareas
+- v2.3.0 — Vista Reportes: período configurable, KPI, comparación, PDF y exportación a Excel; registro de fecha de término
 - v2.2.0 — Código separado en archivos (`css/`, `js/`, `img/`), sin cambios de funcionalidad
 - v2.1.2 — Celdas del calendario con tamaño fijo
 - v2.1.1 — Favicon

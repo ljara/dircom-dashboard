@@ -10,10 +10,10 @@ async function callAPI(action, data) {
     const res = await fetch(API_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, data })
+      body: JSON.stringify({ action, data, key: state.urlKey, coord: state.urlCoord })
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
     if (json.error) throw new Error(json.error);
     return json;
   } finally { setSyncing(false); }
@@ -67,6 +67,8 @@ async function loadData(){
   initUrlParams();
   try{
     const data = await callAPI('getAll');
+    state.rol            = data.rol;
+    aplicarPermisos();
     state.coordinaciones = (data.coordinaciones||[]).map(normalizeCoord);
     state.personas       = (data.personas||[]).map(normalizePersona);
     state.tareas         = (data.tareas||[]).map(normalizeTarea);

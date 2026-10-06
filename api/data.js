@@ -2,6 +2,8 @@
 // Actúa como intermediario entre el dashboard y Supabase
 // Las credenciales nunca llegan al browser
 
+import { timingSafeEqual } from 'crypto';
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
@@ -70,6 +72,21 @@ async function sbDeleteWhere(table, where) {
   return true;
 }
 
+// ── Rol según el enlace ────────────────────────────────────
+// La directora entra con ?k=<DIRECTORA_KEY>; cada coordinación con ?coord=<id> y solo recibe sus tareas.
+function esClaveDirectora(key) {
+  const secreto = process.env.DIRECTORA_KEY;
+  if (!secreto || typeof key !== 'string') return false;
+  const a = Buffer.from(key), b = Buffer.from(secreto);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+function resolverAcceso(key, coord) {
+  if (esClaveDirectora(key)) return { rol: 'directora', coord: null };
+  if (coord) return { rol: 'coordinacion', coord: String(coord) };
+  return null;
+}
+
 export default async function handler(req, res) {
   // CORS — solo permite origen del dashboard
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -79,17 +96,23 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { action, data } = req.method === 'GET'
-      ? { action: req.query.action, data: req.query.data ? JSON.parse(req.query.data) : null }
+    const { action, data, key, coord } = req.method === 'GET'
+      ? { action: req.query.action, data: req.query.data ? JSON.parse(req.query.data) : null,
+          key: req.query.k, coord: req.query.coord }
       : req.body;
+
+    const acceso = resolverAcceso(key, coord);
+    if (!acceso) return res.status(403).json({ error: 'Acceso no autorizado: usa el enlace entregado a tu coordinación' });
 
     switch (action) {
 
       case 'getAll': {
+        // Una coordinación solo recibe sus propias tareas
+        const filtroTareas = acceso.coord ? `coord_id=eq.${encodeURIComponent(acceso.coord)}&` : '';
         const [coords, personas, tareas, opcRows] = await Promise.all([
           sbGet('coordinaciones', 'order=created_at'),
           sbGet('personas',       'order=nombre'),
-          sbGet('tareas',         'order=created_at.desc'),
+          sbGet('tareas',         filtroTareas + 'order=created_at.desc'),
           sbGet('opciones',       'order=tipo,orden')
         ]);
         const opciones = {};
@@ -97,7 +120,7 @@ export default async function handler(req, res) {
           if (!opciones[o.tipo]) opciones[o.tipo] = [];
           opciones[o.tipo].push(o.valor);
         });
-        return res.json({ coordinaciones: coords, personas, tareas, opciones });
+        return res.json({ rol: acceso.rol, coordinaciones: coords, personas, tareas, opciones });
       }
 
       case 'addTarea': {

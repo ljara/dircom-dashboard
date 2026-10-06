@@ -5,7 +5,8 @@ let state = {
   tareasHeaders:[], personasHeaders:[],
   opciones:{},
   view:'dashboard', filterCoord:null, filterStatus:'all',
-  filtroPeriodo:'todo', urlCoord:null,
+  filtroPeriodo:'todo', urlCoord:null, urlKey:null,
+  rol:null,   // lo define el servidor: 'directora' | 'coordinacion'
   busqueda:'', ordenTareas:'created_desc',
   calFecha: new Date(), calModo: 'mes', calPersonaFiltro: 'all',
   // Reportes: período (fechas YYYY-MM-DD) y coordinación
@@ -15,8 +16,9 @@ let state = {
 // ── Leer parámetro URL al iniciar ──────────────────────────
 function initUrlParams(){
   const params = new URLSearchParams(window.location.search);
+  state.urlKey = params.get('k');
   const coord = params.get('coord');
-  if(coord){
+  if(coord && !state.urlKey){
     state.urlCoord = coord;
     // Si hay coord en URL, arrancar en vista de tareas filtrada
     state.filterCoord = coord;
@@ -25,5 +27,5 @@ function initUrlParams(){
 }
 
 // ── Rol actual ─────────────────────────────────────────────
-function esDirector(){ return !state.urlCoord; }
+function esDirector(){ return state.rol==='directora'; }
 function coordActual(){ return state.urlCoord; }

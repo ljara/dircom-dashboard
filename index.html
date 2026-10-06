@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <!--
   Dashboard DIRCOM UFRO
-  Versión: 2.3.0
-  Fecha: 2026-09-30
+  Versión: 2.4.0
+  Fecha: 2026-10-06
   Changelog:
+  - v2.4.0: Vista de la directora protegida con clave (DIRECTORA_KEY); Reportes solo para la directora; cada coordinación recibe solo sus tareas
   - v2.3.0: Vista Reportes — período configurable, KPIs, comparación, PDF y exportación a Excel; registro de fecha de término
   - v2.2.0: Código separado en archivos (css/, js/, img/) — sin cambios de funcionalidad
   - v2.1.2: Celdas del calendario con tamaño fijo (no se expanden con el contenido)
@@ -55,7 +56,7 @@
     <button class="nav-item" id="nav-personas" onclick="setView('personas')"><span class="icon">👥</span> Equipo</button>
     <button class="nav-item" id="nav-coordinaciones" onclick="setView('coordinaciones')"><span class="icon">⚙</span> Coordinaciones</button>
     <button class="nav-item" id="nav-calendario" onclick="setView('calendario')"><span class="icon">📅</span> Calendario</button>
-    <button class="nav-item" id="nav-reportes" onclick="setView('reportes')"><span class="icon">📈</span> Reportes</button>
+    <button class="nav-item" id="nav-reportes" style="display:none" onclick="setView('reportes')"><span class="icon">📈</span> Reportes</button>
     <button class="nav-item" id="nav-opciones" onclick="setView('opciones')"><span class="icon">🏷</span> Opciones</button>
     <button class="nav-item" id="nav-papelera" onclick="setView('papelera')"><span class="icon">🗑</span> Papelera</button>
     <div class="nav-divider"></div>

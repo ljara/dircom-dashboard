@@ -8,6 +8,7 @@ function csvCelda(v){
 }
 
 function exportarTareasCSV(){
+  if(!esDirector()) return;
   const { desde, hasta } = periodoReporte();
   const met = calcularMetricas(tareasParaReporte(), desde, hasta);
   if(!met.filas.length){ showToast('No hay tareas en el período seleccionado'); return; }
