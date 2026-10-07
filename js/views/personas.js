@@ -5,7 +5,7 @@ function renderPersonasView(){
   return `
     <div class="topbar">
       <div><div class="page-title">Equipo</div><div class="page-sub">${state.personas.length} personas registradas</div></div>
-      <button class="btn btn-primary" onclick="openModal('persona',null)">＋ Agregar persona</button>
+      ${esDirector()?`<button class="btn btn-primary" onclick="openModal('persona',null)">＋ Agregar persona</button>`:''}
     </div>
     ${state.coordinaciones.map((c)=>{
       const m=getCoordMeta(c.id);

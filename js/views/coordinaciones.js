@@ -5,7 +5,7 @@ function renderCoordsView(){
   return `
     <div class="topbar">
       <div><div class="page-title">Coordinaciones</div><div class="page-sub">${state.coordinaciones.length} coordinaciones activas</div></div>
-      <button class="btn btn-primary" onclick="openModal('coordinacion',null)">＋ Nueva coordinación</button>
+      ${esDirector()?`<button class="btn btn-primary" onclick="openModal('coordinacion',null)">＋ Nueva coordinación</button>`:''}
     </div>
     <div class="section">
       <div class="section-header"><div class="section-title">⚙ Listado</div></div>

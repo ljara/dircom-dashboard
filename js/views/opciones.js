@@ -32,12 +32,12 @@ function renderOpcionesView(){
                   <button class="btn btn-sm btn-danger" onclick="deleteOpcion('${tipo}','${v.replace(/'/g,"\\'")}')">✕</button>
                 </div>`).join('')}
           </div>
-          <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px">
+          ${esDirector()?`<div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px">
             <input id="nueva-opcion-${tipo}" placeholder="Nueva opción…"
               style="flex:1;padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:13px;font-family:inherit"
               onkeydown="if(event.key==='Enter')agregarOpcion('${tipo}')">
             <button class="btn btn-primary btn-sm" onclick="agregarOpcion('${tipo}')">＋ Agregar</button>
-          </div>
+          </div>`:''}
         </div>`;
       }).join('')}
     </div>`;

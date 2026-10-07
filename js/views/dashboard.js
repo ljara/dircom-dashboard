@@ -106,7 +106,7 @@ function renderDashboard(){
         <div style="display:flex;gap:4px;background:var(--gray-light);border-radius:var(--radius-sm);padding:3px">
           ${['todo','semana','mes'].map(p=>`<button onclick="state.filtroPeriodo='${p}';render()" style="padding:4px 12px;border-radius:4px;border:none;font-size:12px;cursor:pointer;font-family:inherit;background:${periodo===p?'var(--surface)':'transparent'};color:${periodo===p?'var(--text)':'var(--text-muted)'};font-weight:${periodo===p?'500':'400'}">${p==='todo'?'Todo':p==='semana'?'Esta semana':'Este mes'}</button>`).join('')}
         </div>
-        <button class="btn" onclick="openModal('persona',null)">＋ Persona</button>
+        ${esDirector()?`<button class="btn" onclick="openModal('persona',null)">＋ Persona</button>`:''}
         <button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
         ${esDirector()?`<button class="btn" onclick="setView('reportes')" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a">📈 Reportes</button>`:''}
       </div>

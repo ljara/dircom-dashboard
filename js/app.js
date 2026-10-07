@@ -9,6 +9,9 @@ function aplicarPermisos(){
     const nav=document.getElementById('nav-'+v);
     if(nav) nav.style.display = esDirector() ? '' : 'none';
   });
+  // Agregar persona solo para la directora
+  const addPersona=document.getElementById('sidebar-add-persona');
+  if(addPersona) addPersona.style.display = esDirector() ? '' : 'none';
   if(!esDirector() && VISTAS_DIRECTORA.includes(state.view)) state.view='tareas';
 }
 
