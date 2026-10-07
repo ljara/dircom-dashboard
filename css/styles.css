@@ -84,6 +84,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .prog-pct{font-size:11px;color:var(--text-faint);margin-top:4px;text-align:right}
 /* Layout */
 .two-col{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.dash-tres{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
 .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
 .section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
 .section-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
@@ -194,3 +195,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .num-alerta{color:var(--red);font-weight:600}
 .num-sub{color:var(--text-faint);font-size:10px}
 .tabla-vacia{padding:18px;text-align:center;font-size:12px;color:var(--text-muted)}
+/* Mobile: menú hamburguesa y vistas a ancho completo */
+.mobile-bar,.sidebar-backdrop{display:none}
+@media (max-width:1100px){
+  .dash-tres{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+}
+@media (max-width:768px){
+  .mobile-bar{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;height:52px;padding:0 12px;background:var(--surface);border-bottom:1px solid var(--border)}
+  .menu-btn{border:none;background:transparent;font-size:22px;line-height:1;padding:6px 8px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text)}
+  .menu-btn:hover{background:var(--gray-light)}
+  .mobile-bar-title{font-size:15px;font-weight:600}
+  .sidebar{width:270px;max-width:85vw;height:100dvh;z-index:60;transform:translateX(-100%);transition:transform .2s ease}
+  body.menu-open .sidebar{transform:none;box-shadow:0 0 24px rgba(0,0,0,.2)}
+  body.menu-open .sidebar-backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:50}
+  body.menu-open{overflow:hidden}
+  .nav-item{padding:10px 10px;font-size:14px}
+  .main{margin-left:0;padding:16px 14px 32px}
+  .topbar{margin-bottom:16px}
+  .topbar-actions{width:100%}
+  .page-title{font-size:18px}
+  .metrics{grid-template-columns:repeat(2,1fr);gap:10px}
+  .metric{padding:12px}
+  .metric .m-value{font-size:22px}
+  .cards-grid,.dash-tres,.rep-tres,.detail-grid{grid-template-columns:1fr}
+  .section-header{flex-wrap:wrap;gap:8px}
+  .task-item{flex-wrap:wrap;align-items:center;row-gap:8px}
+  .task-item .task-status-dot{align-self:flex-start}
+  .task-item .task-body{flex:1 1 calc(100% - 24px)}
+  .task-item .badge{margin-left:19px}
+  .task-title{white-space:normal}
+  .modal-backdrop{padding:8px}
+  .modal{max-height:94vh}
+  .toast{left:16px;right:16px;bottom:16px;text-align:center}
+  /* Calendario: se desplaza horizontalmente en vez de comprimirse */
+  .cal-grid,.persona-week-grid{grid-template-columns:repeat(7,minmax(92px,1fr));overflow-x:auto}
+  .cal-month-title{min-width:0;font-size:15px}
+  .cal-nav{flex-wrap:wrap}
+}

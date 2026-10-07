@@ -124,7 +124,7 @@ function renderDashboard(){
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="dash-tres">
       <div class="section">
         <div class="section-header"><div class="section-title">📊 Por estado</div></div>
         ${donaEstadoHTML()}

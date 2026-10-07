@@ -31,7 +31,13 @@
   <p>Cargando datos…</p>
 </div>
 
-<nav class="sidebar">
+<header class="mobile-bar">
+  <button class="menu-btn" onclick="toggleMenu()" aria-label="Abrir menú">☰</button>
+  <span class="mobile-bar-title">Comunicaciones</span>
+</header>
+<div class="sidebar-backdrop" onclick="toggleMenu(false)"></div>
+
+<nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="org">Universidad de La Frontera</div>
     <div class="name">Comunicaciones</div>

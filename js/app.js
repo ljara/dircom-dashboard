@@ -23,6 +23,15 @@ function setView(v){
   if(a) a.classList.add('active');
   render();
 }
+// Menú lateral en mobile (botón ☰)
+function toggleMenu(abrir){
+  const abierto = abrir===undefined ? !document.body.classList.contains('menu-open') : abrir;
+  document.body.classList.toggle('menu-open', abierto);
+}
+// Al elegir una opción del menú, cerrarlo
+document.addEventListener('click', e=>{
+  if(e.target.closest('#sidebar .nav-item')) toggleMenu(false);
+});
 function filterByCoord(id){ state.filterCoord=id; state.view='tareas'; render(); }
 
 function renderSidebarCoords(){
