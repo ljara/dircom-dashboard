@@ -60,6 +60,10 @@ function renderSidebarCoords(){
 // ── Render ─────────────────────────────────────────────────
 function render(){
   const el=document.getElementById('main-content');
+  // Recordar el campo enfocado: innerHTML lo reemplaza y se perdería el foco al escribir
+  const act=document.activeElement;
+  const foco=(act&&act.id&&el.contains(act)&&'selectionStart' in act)
+    ? {id:act.id,start:act.selectionStart,end:act.selectionEnd} : null;
   aplicarPermisos();
   if(state.view==='dashboard')       el.innerHTML=renderDashboard();
   else if(state.view==='tareas')     el.innerHTML=renderTareasView();
@@ -69,4 +73,11 @@ function render(){
   else if(state.view==='opciones')       el.innerHTML=renderOpcionesView();
   else if(state.view==='papelera')       el.innerHTML=renderPapelera();
   else if(state.view==='reportes')       el.innerHTML=renderReportesView();
+  if(foco){
+    const nuevo=document.getElementById(foco.id);
+    if(nuevo){
+      nuevo.focus();
+      try{ nuevo.setSelectionRange(foco.start,foco.end); }catch(e){}
+    }
+  }
 }
