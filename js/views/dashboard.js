@@ -185,7 +185,7 @@ function renderDashboard(){
         <div class="section-title">☑ Tareas recientes</div>
         <button class="btn btn-sm btn-ghost" onclick="setView('tareas')">Ver todas →</button>
       </div>
-      ${taskListHTML(activeTareas().slice().reverse().slice(0,8))}
+      ${taskListHTML(activeTareas().slice().sort((a,b)=>new Date(b.created||0)-new Date(a.created||0)).slice(0,8))}
     </div>`;
 }
 
