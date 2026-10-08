@@ -17,7 +17,7 @@ function aplicarPermisos(){
 
 function setView(v){
   if(!esDirector() && VISTAS_DIRECTORA.includes(v)) return;
-  state.view=v; state.filterCoord=null; state.filterStatus='all';
+  state.view=v; state.filterCoord=null; state.filterStatus='all'; state.filterPersona=null;
   document.querySelectorAll('.nav-item[id]').forEach(el=>el.classList.remove('active'));
   const a=document.getElementById('nav-'+v);
   if(a) a.classList.add('active');
@@ -32,7 +32,15 @@ function toggleMenu(abrir){
 document.addEventListener('click', e=>{
   if(e.target.closest('#sidebar .nav-item')) toggleMenu(false);
 });
-function filterByCoord(id){ state.filterCoord=id; state.view='tareas'; render(); }
+function filterByCoord(id){ verTareas({coord:id}); }
+
+// Abrir "Todas las tareas" con filtros aplicados (clic en los gráficos del dashboard)
+function verTareas({coord=null, status='all', persona=null}={}){
+  setView('tareas');
+  state.filterCoord=coord; state.filterStatus=status; state.filterPersona=persona;
+  state.busqueda='';
+  render();
+}
 
 function renderSidebarCoords(){
   const el=document.getElementById('sidebar-coords');

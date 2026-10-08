@@ -45,11 +45,11 @@ function renderDashboard(){
     const slices=estados.map((s,i)=>{
       const dash=total?conteos[i]/total*circum:0;
       const sl=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colores[s]}" stroke-width="18"
-        stroke-dasharray="${dash} ${circum-dash}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" style="transition:all .4s"/>`;
+        stroke-dasharray="${dash} ${circum-dash}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" style="transition:all .4s;cursor:pointer" onclick="verTareas({status:'${s}'})"><title>${statusLabel(s)}: ${conteos[i]}</title></circle>`;
       off+=dash; return sl;
     }).join('');
     const legend=estados.map((s,i)=>conteos[i]>0?`
-      <div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:5px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:5px;cursor:pointer" onclick="verTareas({status:'${s}'})">
         <span style="width:10px;height:10px;border-radius:50%;background:${colores[s]};flex-shrink:0"></span>
         <span style="color:var(--text-muted);flex:1">${statusLabel(s)}</span>
         <span style="font-weight:600">${conteos[i]}</span>
@@ -78,7 +78,7 @@ function renderDashboard(){
     const slices=coordTotals.map((x,i)=>{
       const dash=x.cnt/grandTotal*circum;
       const sl=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.m.hex}" stroke-width="18"
-        stroke-dasharray="${dash} ${circum-dash}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" style="transition:all .4s"/>`;
+        stroke-dasharray="${dash} ${circum-dash}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" style="transition:all .4s;cursor:pointer" onclick="filterByCoord('${x.c.id}')"><title>${x.m.name}: ${x.cnt}</title></circle>`;
       off+=dash; return sl;
     }).join('');
     const legend=coordTotals.map(x=>`
@@ -138,7 +138,8 @@ function renderDashboard(){
         ${cargaTop.length===0
           ? `<div class="empty" style="padding:24px"><p>Sin tareas asignadas</p></div>`
           : `<div style="padding:12px 16px">${cargaTop.map(([nombre,cnt])=>`
-            <div style="margin-bottom:10px">
+            <div style="margin-bottom:10px;cursor:pointer" title="Ver tareas de ${nombre.replace(/"/g,'&quot;')}"
+              onclick="verTareas({persona:'${nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')}'})">
               <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
                 <span style="display:flex;align-items:center;gap:6px">
                   <span style="width:20px;height:20px;border-radius:50%;background:${avatarColor(nombre)}22;color:${avatarColor(nombre)};display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${getInitials(nombre)}</span>

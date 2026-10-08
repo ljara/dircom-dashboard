@@ -4,7 +4,7 @@ let state = {
   tareas:[], personas:[], coordinaciones:[],
   tareasHeaders:[], personasHeaders:[],
   opciones:{},
-  view:'dashboard', filterCoord:null, filterStatus:'all',
+  view:'dashboard', filterCoord:null, filterStatus:'all', filterPersona:null,
   filtroPeriodo:'todo', urlCoord:null, urlKey:null,
   rol:null,   // lo define el servidor: 'directora' | 'coordinacion'
   busqueda:'', ordenTareas:'created_desc',

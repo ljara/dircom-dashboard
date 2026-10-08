@@ -6,6 +6,7 @@ function renderTareasView(){
   let tasks=activeTareas();
   if(state.filterCoord) tasks=tasks.filter(t=>String(t.coordId)===String(state.filterCoord));
   if(state.filterStatus!=='all') tasks=tasks.filter(t=>t.status===state.filterStatus);
+  if(state.filterPersona) tasks=tasks.filter(t=>t.asignado===state.filterPersona);
   if(state.busqueda){
     const q=state.busqueda.toLowerCase();
     tasks=tasks.filter(t=>
@@ -63,9 +64,10 @@ function renderTareasView(){
 
   return `
     <div class="topbar">
-      <div><div class="page-title">${coord?(getCoordMeta(coord.id).icon+' '+coord.nombre):'Todas las tareas'}</div>
+      <div><div class="page-title">${state.filterPersona?('👤 '+state.filterPersona):coord?(getCoordMeta(coord.id).icon+' '+coord.nombre):'Todas las tareas'}</div>
       <div class="page-sub">${tasks.length} tarea${tasks.length!==1?'s':''}${state.busqueda?` · búsqueda: "${state.busqueda}"`:''}</div></div>
       <div class="topbar-actions">
+        ${state.filterPersona?`<button class="btn btn-ghost btn-sm" onclick="state.filterPersona=null;render()">✕ Quitar filtro de persona</button>`:''}
         ${state.filterCoord?`<button class="btn btn-ghost btn-sm" onclick="state.filterCoord=null;render()">✕ Quitar filtro</button>`:''}
         <button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
       </div>
