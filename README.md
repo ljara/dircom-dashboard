@@ -39,7 +39,8 @@ dircom-dashboard/
 │   ├── app.js                 Navegación y render principal
 │   └── main.js                Arranque y actualización automática
 ├── api/
-│   └── data.js                Función serverless de Vercel (intermediario con Supabase)
+│   ├── data.js                Función serverless de Vercel (intermediario con Supabase)
+│   └── keepalive.js           Cron diario que consulta Supabase para que no se pause
 └── vercel.json
 ```
 
@@ -56,6 +57,11 @@ Variables de entorno necesarias para `api/data.js`:
 | `SUPABASE_URL`         | URL del proyecto Supabase                 |
 | `SUPABASE_SERVICE_KEY` | Service role key de Supabase (secreta)    |
 | `DIRECTORA_KEY`        | Clave del enlace de la directora (secreta) |
+| `CRON_SECRET`          | Opcional: protege `/api/keepalive` para que solo lo llame el cron |
+
+El plan gratuito de Supabase pausa el proyecto tras 7 días sin actividad. Para evitarlo,
+`vercel.json` programa un cron diario (12:00 UTC) que llama a `/api/keepalive`, que hace una
+consulta mínima a `coordinaciones`. Los crons solo corren en el despliegue de producción (`main`).
 
 Tablas usadas en Supabase: `coordinaciones`, `personas`, `tareas`, `opciones`.
 

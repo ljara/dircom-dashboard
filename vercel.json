@@ -4,6 +4,12 @@
   "functions": {
     "api/data.js": {
       "regions": ["gru1"]
+    },
+    "api/keepalive.js": {
+      "regions": ["gru1"]
     }
-  }
+  },
+  "crons": [
+    { "path": "/api/keepalive", "schedule": "0 12 * * *" }
+  ]
 }
