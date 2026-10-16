@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!--
+  Manual del Equipo — Dashboard DIRCOM UFRO
+  Versión: 1.0.0
+  Fecha: 2026-10-16
+  Complementa a manual-dircom.html (orientado a coordinadores/as y directora).
+  Changelog:
+  - v1.0.0: Versión inicial para presentar al equipo completo
+-->
+<meta charset="UTF-8">
+<link rel="icon" type="image/webp" href="img/favicon.webp">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.0.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  :root {
+    --azul:#009BD9;--azul-dk:#00447F;--azul-lt:#E6F4FB;
+    --green:#1D9E75;--green-lt:#E1F5EE;
+    --amber:#EF9F27;--amber-lt:#FAEEDA;
+    --red:#E24B4A;--red-lt:#FCEBEB;
+    --blue:#378ADD;--blue-lt:#E6F1FB;
+    --gray:#888780;--gray-lt:#F1EFE8;
+    --text:#1a1a1a;--text-mid:#444;--text-muted:#666;--text-faint:#999;
+    --bg:#F8F8F6;--surface:#fff;
+    --border:rgba(0,0,0,0.09);--radius:10px;--radius-sm:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+  /* Layout */
+  .page{max-width:820px;margin:0 auto;padding:40px 24px 80px}
+
+  /* Header */
+  .header{background:linear-gradient(135deg,#00447F 0%,#009BD9 100%);border-radius:16px;padding:36px 40px 28px;color:#FFFFFF;margin-bottom:32px;position:relative;overflow:hidden}
+  .header::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06)}
+  .header .org{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+  .header h1{font-size:28px;font-weight:800;margin-bottom:6px;line-height:1.1}
+  .header .sub{font-size:14px;font-weight:400}
+  .stripe{height:4px;background:linear-gradient(90deg,var(--green),var(--blue),var(--azul),var(--amber));border-radius:2px;margin-bottom:32px}
+
+  /* Intro */
+  .intro{font-size:15px;color:var(--text-mid);line-height:1.7;margin-bottom:28px}
+  .intro strong{color:var(--text)}
+
+  /* Sección */
+  .section{margin-bottom:28px}
+  .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+  .card h3{font-size:15px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:13px;color:var(--text-mid);line-height:1.65;margin-bottom:8px}
+  .card p:last-child{margin-bottom:0}
+  .card ul{list-style:none;margin-top:6px}
+  .card ul li{font-size:13px;color:var(--text-mid);padding:4px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border)}
+  .card ul li:last-child{border-bottom:none}
+  .card ul li::before{content:'›';color:var(--azul);font-weight:700;font-size:16px;line-height:1.2;flex-shrink:0}
+
+  /* Beneficios */
+  .benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .benefit{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+  .benefit .icon{font-size:22px;margin-bottom:6px}
+  .benefit .title{font-size:13px;font-weight:600;margin-bottom:4px}
+  .benefit .desc{font-size:12px;color:var(--text-muted);line-height:1.55}
+
+  /* Pasos del flujo */
+  .flow-steps{display:flex;flex-direction:column;gap:0}
+  .flow-step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
+  .flow-step:last-child{border-bottom:none}
+  .step-num{width:32px;height:32px;border-radius:50%;background:var(--azul);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .step-content{flex:1}
+  .step-title{font-size:14px;font-weight:600;margin-bottom:4px}
+  .step-desc{font-size:13px;color:var(--text-muted);line-height:1.6}
+  .step-tip{background:var(--azul-lt);border-radius:var(--radius-sm);padding:8px 12px;margin-top:8px;font-size:12px;color:var(--azul-dk)}
+  .step-tip strong{font-weight:600}
+
+  /* URLs */
+  .url-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .url-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+  .url-card .rol{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);margin-bottom:4px}
+  .url-card .nombre{font-size:13px;font-weight:600;margin-bottom:6px}
+  .url-card .url{font-size:11px;background:var(--gray-lt);padding:5px 8px;border-radius:4px;font-family:monospace;color:var(--azul-dk);word-break:break-all;display:block}
+
+  /* Estados */
+  .status-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .status-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+  .status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .status-label{font-size:13px;font-weight:500}
+  .status-desc{font-size:11px;color:var(--text-muted);margin-top:1px}
+  .status-who{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);margin-top:3px}
+
+  /* Tabla de roles */
+  .roles-wrap{overflow-x:auto;margin-top:6px}
+  .roles{width:100%;border-collapse:collapse;font-size:13px}
+  .roles th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);text-align:center;padding:8px 10px;border-bottom:1px solid var(--border)}
+  .roles th:first-child{text-align:left}
+  .roles td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text-mid);text-align:center}
+  .roles td:first-child{text-align:left}
+  .roles tr:last-child td{border-bottom:none}
+  .si{color:var(--green);font-weight:700}
+  .no{color:var(--text-faint)}
+
+  /* Reglas */
+  .regla{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:8px}
+  .regla-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+  .regla p{font-size:13px;color:var(--text-mid);line-height:1.5;margin:0}
+  .regla p strong{color:var(--text)}
+
+  /* Badge */
+  .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+
+  /* Alerta */
+  .alert{border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:12px;font-size:13px;line-height:1.6}
+
+  /* Footer */
+  .footer{text-align:center;padding:24px;color:var(--text-faint);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
+
+  @media (max-width:640px){
+    .page{padding:20px 16px 60px}
+    .header{padding:28px 24px 22px}
+    .header h1{font-size:24px}
+    .card{padding:16px 18px}
+    .benefit-grid,.url-grid,.status-grid{grid-template-columns:1fr}
+  }
+
+  @media print{
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .page{padding:20px;max-width:100%}
+    .no-print{display:none}
+    .card,.flow-step,.regla{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="org">Universidad de La Frontera</div>
+    <h1>Manual del Equipo<br>Dashboard DIRCOM</h1>
+    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.0</div>
+  </div>
+  <div class="stripe"></div>
+
+  <p class="intro">El dashboard es <strong>el lugar donde vive el trabajo de la DIRCOM</strong>. Cada requerimiento que llega queda registrado con su responsable, su plazo y su estado, para que todos sepamos qué hay que hacer, quién lo está haciendo y qué ya se entregó.</p>
+
+  <!-- Por qué -->
+  <div class="section">
+    <div class="section-title">💡 Por qué lo usamos</div>
+    <div class="benefit-grid">
+      <div class="benefit">
+        <div class="icon">👀</div>
+        <div class="title">Todo a la vista</div>
+        <div class="desc">Sabes qué tienes asignado y para cuándo, sin depender de mensajes sueltos de WhatsApp o correo.</div>
+      </div>
+      <div class="benefit">
+        <div class="icon">🤝</div>
+        <div class="title">Menos interrupciones</div>
+        <div class="desc">Si el estado está al día, nadie tiene que preguntarte "¿cómo va eso?". El dashboard ya lo dice.</div>
+      </div>
+      <div class="benefit">
+        <div class="icon">📈</div>
+        <div class="title">Tu trabajo se ve</div>
+        <div class="desc">Los reportes a la jefatura se arman con lo que registramos aquí. Lo que no está en el dashboard, no cuenta.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acceso -->
+  <div class="section">
+    <div class="section-title">🔗 Cómo entrar</div>
+    <div class="card">
+      <h3>📌 El enlace de tu coordinación</h3>
+      <p>Entras con el enlace de la coordinación a la que perteneces. Guárdalo en favoritos, tanto en el computador como en el celular.</p>
+      <div class="url-grid" style="margin-top:12px">
+        <div class="url-card">
+          <div class="rol">Coordinación</div>
+          <div class="nombre">Campañas de Marketing</div>
+          <span class="url">dircom-dashboard.vercel.app?coord=marketing</span>
+        </div>
+        <div class="url-card">
+          <div class="rol">Coordinación</div>
+          <div class="nombre">Diseño y Marca</div>
+          <span class="url">dircom-dashboard.vercel.app?coord=diseno</span>
+        </div>
+        <div class="url-card">
+          <div class="rol">Coordinación</div>
+          <div class="nombre">Protocolo</div>
+          <span class="url">dircom-dashboard.vercel.app?coord=protocolo</span>
+        </div>
+        <div class="url-card">
+          <div class="rol">Coordinación</div>
+          <div class="nombre">UFRO Medios</div>
+          <span class="url">dircom-dashboard.vercel.app?coord=radio</span>
+        </div>
+      </div>
+      <div class="alert" style="background:var(--amber-lt);color:#633806;border:1px solid #EF9F2733;margin-top:12px;margin-bottom:0">
+        <strong>🔒 El enlace es tu llave.</strong> No lo compartas fuera del equipo: quien lo tenga puede ver y modificar las tareas de la coordinación.
+      </div>
+    </div>
+  </div>
+
+  <!-- Día a día -->
+  <div class="section">
+    <div class="section-title">🔄 Tu día a día en 4 pasos</div>
+    <div class="card">
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Revisa tus tareas al empezar el día</div>
+            <div class="step-desc">En el <strong>Dashboard</strong>, el gráfico <strong>👤 Carga por persona</strong> muestra cuántas tareas pendientes tiene cada integrante. Haz clic en tu nombre para ver solo las tuyas.</div>
+            <div class="step-tip"><strong>Atajo:</strong> escribe tu nombre en el buscador de la barra lateral para encontrar todas tus tareas.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Cuando empiezas una tarea → <span style="color:var(--blue)">En progreso</span></div>
+            <div class="step-desc">Cambia el estado con el selector que aparece a la derecha de cada tarea en la lista. Así tu coordinador/a sabe que ya está en marcha.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Cuando la terminas → <span style="color:#B8730F">Revisión</span></div>
+            <div class="step-desc">Al tener listo el entregable, pásala a <strong>Revisión</strong>. Tu coordinador/a verá de inmediato un aviso naranja de "tareas esperando tu revisión".</div>
+            <div class="step-tip"><strong>Si el entregable está en Drive, Canva u otro sitio</strong>, edita la tarea (✏) y pega el enlace en el campo <strong>Link</strong> para que tu coordinador/a lo encuentre rápido.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Tu coordinador/a la cierra → <span style="color:var(--green)">Completada</span></div>
+            <div class="step-desc">Quien coordina revisa el entregable y la marca como <strong>Completada</strong>. Si hay que corregir algo, la devuelve a <strong>En progreso</strong> y te lo comenta.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estados -->
+  <div class="section">
+    <div class="section-title">⚡ Estados de una tarea</div>
+    <div class="card">
+      <div class="status-grid">
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--gray)"></div>
+          <div>
+            <div class="status-label">Por hacer</div>
+            <div class="status-desc">Asignada, aún no iniciada</div>
+            <div class="status-who">La crea: coordinación o directora</div>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--blue)"></div>
+          <div>
+            <div class="status-label">En progreso</div>
+            <div class="status-desc">Estás trabajando en ella</div>
+            <div class="status-who">La cambia: tú</div>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--amber)"></div>
+          <div>
+            <div class="status-label">Revisión</div>
+            <div class="status-desc">Terminada, esperando validación</div>
+            <div class="status-who">La cambia: tú</div>
+          </div>
+        </div>
+        <div class="status-item">
+          <div class="status-dot" style="background:var(--green)"></div>
+          <div>
+            <div class="status-label">Completada</div>
+            <div class="status-desc">Validada y cerrada</div>
+            <div class="status-who">La cambia: coordinador/a</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quién hace qué -->
+  <div class="section">
+    <div class="section-title">👥 Quién hace qué</div>
+    <div class="card">
+      <div class="roles-wrap">
+        <table class="roles">
+          <thead>
+            <tr><th>Acción</th><th>Equipo</th><th>Coordinador/a</th><th>Directora</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ver las tareas de la coordinación</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Pasar <strong>sus</strong> tareas a En progreso o Revisión</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Marcar una tarea como Completada</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Crear tareas y asignarlas</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Modificar tareas de otros compañeros/as</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Agregar personas, coordinaciones u opciones</td><td class="no">—</td><td class="no">—</td><td class="si">✓</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert" style="background:var(--blue-lt);color:#0C447C;border:1px solid #378ADD33;margin-top:12px;margin-bottom:0">
+        <strong>💡 ¿Te llegó un requerimiento directo?</strong> Si alguien te pide algo por WhatsApp, correo o en un pasillo, avísale a tu coordinador/a para que lo ingrese y te lo asigne. Así queda registrado y cuenta en los reportes.
+      </div>
+    </div>
+  </div>
+
+  <!-- Reglas -->
+  <div class="section">
+    <div class="section-title">📋 Las 3 reglas del equipo</div>
+    <div class="regla" style="background:var(--azul-lt)">
+      <div class="regla-num" style="background:var(--azul)">1</div>
+      <p><strong>Si no está en el dashboard, no existe.</strong> Todo requerimiento se registra, sin importar por dónde llegó. Si te piden algo directo, pásalo a tu coordinador/a.</p>
+    </div>
+    <div class="regla" style="background:var(--blue-lt)">
+      <div class="regla-num" style="background:var(--blue)">2</div>
+      <p><strong>El estado se actualiza cuando cambia, no al final del día.</strong> Tomarte 5 segundos para mover una tarea a En progreso o Revisión le ahorra preguntas a todo el equipo.</p>
+    </div>
+    <div class="regla" style="background:var(--amber-lt)">
+      <div class="regla-num" style="background:var(--amber)">3</div>
+      <p><strong>Si un plazo no se va a cumplir, avisa antes de que venza.</strong> Una tarea vencida aparece en rojo para todos. Avisar a tiempo permite reprogramar o pedir apoyo.</p>
+    </div>
+  </div>
+
+  <!-- Herramientas útiles -->
+  <div class="section">
+    <div class="section-title">🛠 Herramientas útiles</div>
+    <div class="card">
+      <h3>🔍 Encontrar una tarea</h3>
+      <ul>
+        <li>El buscador de la barra lateral encuentra tareas por título, solicitante o responsable</li>
+        <li>En "Todas las tareas", la barra de búsqueda filtra la lista mientras escribes</li>
+        <li>Haz clic en una tarea (o en 👁) para ver su detalle completo: descripción, solicitante, plazo y enlace</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>📅 Calendario</h3>
+      <ul>
+        <li><strong>Vista mensual</strong>: todas las tareas con fecha límite, cada una en su día y con el color de su estado</li>
+        <li><strong>Vista por persona</strong>: la semana de cada integrante. Elige tu nombre en el selector para ver tu agenda</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>📱 Desde el celular</h3>
+      <ul>
+        <li>Abre el mismo enlace de tu coordinación en el navegador del celular</li>
+        <li>Toca <strong>☰</strong> en la barra superior para abrir el menú</li>
+        <li>Puedes cambiar el estado de una tarea desde la lista, igual que en el computador</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Señales que vas a ver</h3>
+      <div class="alert" style="background:var(--red-lt);color:#791F1F;border:1px solid #FCEBEB">
+        <strong>⚠ Tarea vencida</strong>: aparece en rojo cuando pasó la fecha límite y no está completada. Si es tuya, conversa con tu coordinador/a.
+      </div>
+      <div class="alert" style="background:var(--amber-lt);color:#633806;border:1px solid #EF9F2733;margin-bottom:0">
+        <strong>⏳ En revisión</strong>: el aviso naranja que ve tu coordinador/a cuando le enviaste algo para validar.
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximamente -->
+  <div class="section">
+    <div class="section-title">🚀 Lo que viene</div>
+    <div class="card" style="border-color:#009BD955">
+      <h3>🔔 Avisos de tareas nuevas <span class="badge" style="background:var(--azul-lt);color:var(--azul-dk)">En desarrollo</span></h3>
+      <p>Estamos preparando mejoras para que nadie tenga que estar revisando el dashboard para enterarse de algo nuevo:</p>
+      <ul>
+        <li><strong>Etiqueta "Nueva"</strong> en las tareas que aparecieron desde tu última visita</li>
+        <li><strong>Correo automático</strong> cuando te asignan una tarea y cuando una tarea queda lista para revisión. Nunca te llegará un aviso por algo que hiciste tú mismo/a</li>
+        <li><strong>Enlace personal</strong> para cada integrante, para que el sistema sepa quién hizo cada cambio</li>
+      </ul>
+      <p style="margin-top:8px">Les avisaremos cuando estén disponibles.</p>
+    </div>
+  </div>
+
+  <!-- Preguntas frecuentes -->
+  <div class="section">
+    <div class="section-title">❓ Preguntas frecuentes</div>
+    <div class="card">
+      <ul>
+        <li><span><strong>¿Por qué no puedo marcar mis tareas como Completada?</strong> Porque la validación es responsabilidad de tu coordinador/a. Cuando la pasas a Revisión, tu parte está hecha.</span></li>
+        <li><span><strong>Mi coordinador/a me pidió cambios. ¿Qué hago con la tarea?</strong> Tu coordinador/a la devolverá a En progreso. Cuando corrijas, vuelve a pasarla a Revisión.</span></li>
+        <li><span><strong>¿Puedo ver las tareas de otras coordinaciones?</strong> Sí, desde la barra lateral. Úsalo para coordinarte, pero no modifiques tareas que no son tuyas.</span></li>
+        <li><span><strong>Moví una tarea al estado equivocado. ¿Es grave?</strong> No. Vuelve a cambiarla al estado correcto con el mismo selector.</span></li>
+        <li><span><strong>¿Cada cuánto se actualiza la información?</strong> El dashboard se sincroniza solo cada 2 minutos. Si quieres ver los cambios al instante, usa el botón ↻ de la barra lateral.</span></li>
+        <li><span><strong>¿Qué pasa si archivo una tarea por error?</strong> No se pierde: avísale a tu coordinador/a, que puede recuperarla desde la Papelera.</span></li>
+        <li><span><strong>No aparezco en la lista de personas.</strong> Pídele a la directora que te agregue al equipo desde su vista.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    Dirección de Comunicaciones · Universidad de La Frontera · Manual del Equipo v1.0<br>
+    Para dudas sobre el uso del dashboard, consulta con tu coordinador/a
+  </div>
+
+  <div class="no-print" style="text-align:center;margin-top:24px">
+    <button onclick="window.print()" style="padding:10px 24px;background:var(--azul);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-family:inherit;cursor:pointer;font-weight:500">
+      📄 Descargar como PDF
+    </button>
+  </div>
+
+</div>
+</body>
+</html>
