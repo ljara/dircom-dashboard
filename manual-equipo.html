@@ -3,10 +3,11 @@
 <head>
 <!--
   Manual del Equipo — Dashboard DIRCOM UFRO
-  Versión: 1.1.0
+  Versión: 1.2.0
   Fecha: 2026-10-19
   Complementa a manual-dircom.html (orientado a coordinadores/as y directora).
   Changelog:
+  - v1.2.0: Aviso 🔔 de tareas nuevas de la directora; "Lo que viene" actualizado
   - v1.1.0: Pestaña Equipo: clic en tu nombre para ver tus tareas y contador pendientes/completadas (30 días)
   - v1.0.1: Nuevos nombres de las coordinaciones
   - v1.0.0: Versión inicial para presentar al equipo completo
@@ -14,7 +15,7 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/webp" href="img/favicon.webp">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.1.0</title>
+<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.2.0</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   :root {
@@ -143,7 +144,7 @@
   <div class="header">
     <div class="org">Universidad de La Frontera</div>
     <h1>Manual del Equipo<br>Dashboard DIRCOM</h1>
-    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.1</div>
+    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.2</div>
   </div>
   <div class="stripe"></div>
 
@@ -358,8 +359,11 @@
       <div class="alert" style="background:var(--red-lt);color:#791F1F;border:1px solid #FCEBEB">
         <strong>⚠ Tarea vencida</strong>: aparece en rojo cuando pasó la fecha límite y no está completada. Si es tuya, conversa con tu coordinador/a.
       </div>
-      <div class="alert" style="background:var(--amber-lt);color:#633806;border:1px solid #EF9F2733;margin-bottom:0">
+      <div class="alert" style="background:var(--amber-lt);color:#633806;border:1px solid #EF9F2733">
         <strong>⏳ En revisión</strong>: el aviso naranja que ve tu coordinador/a cuando le enviaste algo para validar.
+      </div>
+      <div class="alert" style="background:var(--blue-lt);color:#0C447C;border:1px solid #378ADD33;margin-bottom:0">
+        <strong>🔔 Tareas nuevas de la directora</strong>: el aviso azul que aparece al entrar cuando la directora creó o asignó tareas a tu coordinación. Esas tareas llevan la etiqueta <strong>Nueva</strong>. Al revisarlas, presiona <strong>✓ Marcar como visto</strong>.
       </div>
     </div>
   </div>
@@ -371,7 +375,7 @@
       <h3>🔔 Avisos de tareas nuevas <span class="badge" style="background:var(--azul-lt);color:var(--azul-dk)">En desarrollo</span></h3>
       <p>Estamos preparando mejoras para que nadie tenga que estar revisando el dashboard para enterarse de algo nuevo:</p>
       <ul>
-        <li><strong>Etiqueta "Nueva"</strong> en las tareas que aparecieron desde tu última visita</li>
+        <li><strong>Etiqueta "Nueva"</strong> para todas las asignaciones, no solo las de la directora (ya disponible para las tareas que crea o asigna la directora; ver "Señales que vas a ver")</li>
         <li><strong>Correo automático</strong> cuando te asignan una tarea y cuando una tarea queda lista para revisión. Nunca te llegará un aviso por algo que hiciste tú mismo/a</li>
         <li><strong>Enlace personal</strong> para cada integrante, para que el sistema sepa quién hizo cada cambio</li>
       </ul>
@@ -396,7 +400,7 @@
   </div>
 
   <div class="footer">
-    Dirección de Comunicaciones · Universidad de La Frontera · Manual del Equipo v1.1<br>
+    Dirección de Comunicaciones · Universidad de La Frontera · Manual del Equipo v1.2<br>
     Para dudas sobre el uso del dashboard, consulta con tu coordinador/a
   </div>
 
