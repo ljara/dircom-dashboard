@@ -69,7 +69,7 @@ function openModal(type, item){
         <div class="form-group"><label>Coordinación *</label>
           <select id="p-coord">${state.coordinaciones.map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':''}>${m.icon} ${m.name}</option>`;}).join('')}</select>
         </div>
-        <div class="form-group"><label>¿Es jefe/a de coordinación?</label>
+        <div class="form-group"><label>¿Es coordinador/a?</label>
           <select id="p-jefe">
             <option value="false"${isEdit&&item.esJefe!=='true'&&item.esJefe!==true?' selected':''}>No</option>
             <option value="true"${isEdit&&(item.esJefe==='true'||item.esJefe===true)?' selected':''}>Sí</option>

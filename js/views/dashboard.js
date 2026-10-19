@@ -171,7 +171,7 @@ function renderDashboard(){
           <div class="coord-card-header">
             <div class="coord-icon-wrap" style="background:${m.bg}">${m.icon}</div>
             <div style="flex:1"><div class="coord-card-name">${m.name}</div>
-            <div class="coord-card-jefe">${jefe?jefe.nombre:'Sin jefe asignado'}</div></div>
+            <div class="coord-card-jefe">${jefe?jefe.nombre:'Sin coordinador/a asignado/a'}</div></div>
             ${venc?`<span style="background:var(--red-light);color:var(--red);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px">⚠ ${venc}</span>`:''}
           </div>
           <div class="coord-stats"><span>☑ ${cnt} tareas</span><span>👤 ${pers} personas</span></div>

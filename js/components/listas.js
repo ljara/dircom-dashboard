@@ -47,7 +47,7 @@ function personaListHTML(personas){
       title="Ver tareas asignadas a ${escHtml(p.nombre)}">
       <div class="avatar" style="background:${col}22;color:${col}">${getInitials(p.nombre)}</div>
       <div class="persona-info">
-        <div class="persona-name">${p.nombre} ${esJefe?'<span class="badge" style="background:var(--primary-light);color:var(--primary-dark);font-size:10px">Jefe/a</span>':''}</div>
+        <div class="persona-name">${p.nombre} ${esJefe?'<span class="badge" style="background:var(--primary-light);color:var(--primary-dark);font-size:10px">Coordinador/a</span>':''}</div>
         <div class="persona-role">${p.rol||''}${m?' · '+m.name:''}</div>
       </div>
       <span class="persona-tareas" title="${pendientes} pendiente${pendientes!==1?'s':''} · ${completadas30} completada${completadas30!==1?'s':''} en los últimos 30 días">${pendientes}/${completadas30}</span>
