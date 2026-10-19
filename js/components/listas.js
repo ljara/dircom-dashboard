@@ -38,14 +38,19 @@ function personaListHTML(personas){
     const col=avatarColor(p.nombre);
     const m=getCoordMeta(p.coordId);
     const esJefe=p.esJefe==='true'||p.esJefe===true;
-    return `<div class="persona-item">
+    const asignadas=activeTareas().filter(t=>t.asignado===p.nombre);
+    const pendientes=asignadas.filter(t=>t.status!=='done').length;
+    // Clic en la persona: abre "Todas las tareas" filtrado por ella
+    return `<div class="persona-item persona-clic" data-nombre="${escHtml(p.nombre)}" onclick="verTareas({persona:this.dataset.nombre})"
+      title="Ver tareas asignadas a ${escHtml(p.nombre)}">
       <div class="avatar" style="background:${col}22;color:${col}">${getInitials(p.nombre)}</div>
       <div class="persona-info">
         <div class="persona-name">${p.nombre} ${esJefe?'<span class="badge" style="background:var(--primary-light);color:var(--primary-dark);font-size:10px">Jefe/a</span>':''}</div>
         <div class="persona-role">${p.rol||''}${m?' · '+m.name:''}</div>
       </div>
-      <button class="btn btn-sm btn-edit" onclick='openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>
-      <button class="btn btn-sm btn-danger" onclick="deletePersona('${p.id}')" title="Eliminar">✕</button>
+      <span class="persona-tareas" title="${pendientes} pendiente${pendientes!==1?'s':''} de ${asignadas.length} asignada${asignadas.length!==1?'s':''}">📋 ${pendientes}/${asignadas.length}</span>
+      <button class="btn btn-sm btn-edit" onclick='event.stopPropagation();openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>
+      <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deletePersona('${p.id}')" title="Eliminar">✕</button>
     </div>`;
   }).join('');
 }
