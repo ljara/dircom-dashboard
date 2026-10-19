@@ -50,10 +50,7 @@ function personaListHTML(personas){
         <div class="persona-name">${p.nombre} ${esJefe?'<span class="badge" style="background:var(--primary-light);color:var(--primary-dark);font-size:10px">Jefe/a</span>':''}</div>
         <div class="persona-role">${p.rol||''}${m?' · '+m.name:''}</div>
       </div>
-      <span class="persona-tareas" title="Tareas abiertas y tareas completadas en los últimos 30 días">
-        <span>${pendientes} pendiente${pendientes!==1?'s':''}</span>
-        <span>· ${completadas30} completada${completadas30!==1?'s':''} (30 días)</span>
-      </span>
+      <span class="persona-tareas" title="${pendientes} pendiente${pendientes!==1?'s':''} · ${completadas30} completada${completadas30!==1?'s':''} en los últimos 30 días">${pendientes}/${completadas30}</span>
       <button class="btn btn-sm btn-edit" onclick='event.stopPropagation();openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>
       <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deletePersona('${p.id}')" title="Eliminar">✕</button>
     </div>`;

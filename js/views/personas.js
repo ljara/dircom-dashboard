@@ -16,7 +16,7 @@ function renderPersonasView(){
             <span style="width:26px;height:26px;border-radius:6px;font-size:14px;display:inline-flex;align-items:center;justify-content:center;background:${m.bg}">${m.icon}</span>
             ${m.name}
           </div>
-          <span style="font-size:12px;color:var(--text-muted)">${pers.length} personas</span>
+          <span style="font-size:12px;color:var(--text-muted);text-align:right">${pers.length} personas · tareas: pendientes / completadas (30 días)</span>
         </div>
         ${personaListHTML(pers)}
       </div>`;
