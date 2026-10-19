@@ -52,7 +52,7 @@ function personaListHTML(personas){
       </div>
       <span class="persona-tareas" title="${pendientes} pendiente${pendientes!==1?'s':''} · ${completadas30} completada${completadas30!==1?'s':''} en los últimos 30 días">${pendientes}/${completadas30}</span>
       <button class="btn btn-sm btn-edit" onclick='event.stopPropagation();openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>
-      <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deletePersona('${p.id}')" title="Eliminar">✕</button>
+      ${esDirector()?`<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deletePersona('${p.id}')" title="Eliminar">✕</button>`:''}
     </div>`;
   }).join('');
 }
