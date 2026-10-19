@@ -3,6 +3,7 @@
 // ── HTML helpers ───────────────────────────────────────────
 function taskListHTML(tasks){
   if(!tasks.length) return `<div class="empty"><div class="empty-icon">📋</div><p>Sin tareas aquí todavía</p></div>`;
+  const nuevas=new Set(novedadesCoord().map(t=>t.id));
   return tasks.map(t=>{
     const m=getCoordMeta(t.coordId);
     const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -13,7 +14,7 @@ function taskListHTML(tasks){
     return `<div class="task-item">
       <div class="task-status-dot dot-${t.status}" style="cursor:pointer" onclick='viewTask(${JSON.stringify(t)})'></div>
       <div class="task-body" style="cursor:pointer" onclick='viewTask(${JSON.stringify(t)})'>
-        <div class="task-title task-title-link">${esVencida?'<span title="Tarea vencida" style="color:var(--red);margin-right:4px">⚠</span>':''}${t.titulo||''}</div>
+        <div class="task-title task-title-link">${esVencida?'<span title="Tarea vencida" style="color:var(--red);margin-right:4px">⚠</span>':''}${nuevas.has(t.id)?'<span class="badge badge-nueva" title="Creada o asignada por la directora desde tu última visita">Nueva</span> ':''}${t.titulo||''}</div>
         <div class="task-meta">
           <span>${m.icon} ${m.name}</span>
           ${t.solicitante?`<span>📋 ${t.solicitante}</span>`:'<span style="color:var(--text-faint)">Sin solicitante</span>'}

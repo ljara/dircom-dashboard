@@ -72,6 +72,7 @@ function renderTareasView(){
         <button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
       </div>
     </div>
+    ${bannerNovedadesHTML()}
     ${bannerRevision}
     <div class="section">
       <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center">

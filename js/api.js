@@ -37,7 +37,9 @@ function normalizeTarea(t){
     fecha:              t.fecha||'',
     link:               t.link||'',
     created:            t.created_at||'',
-    completado:         t.completed_at||''
+    completado:         t.completed_at||'',
+    asignadoPor:        t.asignado_por||'',
+    asignadoAt:         t.asignado_at||''
   };
 }
 

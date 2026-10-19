@@ -89,6 +89,13 @@ function resolverAcceso(key, coord) {
   return { rol: 'general', coord: null };
 }
 
+// Quién asignó la tarea y cuándo (para avisar a la coordinación cuando asigna la directora):
+// 'directora', 'coord:<id>' o 'general'
+function registroAsignacion(acceso) {
+  const por = acceso.rol === 'coordinacion' ? 'coord:' + acceso.coord : acceso.rol;
+  return { asignado_por: por, asignado_at: new Date().toISOString() };
+}
+
 export default async function handler(req, res) {
   // CORS — solo permite origen del dashboard
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -127,14 +134,24 @@ export default async function handler(req, res) {
 
       case 'addTarea': {
         const id = 't' + Date.now();
-        const { completed_at, ...body } = data;   // completed_at lo gestiona el servidor
+        // completed_at y asignado_* los gestiona el servidor
+        const { completed_at, asignado_por, asignado_at, ...body } = data;
         if (body.status === 'done') body.completed_at = new Date().toISOString();
+        Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
         return res.json({ ok: true, id, data: result });
       }
 
       case 'updateTarea': {
-        const { id, completed_at, ...body } = data;
+        const { id, completed_at, asignado_por, asignado_at, ...body } = data;
+        // Si cambia la coordinación o la persona asignada, queda registrado quién lo hizo
+        if ('coord_id' in body || 'asignado' in body) {
+          const [actual] = await sbGet('tareas', `id=eq.${encodeURIComponent(id)}&select=coord_id,asignado`);
+          const cambio = actual && (
+            ('coord_id' in body && String(body.coord_id ?? '') !== String(actual.coord_id ?? '')) ||
+            ('asignado' in body && String(body.asignado ?? '') !== String(actual.asignado ?? '')));
+          if (cambio) Object.assign(body, registroAsignacion(acceso));
+        }
         await sbPatch('tareas', id, body);
         await syncCompletedAt(id, body.status);
         return res.json({ ok: true });

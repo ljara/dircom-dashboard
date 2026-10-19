@@ -72,6 +72,15 @@ Desde v2.3.0 la tabla `tareas` necesita la columna `completed_at` (fecha de tér
 alter table tareas add column if not exists completed_at timestamptz;
 ```
 
+Desde v2.6.0 también necesita `asignado_por` y `asignado_at`: el servidor registra quién creó o
+reasignó cada tarea (`directora`, `coord:<id>` o `general`) y cuándo. Con eso, el enlace de cada
+coordinación muestra las tareas que la directora le creó o asignó desde la última visita:
+
+```sql
+alter table tareas add column if not exists asignado_por text;
+alter table tareas add column if not exists asignado_at timestamptz;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -115,7 +124,8 @@ vercel dev         # http://localhost:3000
 
 ## Historial de versiones
 
-- **v2.4.0** — Vista de la directora protegida con clave; Reportes solo para la directora; cada coordinación recibe solo sus tareas
+- **v2.6.0** — Avisos para cada coordinación: tareas creadas o asignadas por la directora desde la última visita (aviso, etiqueta "Nueva" y contador en la pestaña); Equipo con tareas por persona
+- v2.4.0 — Vista de la directora protegida con clave; Reportes solo para la directora; cada coordinación recibe solo sus tareas
 - v2.3.0 — Vista Reportes: período configurable, KPI, comparación, PDF y exportación a Excel; registro de fecha de término
 - v2.2.0 — Código separado en archivos (`css/`, `js/`, `img/`), sin cambios de funcionalidad
 - v2.1.2 — Celdas del calendario con tamaño fijo

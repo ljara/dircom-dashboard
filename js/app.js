@@ -93,6 +93,7 @@ function render(){
   else if(state.view==='opciones')       el.innerHTML=renderOpcionesView();
   else if(state.view==='papelera')       el.innerHTML=renderPapelera();
   else if(state.view==='reportes')       el.innerHTML=renderReportesView();
+  actualizarTituloNovedades();
   if(foco){
     const nuevo=document.getElementById(foco.id);
     if(nuevo){

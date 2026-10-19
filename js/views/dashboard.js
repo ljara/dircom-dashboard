@@ -111,6 +111,7 @@ function renderDashboard(){
         ${esDirector()?`<button class="btn" onclick="setView('reportes')" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a">📈 Reportes</button>`:''}
       </div>
     </div>
+    ${bannerNovedadesHTML()}
 
     <div class="metrics">
       <div class="metric"><div class="m-label">Total tareas</div><div class="m-value">${total}</div><div class="m-sub">período seleccionado</div></div>
