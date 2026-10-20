@@ -28,20 +28,20 @@ function openModal(type, item){
         <div class="form-group"><label>Coordinación *</label>
           <select id="f-coord">${state.coordinaciones.map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':(!isEdit&&state.filterCoord===c.id?' selected':'')}>${m.icon} ${m.name}</option>`;}).join('')}</select>
         </div>
-        <div class="form-group"><label>Solicitante</label><input id="f-solicitante" value="${isEdit?escHtml(item.solicitante||''):''}" placeholder="Nombre del solicitante"></div>
-        <div class="form-group"><label>Tipo de requerimiento</label>${opSelect('tipo_requerimiento', isEdit?item.tipo_requerimiento:'', 'Seleccionar tipo…')}</div>
-        <div class="form-group"><label>Categoría</label>${opSelect('categoria', isEdit?item.categoria:'', 'Seleccionar categoría…')}</div>
-        <div class="form-group"><label>Asignado a</label>
-          <select id="f-asig"><option value="">Sin asignar</option>${state.personas.map(p=>`<option value="${p.nombre}"${isEdit&&item.asignado===p.nombre?' selected':''}>${p.nombre}</option>`).join('')}</select>
+        <div class="form-group"><label>Solicitante *</label><input id="f-solicitante" value="${isEdit?escHtml(item.solicitante||''):''}" placeholder="Nombre del solicitante"></div>
+        <div class="form-group"><label>Tipo de requerimiento *</label>${opSelect('tipo_requerimiento', isEdit?item.tipo_requerimiento:'', 'Seleccionar tipo…')}</div>
+        <div class="form-group"><label>Categoría *</label>${opSelect('categoria', isEdit?item.categoria:'', 'Seleccionar categoría…')}</div>
+        <div class="form-group"><label>Asignado a *</label>
+          <select id="f-asig"><option value="">Seleccionar persona…</option>${state.personas.map(p=>`<option value="${p.nombre}"${isEdit&&item.asignado===p.nombre?' selected':''}>${p.nombre}</option>`).join('')}</select>
         </div>
-        <div class="form-group"><label>Prioridad</label>
+        <div class="form-group"><label>Prioridad *</label>
           <select id="f-prior">
             <option value="baja"${isEdit&&item.prioridad==='baja'?' selected':''}>Baja</option>
             <option value="media"${!isEdit||item.prioridad==='media'?' selected':''}>Media</option>
             <option value="alta"${isEdit&&item.prioridad==='alta'?' selected':''}>Alta</option>
           </select>
         </div>
-        <div class="form-group"><label>Estado</label>
+        <div class="form-group"><label>Estado *</label>
           <select id="f-status">
             ${['todo','progress','review','done'].map(s=>`<option value="${s}"${isEdit&&item.status===s?' selected':(!isEdit&&s==='todo'?' selected':'')}>${statusLabel(s)}</option>`).join('')}
           </select>

@@ -1,16 +1,31 @@
 // Acciones que guardan datos: crear, editar, cambiar estado y eliminar
 
 // ── Actions ────────────────────────────────────────────────
+// Campos obligatorios del formulario de tarea (el servidor aplica la misma regla)
+const CAMPOS_OBLIGATORIOS_TAREA = [
+  {input:'f-titulo',             campo:'titulo',             nombre:'título'},
+  {input:'f-coord',              campo:'coordId',            nombre:'coordinación'},
+  {input:'f-solicitante',        campo:'solicitante',        nombre:'solicitante'},
+  {input:'f-tipo_requerimiento', campo:'tipo_requerimiento', nombre:'tipo de requerimiento'},
+  {input:'f-categoria',          campo:'categoria',          nombre:'categoría'},
+  {input:'f-asig',               campo:'asignado',           nombre:'persona asignada'},
+  {input:'f-prior',              campo:'prioridad',          nombre:'prioridad'},
+  {input:'f-status',             campo:'status',             nombre:'estado'},
+  {input:'f-fecha',              campo:'fecha',              nombre:'fecha límite'}
+];
+
 async function submitTarea(existingId){
   const titulo=document.getElementById('f-titulo').value.trim();
-  if(!titulo){ showToast('El título es obligatorio'); return; }
-  // Fecha límite obligatoria al crear; al editar no se puede quitar si ya tenía
-  // (las tareas antiguas sin fecha se pueden seguir editando)
-  const fechaEl=document.getElementById('f-fecha');
-  const teniaFecha=existingId && state.tareas.find(t=>t.id===existingId)?.fecha;
-  if(!fechaEl.value && (!existingId || teniaFecha)){
-    showToast('La fecha límite es obligatoria');
-    fechaEl.focus();
+  // Campos obligatorios (todos menos descripción y link). Al crear se exigen todos;
+  // al editar no se puede vaciar uno que ya tenía valor (las tareas antiguas incompletas se pueden seguir editando)
+  const original=existingId ? state.tareas.find(t=>t.id===existingId) : null;
+  const faltan=CAMPOS_OBLIGATORIOS_TAREA.filter(c=>{
+    const el=document.getElementById(c.input);
+    return el && !el.value.trim() && (!original || String(original[c.campo]||'').trim());
+  });
+  if(faltan.length){
+    showToast('Falta completar: '+faltan.map(c=>c.nombre).join(', '));
+    document.getElementById(faltan[0].input).focus();
     return;
   }
 

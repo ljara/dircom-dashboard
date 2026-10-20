@@ -89,6 +89,15 @@ function resolverAcceso(key, coord) {
   return { rol: 'general', coord: null };
 }
 
+// Campos obligatorios de una tarea: todos menos descripción y link
+const OBLIGATORIOS_TAREA = ['titulo', 'coord_id', 'solicitante', 'tipo_requerimiento', 'categoria',
+                            'asignado', 'prioridad', 'status', 'fecha'];
+const NOMBRES_CAMPOS = { titulo: 'título', coord_id: 'coordinación', solicitante: 'solicitante',
+  tipo_requerimiento: 'tipo de requerimiento', categoria: 'categoría', asignado: 'persona asignada',
+  prioridad: 'prioridad', status: 'estado', fecha: 'fecha límite' };
+const vacio = v => v === undefined || v === null || String(v).trim() === '';
+const errorObligatorios = campos => 'Falta completar: ' + campos.map(c => NOMBRES_CAMPOS[c]).join(', ');
+
 // Quién asignó la tarea y cuándo (para avisar a la coordinación cuando asigna la directora):
 // 'directora', 'coord:<id>' o 'general'
 function registroAsignacion(acceso) {
@@ -136,7 +145,8 @@ export default async function handler(req, res) {
         const id = 't' + Date.now();
         // completed_at y asignado_* los gestiona el servidor
         const { completed_at, asignado_por, asignado_at, ...body } = data;
-        if (!body.fecha) return res.status(400).json({ error: 'La fecha límite es obligatoria' });
+        const faltan = OBLIGATORIOS_TAREA.filter(c => vacio(body[c]));
+        if (faltan.length) return res.status(400).json({ error: errorObligatorios(faltan) });
         if (body.status === 'done') body.completed_at = new Date().toISOString();
         Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
@@ -145,12 +155,15 @@ export default async function handler(req, res) {
 
       case 'updateTarea': {
         const { id, completed_at, asignado_por, asignado_at, ...body } = data;
+        // Campos obligatorios que vienen vacíos: solo se rechaza si la tarea ya tenía valor
+        // (las tareas antiguas incompletas se pueden seguir editando)
+        const vacios = OBLIGATORIOS_TAREA.filter(c => c in body && vacio(body[c]));
         // Si cambia la coordinación o la persona asignada, queda registrado quién lo hizo
-        if ('coord_id' in body || 'asignado' in body || 'fecha' in body) {
-          const [actual] = await sbGet('tareas', `id=eq.${encodeURIComponent(id)}&select=coord_id,asignado,fecha`);
-          // No se puede quitar la fecha límite a una tarea que ya la tenía
-          if ('fecha' in body && !body.fecha && actual?.fecha)
-            return res.status(400).json({ error: 'La fecha límite es obligatoria' });
+        if (vacios.length || 'coord_id' in body || 'asignado' in body) {
+          const campos = [...new Set(['coord_id', 'asignado', ...vacios])].join(',');
+          const [actual] = await sbGet('tareas', `id=eq.${encodeURIComponent(id)}&select=${campos}`);
+          const quitados = vacios.filter(c => actual && !vacio(actual[c]));
+          if (quitados.length) return res.status(400).json({ error: errorObligatorios(quitados) });
           const cambio = actual && (
             ('coord_id' in body && String(body.coord_id ?? '') !== String(actual.coord_id ?? '')) ||
             ('asignado' in body && String(body.asignado ?? '') !== String(actual.asignado ?? '')));
