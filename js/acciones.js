@@ -4,6 +4,15 @@
 async function submitTarea(existingId){
   const titulo=document.getElementById('f-titulo').value.trim();
   if(!titulo){ showToast('El título es obligatorio'); return; }
+  // Fecha límite obligatoria al crear; al editar no se puede quitar si ya tenía
+  // (las tareas antiguas sin fecha se pueden seguir editando)
+  const fechaEl=document.getElementById('f-fecha');
+  const teniaFecha=existingId && state.tareas.find(t=>t.id===existingId)?.fecha;
+  if(!fechaEl.value && (!existingId || teniaFecha)){
+    showToast('La fecha límite es obligatoria');
+    fechaEl.focus();
+    return;
+  }
 
   const extras = extraFields(state.tareasHeaders, SYSTEM_FIELDS_TAREA);
   const extraData = {};

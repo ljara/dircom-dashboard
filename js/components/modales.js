@@ -46,7 +46,7 @@ function openModal(type, item){
             ${['todo','progress','review','done'].map(s=>`<option value="${s}"${isEdit&&item.status===s?' selected':(!isEdit&&s==='todo'?' selected':'')}>${statusLabel(s)}</option>`).join('')}
           </select>
         </div>
-        <div class="form-group"><label>Fecha límite</label><input type="date" id="f-fecha" value="${isEdit?(item.fecha||''):''}"></div>
+        <div class="form-group"><label>Fecha límite *</label><input type="date" id="f-fecha" required value="${isEdit?(item.fecha||''):''}"></div>
         <div class="form-group"><label>Link</label><input id="f-link" type="url" value="${isEdit?escHtml(item.link||''):''}" placeholder="https://"></div>
         ${extras.length?`<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;margin-top:4px;text-transform:uppercase;letter-spacing:.05em">Campos adicionales</div>`:''}
         ${extras.map(f=>`<div class="form-group field-extra"><label>${f}</label><input id="f-extra-${f}" value="${isEdit?escHtml(String(item[f]||'')):''}" placeholder="${f}"></div>`).join('')}

@@ -136,6 +136,7 @@ export default async function handler(req, res) {
         const id = 't' + Date.now();
         // completed_at y asignado_* los gestiona el servidor
         const { completed_at, asignado_por, asignado_at, ...body } = data;
+        if (!body.fecha) return res.status(400).json({ error: 'La fecha límite es obligatoria' });
         if (body.status === 'done') body.completed_at = new Date().toISOString();
         Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
@@ -145,8 +146,11 @@ export default async function handler(req, res) {
       case 'updateTarea': {
         const { id, completed_at, asignado_por, asignado_at, ...body } = data;
         // Si cambia la coordinación o la persona asignada, queda registrado quién lo hizo
-        if ('coord_id' in body || 'asignado' in body) {
-          const [actual] = await sbGet('tareas', `id=eq.${encodeURIComponent(id)}&select=coord_id,asignado`);
+        if ('coord_id' in body || 'asignado' in body || 'fecha' in body) {
+          const [actual] = await sbGet('tareas', `id=eq.${encodeURIComponent(id)}&select=coord_id,asignado,fecha`);
+          // No se puede quitar la fecha límite a una tarea que ya la tenía
+          if ('fecha' in body && !body.fecha && actual?.fecha)
+            return res.status(400).json({ error: 'La fecha límite es obligatoria' });
           const cambio = actual && (
             ('coord_id' in body && String(body.coord_id ?? '') !== String(actual.coord_id ?? '')) ||
             ('asignado' in body && String(body.asignado ?? '') !== String(actual.asignado ?? '')));
