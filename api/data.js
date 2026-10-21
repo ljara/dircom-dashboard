@@ -132,10 +132,15 @@ async function resolverAcceso(key, coord, sesion) {
   if (key) return esClaveDirectora(key) ? { rol: 'directora', coord: null } : null;
   if (sesion) {
     const s = leerSesion(sesion);
-    if (s && s.directora && correosDirectora().includes(s.correo))
-      return { rol: 'directora', coord: null, yo: { nombre: 'Directora', correo: s.correo } };
-    if (s && s.pid) {
-      const [p] = await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=id,nombre,coord_id,es_jefe,correo`);
+    if (s && (s.directora || s.pid)) {
+      const [p] = s.pid
+        ? await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=id,nombre,coord_id,es_jefe,correo`)
+        : [];
+      // DIRECTORA_CORREO se revisa en cada petición: agregar o quitar un correo en Vercel
+      // da o quita el acceso total sin volver a entrar
+      if (correosDirectora().includes(s.correo))
+        return { rol: 'directora', coord: null,
+                 yo: { id: p?.id, nombre: p && p.correo === s.correo ? p.nombre : 'Directora', correo: s.correo } };
       // Quitar a la persona de Equipo (o cambiar su correo) le corta el acceso
       if (p && p.correo === s.correo) return {
         rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
@@ -224,9 +229,9 @@ export default async function handler(req, res) {
       if (!process.env.SESION_SECRETO) return res.status(500).json({ error: 'Falta configurar SESION_SECRETO en Vercel' });
       const correo = await verificarGoogle(data?.credential);
       if (!correo) return res.status(403).json({ error: 'Solo se puede entrar con una cuenta @' + DOMINIO });
-      if (correosDirectora().includes(correo))
-        return res.json({ sesion: crearSesion({ directora: true, correo }), nombre: 'Directora' });
       const [p] = await sbGet('personas', `correo=eq.${encodeURIComponent(correo)}&select=id,nombre`);
+      if (!p && correosDirectora().includes(correo))
+        return res.json({ sesion: crearSesion({ directora: true, correo }), nombre: 'Directora' });
       if (!p) return res.status(403).json({ error: `Tu correo ${correo} no está registrado en Equipo. Pídele a la directora que lo agregue.` });
       return res.json({ sesion: crearSesion({ pid: p.id, correo }), nombre: p.nombre });
     }
