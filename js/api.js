@@ -52,6 +52,7 @@ function normalizePersona(p){
     rol:      p.rol||'',
     coordId:  p.coord_id,
     esJefe:   p.es_jefe===true||p.es_jefe==='true'?'true':'false',
+    gestiona: p.gestiona_tareas===true,   // crea y modifica tareas de todas las coordinaciones
     correo:   p.correo||''   // solo llega a la directora
   };
 }
@@ -72,16 +73,18 @@ async function loadData(){
   initUrlParams();
   try{
     const data = await callAPI('getAll');
+    const primeraCarga   = !state.rol;
     state.rol            = data.rol;
     state.yo             = data.yo || null;
     state.editable       = !!data.editable;
     // Con Google: la persona ve su coordinación, como con el enlace ?coord= (la primera vez abre Tareas)
+    // Quien gestiona tareas ve todas las coordinaciones (sin coordinación fija)
     if(esPersona()){
-      if(!state.urlCoord){
+      if(primeraCarga){
         state.view = 'tareas';
         if(state.rol==='integrante') state.filterPersona = state.yo.nombre;
       }
-      state.urlCoord = data.coord;
+      state.urlCoord = data.coord || null;
     }
     aplicarPermisos();
     state.coordinaciones = (data.coordinaciones||[]).map(normalizeCoord);

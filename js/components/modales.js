@@ -74,10 +74,12 @@ function openModal(type, item){
           <select id="p-coord"${esDirector()?'':' disabled'}>${state.coordinaciones.map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':''}>${m.icon} ${m.name}</option>`;}).join('')}</select>
         </div>
         ${esDirector()?`<div class="form-group"><label>Correo @ufrontera.cl</label><input id="p-correo" type="email" value="${isEdit?escHtml(item.correo||''):''}" placeholder="nombre.apellido@ufrontera.cl"></div>`:''}
-        <div class="form-group"><label>¿Es coordinador/a?</label>
-          <select id="p-jefe"${esDirector()?'':' disabled'}>
-            <option value="false"${isEdit&&item.esJefe!=='true'&&item.esJefe!==true?' selected':''}>No</option>
-            <option value="true"${isEdit&&(item.esJefe==='true'||item.esJefe===true)?' selected':''}>Sí</option>
+        <div class="form-group"><label>Permisos</label>
+          <select id="p-permisos"${esDirector()?'':' disabled'}>
+            ${[['integrante','Integrante — actualiza sus tareas'],
+               ['gestiona','Gestiona tareas — crea y modifica tareas de todas las coordinaciones'],
+               ['coordinador','Coordinador/a — todo en su coordinación']]
+              .map(([v,l])=>`<option value="${v}"${permisoPersona(isEdit?item:null)===v?' selected':''}>${l}</option>`).join('')}
           </select>
         </div>
         ${extras.length?`<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Campos adicionales del Sheet</div>`:''}
@@ -104,6 +106,13 @@ function openModal(type, item){
 }
 
 function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+// Permiso de una persona en el formulario: 'integrante' | 'gestiona' | 'coordinador'
+function permisoPersona(p){
+  if(!p) return 'integrante';
+  if(p.gestiona) return 'gestiona';
+  return p.esJefe==='true'||p.esJefe===true ? 'coordinador' : 'integrante';
+}
 
 // Coordinaciones que se pueden elegir en una tarea: el coordinador/a solo la suya
 function coordsFormTarea(item){

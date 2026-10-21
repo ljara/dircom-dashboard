@@ -55,7 +55,7 @@ function bannerNovedadesHTML(){
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span style="font-size:20px">🔔</span>
         <div style="flex:1;font-size:13px;font-weight:600;color:#0C447C">
-          ${nov.length} tarea${nov.length>1?'s':''} de la directora desde tu última visita
+          ${nov.length} tarea${nov.length>1?'s':''} de Administración desde tu última visita
         </div>
         <button class="btn btn-sm btn-ghost" onclick="marcarNovedadesVistas()">✓ Marcar como visto</button>
       </div>

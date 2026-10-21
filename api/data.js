@@ -117,7 +117,8 @@ const enlacesEditables = () => (process.env.ENLACES_SOLO_LECTURA || '').trim().t
 
 // ── Rol de quien hace la petición ──────────────────────────
 // - ?k=<DIRECTORA_KEY>      → directora (todo, incluido Reportes)
-// - sesión de Google        → directora, coordinador (es_jefe) o integrante, según Equipo
+// - sesión de Google        → directora (DIRECTORA_CORREO), gestor (gestiona_tareas), coordinador (es_jefe)
+//                             o integrante, según Equipo
 // - ?coord=<id> (antiguo)   → coordinación (solo sus tareas)
 // - sin parámetros (antiguo)→ tablero general
 // null = clave incorrecta; { sesionInvalida } = la sesión venció o la persona ya no está en Equipo
@@ -134,14 +135,17 @@ async function resolverAcceso(key, coord, sesion) {
     const s = leerSesion(sesion);
     if (s && (s.directora || s.pid)) {
       const [p] = s.pid
-        ? await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=id,nombre,coord_id,es_jefe,correo`)
+        ? await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=id,nombre,coord_id,es_jefe,gestiona_tareas,correo`)
         : [];
       // DIRECTORA_CORREO se revisa en cada petición: agregar o quitar un correo en Vercel
       // da o quita el acceso total sin volver a entrar
       if (correosDirectora().includes(s.correo))
         return { rol: 'directora', coord: null,
-                 yo: { id: p?.id, nombre: p && p.correo === s.correo ? p.nombre : 'Directora', correo: s.correo } };
+                 yo: { id: p?.id, nombre: p && p.correo === s.correo ? p.nombre : 'Administración', correo: s.correo } };
       // Quitar a la persona de Equipo (o cambiar su correo) le corta el acceso
+      // Gestiona tareas: crea y modifica tareas de todas las coordinaciones (sin etiqueta de cargo)
+      if (p && p.correo === s.correo && p.gestiona_tareas === true)
+        return { rol: 'gestor', coord: null, yo: { id: p.id, nombre: p.nombre, correo: p.correo } };
       if (p && p.correo === s.correo) return {
         rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
         coord: String(p.coord_id || '-'),   // sin coordinación no ve tareas
@@ -163,9 +167,11 @@ const ESTADOS_INTEGRANTE = ['todo', 'progress', 'review'];
 
 function denegar(acceso, action, body = {}, actual = null) {
   if (acceso.rol === 'directora') return null;
-  if (SOLO_DIRECTORA.includes(action)) return 'Solo la directora puede hacer esto';
+  if (SOLO_DIRECTORA.includes(action)) return 'Solo Administración puede hacer esto';
   if (acceso.antiguo) return enlacesEditables() ? null : 'Este enlace es solo de lectura: entra con tu cuenta @ufrontera.cl';
   const propia = c => String(c ?? '') === acceso.coord;
+  if (acceso.rol === 'gestor')
+    return action.endsWith('Tarea') ? null : 'Pídele este cambio a Administración';
   if (acceso.rol === 'coordinador') {
     if (actual && !propia(actual.coord_id)) return 'Solo puedes modificar lo de tu coordinación';
     if (action.endsWith('Tarea') && 'coord_id' in body && !propia(body.coord_id))
@@ -231,13 +237,13 @@ export default async function handler(req, res) {
       if (!correo) return res.status(403).json({ error: 'Solo se puede entrar con una cuenta @' + DOMINIO });
       const [p] = await sbGet('personas', `correo=eq.${encodeURIComponent(correo)}&select=id,nombre`);
       if (!p && correosDirectora().includes(correo))
-        return res.json({ sesion: crearSesion({ directora: true, correo }), nombre: 'Directora' });
-      if (!p) return res.status(403).json({ error: `Tu correo ${correo} no está registrado en Equipo. Pídele a la directora que lo agregue.` });
+        return res.json({ sesion: crearSesion({ directora: true, correo }), nombre: 'Administración' });
+      if (!p) return res.status(403).json({ error: `Tu correo ${correo} no está registrado en Equipo. Pídele a Administración que lo agregue.` });
       return res.json({ sesion: crearSesion({ pid: p.id, correo }), nombre: p.nombre });
     }
 
     const acceso = await resolverAcceso(key, coord, sesion);
-    if (!acceso) return res.status(403).json({ error: 'Clave de directora incorrecta: revisa el enlace' });
+    if (!acceso) return res.status(403).json({ error: 'Clave de administración incorrecta: revisa el enlace' });
     if (acceso.sesionInvalida) return res.status(401).json({ error: 'Tu sesión venció: vuelve a entrar con Google', sesionInvalida: true });
 
     switch (action) {
@@ -329,7 +335,7 @@ export default async function handler(req, res) {
         const p = prepararCorreo(resto, acceso);
         if (p.error) return res.status(400).json({ error: p.error });
         // Coordinación y rol de coordinador/a definen permisos: solo los cambia la directora
-        if (acceso.rol !== 'directora') { delete p.body.coord_id; delete p.body.es_jefe; }
+        if (acceso.rol !== 'directora') { delete p.body.coord_id; delete p.body.es_jefe; delete p.body.gestiona_tareas; }
         await sbPatch('personas', id, p.body);
         return res.json({ ok: true });
       }

@@ -31,14 +31,15 @@ function initUrlParams(){
 // ── Rol actual ─────────────────────────────────────────────
 function esDirector(){ return state.rol==='directora'; }
 function coordActual(){ return state.urlCoord; }
-function esPersona(){ return state.rol==='coordinador' || state.rol==='integrante'; }
+function esPersona(){ return ['gestor','coordinador','integrante'].includes(state.rol); }
 
 // ── Permisos en pantalla (el servidor los vuelve a comprobar) ──
+// Gestiona tareas: crea y modifica tareas de todas las coordinaciones
 // Coordinador/a: todo en su coordinación · Integrante: estado (hasta Revisión), descripción y link de sus tareas
 // Enlaces antiguos: lo que permitían antes, mientras sigan editables
-function puedeCrearTareas(){ return esDirector() || state.rol==='coordinador' || state.editable; }
+function puedeCrearTareas(){ return esDirector() || state.rol==='gestor' || state.rol==='coordinador' || state.editable; }
 function puedeEditarTarea(t){
-  return esDirector() || state.editable
+  return esDirector() || state.rol==='gestor' || state.editable
     || (state.rol==='coordinador' && String(t.coordId)===String(state.urlCoord));
 }
 function puedeAvanzarTarea(t){

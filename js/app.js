@@ -52,9 +52,12 @@ function renderSidebarCoords(){
   const rolEl = document.getElementById('sidebar-rol');
   if(rolEl){
     if(esDirector()){
-      rolEl.textContent = 'Vista: Directora';
+      rolEl.textContent = 'Vista: Administración';
       rolEl.style.color = 'var(--primary-dark)';
       rolEl.style.fontWeight = '500';
+    } else if(state.rol==='gestor'){
+      rolEl.textContent = 'Gestión de tareas · todas las coordinaciones';
+      rolEl.style.color = 'var(--text-muted)';
     } else if(esPersona()){
       const m = getCoordMeta(state.urlCoord);
       rolEl.textContent = `${state.rol==='coordinador'?'Coordinador/a':'Equipo'} · ${m.icon} ${m.name}`;
