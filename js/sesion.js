@@ -33,13 +33,44 @@ function montarBotonesGoogle(){
     googleListo = true;
   }
   document.querySelectorAll('.g-btn:empty').forEach(el=>
-    google.accounts.id.renderButton(el, { theme:'outline', size:'medium', text:'signin_with', locale:'es' }));
+    google.accounts.id.renderButton(el, { theme:'outline', text:'signin_with', locale:'es',
+      size: el.classList.contains('login-btn') ? 'large' : 'medium' }));
 }
 // La librería de Google carga en paralelo y avisa al terminar
 window.onGoogleLibraryLoad = montarBotonesGoogle;
 
 // ¿Mostrar la invitación a entrar? Solo en los enlaces antiguos (la directora con ?k= no la necesita)
-function mostrarEntrar(){ return !esDirector() && !esPersona() && !state.urlKey; }
+function mostrarEntrar(){ return !esDirector() && !esPersona() && !state.urlKey && !state.bloqueado; }
+
+// ── Pantalla de inicio de sesión (cuando el servidor exige entrar con Google) ──
+// El fondo es un tablero de muestra desenfocado: el servidor no entrega datos reales sin sesión
+function mostrarPantallaLogin(){
+  state.bloqueado = true;
+  state.rol = 'general'; state.view = 'dashboard';
+  state.coordinaciones = ['Prensa','Diseño','Audiovisual','Digital'].map((n,i)=>({id:'m'+i, nombre:n, icon:'📁'}));
+  state.personas = Array.from({length:8}, (_,i)=>({id:'pm'+i, nombre:'Persona '+(i+1), rol:'', coordId:'m'+(i%4), esJefe:'false'}));
+  state.tareas = Array.from({length:36}, (_,i)=>normalizeTarea({
+    id:'tm'+i, titulo:'Tarea de muestra '+(i+1), coord_id:'m'+(i%4), asignado:'Persona '+(i%8+1),
+    status:['todo','progress','review','done'][i%4], prioridad:['alta','media','baja'][i%3],
+    fecha: sumarDias(hoyChile(), (i%15)-5), created_at: new Date(Date.now()-i*864e5).toISOString()
+  }));
+  renderSidebarCoords();
+  render();
+  document.body.classList.add('bloqueado');
+  const capa = document.createElement('div');
+  capa.className = 'login-overlay';
+  capa.innerHTML = `
+    <div class="login-card">
+      <div class="login-org">Universidad de La Frontera</div>
+      <div class="login-titulo">Comunicaciones</div>
+      <div class="login-sub">Panel de gestión de tareas</div>
+      <p class="login-texto">Entra con tu cuenta <strong>@ufrontera.cl</strong> para ver y actualizar tus tareas.</p>
+      <div class="g-btn login-btn"></div>
+      <p class="login-ayuda">¿Google te muestra tu cuenta personal? Agrega tu cuenta @ufrontera.cl en el navegador o abre una ventana de incógnito.</p>
+    </div>`;
+  document.body.appendChild(capa);
+  montarBotonesGoogle();
+}
 
 // Bloque de la barra lateral: quién está conectado o el botón para entrar
 function sesionSidebarHTML(){

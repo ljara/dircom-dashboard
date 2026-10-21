@@ -247,3 +247,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .status-fijo{font-size:12px;color:var(--text-muted);padding:4px 8px;white-space:nowrap}
 .aviso-limitado{font-size:12px;color:#633806;background:var(--amber-light);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:12px}
 .modal-body input:disabled,.modal-body select:disabled,.modal-body textarea:disabled{opacity:.6;cursor:not-allowed}
+
+/* Pantalla de inicio de sesión sobre un tablero de muestra desenfocado */
+body.bloqueado .sidebar,body.bloqueado .main,body.bloqueado .mobile-bar{filter:blur(6px);pointer-events:none;user-select:none}
+.login-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(248,248,246,.35)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.14);padding:32px 28px;width:100%;max-width:380px;text-align:center}
+.login-org{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint)}
+.login-titulo{font-size:22px;font-weight:600;margin-top:6px}
+.login-sub{font-size:13px;color:var(--text-muted);margin-top:2px}
+.login-texto{font-size:13px;margin:22px 0 16px}
+.login-btn{display:flex;justify-content:center;min-height:44px}
+.login-ayuda{font-size:11px;color:var(--text-faint);margin:18px 0 0;line-height:1.5}

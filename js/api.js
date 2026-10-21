@@ -15,6 +15,7 @@ async function callAPI(action, data) {
     const json = await res.json().catch(() => ({}));
     // Sesión vencida o persona quitada de Equipo: se borra y se vuelve a cargar sin ella
     if (json.sesionInvalida) { cerrarSesion(); return new Promise(() => {}); }
+    if (json.loginRequerido) throw Object.assign(new Error(json.error), { loginRequerido: true });
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
     if (json.error) throw new Error(json.error);
     return json;
@@ -95,8 +96,9 @@ async function loadData(){
     state.personasHeaders= ['id','nombre','rol','coordId','esJefe'];
     renderSidebarCoords();
   } catch(e){
-    console.error('loadData error:', e);
     document.getElementById('loading').style.display='none';
+    if(e.loginRequerido){ mostrarPantallaLogin(); return; }
+    console.error('loadData error:', e);
     // Mostrar el motivo en pantalla en vez de un tablero vacío (ej. clave incorrecta)
     document.getElementById('main-content').innerHTML =
       `<div class="section" style="margin:40px auto;max-width:480px;text-align:center">

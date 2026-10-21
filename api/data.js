@@ -112,8 +112,10 @@ async function verificarGoogle(credential) {
 // Correos con los que la directora puede entrar con Google (variable DIRECTORA_CORREO, separados por coma)
 const correosDirectora = () => (process.env.DIRECTORA_CORREO || '').split(',').map(c => c.trim().toLowerCase()).filter(Boolean);
 
-// Enlaces antiguos (?coord= y tablero general): editables hasta que ENLACES_SOLO_LECTURA = 'si'
-const enlacesEditables = () => (process.env.ENLACES_SOLO_LECTURA || '').trim().toLowerCase() !== 'si';
+// Enlaces antiguos (?coord= y tablero general): editables hasta que ENLACES_SOLO_LECTURA = 'si',
+// y cerrados del todo (no reciben datos; se pide entrar con Google) cuando SOLO_CON_GOOGLE = 'si'
+const activado = nombre => (process.env[nombre] || '').trim().toLowerCase() === 'si';
+const enlacesEditables = () => !activado('ENLACES_SOLO_LECTURA');
 
 // ── Rol de quien hace la petición ──────────────────────────
 // - ?k=<DIRECTORA_KEY>      → directora (todo, incluido Reportes)
@@ -154,6 +156,7 @@ async function resolverAcceso(key, coord, sesion) {
     }
     return { sesionInvalida: true };
   }
+  if (activado('SOLO_CON_GOOGLE')) return { loginRequerido: true };
   if (coord) return { rol: 'coordinacion', coord: String(coord), antiguo: true };
   return { rol: 'general', coord: null, antiguo: true };
 }
@@ -245,6 +248,7 @@ export default async function handler(req, res) {
     const acceso = await resolverAcceso(key, coord, sesion);
     if (!acceso) return res.status(403).json({ error: 'Clave de administración incorrecta: revisa el enlace' });
     if (acceso.sesionInvalida) return res.status(401).json({ error: 'Tu sesión venció: vuelve a entrar con Google', sesionInvalida: true });
+    if (acceso.loginRequerido) return res.status(401).json({ error: 'Entra con tu cuenta @' + DOMINIO, loginRequerido: true });
 
     switch (action) {
 

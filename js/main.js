@@ -5,7 +5,7 @@ let autoRefreshInterval = null;
 const REFRESH_INTERVAL = 2 * 60 * 1000; // 2 minutos
 
 async function silentRefresh(){
-  if(document.getElementById('modal').style.display==='flex') return;
+  if(document.getElementById('modal').style.display==='flex' || state.bloqueado) return;
   try{
     const data = await callAPI('getAll');
     state.coordinaciones = (data.coordinaciones||[]).map(normalizeCoord);
