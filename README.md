@@ -56,7 +56,11 @@ Variables de entorno necesarias para `api/data.js`:
 |------------------------|-------------------------------------------|
 | `SUPABASE_URL`         | URL del proyecto Supabase                 |
 | `SUPABASE_SERVICE_KEY` | Service role key de Supabase (secreta)    |
-| `DIRECTORA_KEY`        | Clave del enlace de la directora (secreta) |
+| `DIRECTORA_KEY`        | Clave del enlace de Administración `?k=` (secreta; respaldo del login con Google) |
+| `SESION_SECRETO`       | Firma las sesiones de Google (secreta). Sin ella no se puede entrar con Google |
+| `DIRECTORA_CORREO`     | Correos @ufrontera.cl con acceso total (Administración), separados por coma. Se revisa en cada petición |
+| `ENLACES_SOLO_LECTURA` | Opcional: `si` deja los enlaces antiguos (`?coord=` y general) en solo lectura |
+| `SOLO_CON_GOOGLE`      | Opcional: `si` cierra los enlaces antiguos; sin sesión se muestra la pantalla de login y la API no entrega datos |
 | `CRON_SECRET`          | Opcional: protege `/api/keepalive` para que solo lo llame el cron |
 
 El plan gratuito de Supabase pausa el proyecto tras 7 días sin actividad. Para evitarlo,
@@ -79,6 +83,15 @@ coordinación muestra las tareas que la directora le creó o asignó desde la ú
 ```sql
 alter table tareas add column if not exists asignado_por text;
 alter table tareas add column if not exists asignado_at timestamptz;
+```
+
+Desde v2.7.0 (login con Google) la tabla `personas` necesita el correo de cada persona y el permiso
+"Gestiona tareas". `asignado_por` puede valer además `persona:<id>`:
+
+```sql
+alter table personas add column if not exists correo text;
+create unique index if not exists personas_correo_unico on personas (lower(correo));
+alter table personas add column if not exists gestiona_tareas boolean not null default false;
 ```
 
 ## Reportes
@@ -112,7 +125,23 @@ vercel dev         # http://localhost:3000
 
 ## Vistas por rol
 
-- `https://<dominio>/?k=<DIRECTORA_KEY>` → vista de la Directora (todas las coordinaciones y Reportes).
+**Login con Google** (`https://<dominio>/` → "Iniciar sesión con Google", solo cuentas @ufrontera.cl).
+`api/data.js` verifica el token de Google, busca a la persona por `personas.correo` y entrega una
+sesión firmada de 30 días. El rol se vuelve a calcular en cada petición:
+
+| Rol | Cómo se define | Puede |
+|---|---|---|
+| Administración (`directora`) | Correo en `DIRECTORA_CORREO` o enlace `?k=` | Todo |
+| Gestiona tareas (`gestor`) | `personas.gestiona_tareas` | Crear y modificar tareas de todas las coordinaciones |
+| Coordinador/a (`coordinador`) | `personas.es_jefe` | Todo con las tareas de su coordinación; nombre y cargo de su equipo |
+| Integrante (`integrante`) | Resto | En sus tareas abiertas: estado hasta Revisión, descripción y link |
+
+Personas, permisos, correos, coordinaciones y opciones solo los modifica Administración. Los
+permisos se comprueban en el servidor (`denegar()`); la interfaz solo oculta los botones.
+
+**Enlaces antiguos** (se retiran cuando todos entren con Google):
+
+- `https://<dominio>/?k=<DIRECTORA_KEY>` → vista de Administración (todas las coordinaciones y Reportes).
 - `https://<dominio>/?coord=<id>` → abre en las tareas de esa coordinación, con aviso de tareas en revisión.
   La API solo entrega las tareas de esa coordinación y la vista Reportes no está disponible.
 - `https://<dominio>/` → tablero general con todas las coordinaciones, sin las opciones de la directora (Reportes).
@@ -124,6 +153,7 @@ vercel dev         # http://localhost:3000
 
 ## Historial de versiones
 
+- **v2.7.0** — Login con Google (@ufrontera.cl) y permisos por persona aplicados en el servidor (Integrante, Gestiona tareas, Coordinador/a, Administración); pantalla de login sobre un tablero desenfocado (`SOLO_CON_GOOGLE`); la vista de la directora pasa a llamarse Administración; nombre "DirCom"
 - **v2.6.0** — Avisos para cada coordinación: tareas creadas o asignadas por la directora desde la última visita (aviso, etiqueta "Nueva" y contador en la pestaña); Equipo con tareas por persona
 - v2.4.0 — Vista de la directora protegida con clave; Reportes solo para la directora; cada coordinación recibe solo sus tareas
 - v2.3.0 — Vista Reportes: período configurable, KPI, comparación, PDF y exportación a Excel; registro de fecha de término

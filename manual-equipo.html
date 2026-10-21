@@ -3,10 +3,11 @@
 <head>
 <!--
   Manual del Equipo — Dashboard DIRCOM UFRO
-  Versión: 1.2.2
+  Versión: 1.3.0
   Fecha: 2026-10-20
   Complementa a manual-dircom.html (orientado a coordinadores/as y directora).
   Changelog:
+  - v1.3.0: Entrada con cuenta Google @ufrontera.cl; tabla "Quién hace qué" con los permisos que aplica el sistema; avisos de Administración
   - v1.2.2: Al pasar un pedido al coordinador/a: qué, quién lo pide y para cuándo (campos obligatorios)
   - v1.2.1: Fecha límite obligatoria al registrar tareas
   - v1.2.0: Aviso 🔔 de tareas nuevas de la directora; "Lo que viene" actualizado
@@ -17,7 +18,7 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/webp" href="img/favicon.webp">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.2.2</title>
+<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.3.0</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   :root {
@@ -146,7 +147,7 @@
   <div class="header">
     <div class="org">Universidad de La Frontera</div>
     <h1>Manual del Equipo<br>Dashboard DIRCOM</h1>
-    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.2</div>
+    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.3</div>
   </div>
   <div class="stripe"></div>
 
@@ -178,32 +179,21 @@
   <div class="section">
     <div class="section-title">🔗 Cómo entrar</div>
     <div class="card">
-      <h3>📌 El enlace de tu coordinación</h3>
-      <p>Entras con el enlace de la coordinación a la que perteneces. Guárdalo en favoritos, tanto en el computador como en el celular.</p>
+      <h3>📌 Entra con tu cuenta @ufrontera.cl</h3>
+      <p>Todo el equipo entra por la misma dirección. Guárdala en favoritos, tanto en el computador como en el celular:</p>
       <div class="url-grid" style="margin-top:12px">
         <div class="url-card">
-          <div class="rol">Coordinación</div>
-          <div class="nombre">Marketing y Campañas Institucionales</div>
-          <span class="url">dircom-dashboard.vercel.app?coord=marketing</span>
-        </div>
-        <div class="url-card">
-          <div class="rol">Coordinación</div>
-          <div class="nombre">Imagen y Diseño Institucional</div>
-          <span class="url">dircom-dashboard.vercel.app?coord=diseno</span>
-        </div>
-        <div class="url-card">
-          <div class="rol">Coordinación</div>
-          <div class="nombre">Reputación y Asuntos Públicos</div>
-          <span class="url">dircom-dashboard.vercel.app?coord=reputacion</span>
-        </div>
-        <div class="url-card">
-          <div class="rol">Coordinación</div>
-          <div class="nombre">UFROMedios</div>
-          <span class="url">dircom-dashboard.vercel.app?coord=ufromedios</span>
+          <div class="rol">Todo el equipo</div>
+          <div class="nombre">Dashboard DirCom</div>
+          <span class="url">dircom-dashboard.vercel.app</span>
         </div>
       </div>
+      <ul style="margin-top:12px">
+        <li>Presiona <strong>Iniciar sesión con Google</strong> y elige tu cuenta <strong>@ufrontera.cl</strong>. El dashboard sabe quién eres y te muestra directamente tus tareas</li>
+        <li>La sesión dura 30 días en ese navegador. Para cerrarla, usa <strong>Salir</strong>, junto a tu nombre en la barra lateral</li>
+      </ul>
       <div class="alert" style="background:var(--amber-lt);color:#633806;border:1px solid #EF9F2733;margin-top:12px;margin-bottom:0">
-        <strong>🔒 El enlace es tu llave.</strong> No lo compartas fuera del equipo: quien lo tenga puede ver y modificar las tareas de la coordinación.
+        <strong>¿Google te ofrece tu cuenta personal o dice "Acceso bloqueado"?</strong> Solo funcionan las cuentas @ufrontera.cl. Agrega tu cuenta institucional al navegador y elígela, o abre una ventana de incógnito. Si dice que tu correo no está registrado, pídele a Administración que lo cargue.
       </div>
     </div>
   </div>
@@ -217,7 +207,7 @@
           <div class="step-num">1</div>
           <div class="step-content">
             <div class="step-title">Revisa tus tareas al empezar el día</div>
-            <div class="step-desc">En el <strong>Dashboard</strong>, el gráfico <strong>👤 Carga por persona</strong> muestra cuántas tareas pendientes tiene cada integrante. Haz clic en tu nombre para ver solo las tuyas. También puedes ir a <strong>👥 Equipo</strong> y hacer clic en tu nombre: el número junto a él, por ejemplo <strong>8/12</strong>, indica 8 tareas pendientes y 12 completadas en los últimos 30 días.</div>
+            <div class="step-desc">Al entrar, el dashboard abre <strong>tus tareas</strong>. Para ver las de toda tu coordinación, usa <strong>✕ Quitar filtro de persona</strong>. En el <strong>Dashboard</strong>, el gráfico <strong>👤 Carga por persona</strong> muestra cuántas tareas pendientes tiene cada integrante. Haz clic en tu nombre para ver solo las tuyas. También puedes ir a <strong>👥 Equipo</strong> y hacer clic en tu nombre: el número junto a él, por ejemplo <strong>8/12</strong>, indica 8 tareas pendientes y 12 completadas en los últimos 30 días.</div>
             <div class="step-tip"><strong>Atajo:</strong> escribe tu nombre en el buscador de la barra lateral para encontrar todas tus tareas.</div>
           </div>
         </div>
@@ -257,7 +247,7 @@
           <div>
             <div class="status-label">Por hacer</div>
             <div class="status-desc">Asignada, aún no iniciada</div>
-            <div class="status-who">La crea: coordinación o directora</div>
+            <div class="status-who">La crea: coordinador/a o Administración</div>
           </div>
         </div>
         <div class="status-item">
@@ -295,18 +285,20 @@
       <div class="roles-wrap">
         <table class="roles">
           <thead>
-            <tr><th>Acción</th><th>Equipo</th><th>Coordinador/a</th><th>Directora</th></tr>
+            <tr><th>Acción</th><th>Equipo</th><th>Coordinador/a</th><th>Administración</th></tr>
           </thead>
           <tbody>
             <tr><td>Ver las tareas de la coordinación</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Pasar <strong>sus</strong> tareas a En progreso o Revisión</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Editar la descripción y el link de <strong>sus</strong> tareas</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Marcar una tarea como Completada</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Crear tareas y asignarlas</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
-            <tr><td>Modificar tareas de otros compañeros/as</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Modificar o archivar tareas de otros compañeros/as</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Agregar personas, coordinaciones u opciones</td><td class="no">—</td><td class="no">—</td><td class="si">✓</td></tr>
           </tbody>
         </table>
       </div>
+      <p style="margin-top:10px">El sistema aplica estos permisos: si algo no te corresponde, el botón no aparece. Algunas personas del equipo pueden tener además el permiso de <strong>gestionar tareas</strong> de todas las coordinaciones.</p>
       <div class="alert" style="background:var(--blue-lt);color:#0C447C;border:1px solid #378ADD33;margin-top:12px;margin-bottom:0">
         <strong>💡 ¿Te llegó un requerimiento directo?</strong> Si alguien te pide algo por WhatsApp, correo o en un pasillo, avísale a tu coordinador/a para que lo ingrese y te lo asigne. Así queda registrado y cuenta en los reportes.
       </div>
@@ -351,7 +343,7 @@
     <div class="card">
       <h3>📱 Desde el celular</h3>
       <ul>
-        <li>Abre el mismo enlace de tu coordinación en el navegador del celular</li>
+        <li>Abre dircom-dashboard.vercel.app en el navegador del celular y entra con tu cuenta @ufrontera.cl</li>
         <li>Toca <strong>☰</strong> en la barra superior para abrir el menú</li>
         <li>Puedes cambiar el estado de una tarea desde la lista, igual que en el computador</li>
       </ul>
@@ -365,7 +357,7 @@
         <strong>⏳ En revisión</strong>: el aviso naranja que ve tu coordinador/a cuando le enviaste algo para validar.
       </div>
       <div class="alert" style="background:var(--blue-lt);color:#0C447C;border:1px solid #378ADD33;margin-bottom:0">
-        <strong>🔔 Tareas nuevas de la directora</strong>: el aviso azul que aparece al entrar cuando la directora creó o asignó tareas a tu coordinación. Esas tareas llevan la etiqueta <strong>Nueva</strong>. Al revisarlas, presiona <strong>✓ Marcar como visto</strong>.
+        <strong>🔔 Tareas nuevas de Administración</strong>: el aviso azul que aparece al entrar cuando Administración te creó o asignó tareas. Esas tareas llevan la etiqueta <strong>Nueva</strong>. Al revisarlas, presiona <strong>✓ Marcar como visto</strong>.
       </div>
     </div>
   </div>
@@ -377,9 +369,8 @@
       <h3>🔔 Avisos de tareas nuevas <span class="badge" style="background:var(--azul-lt);color:var(--azul-dk)">En desarrollo</span></h3>
       <p>Estamos preparando mejoras para que nadie tenga que estar revisando el dashboard para enterarse de algo nuevo:</p>
       <ul>
-        <li><strong>Etiqueta "Nueva"</strong> para todas las asignaciones, no solo las de la directora (ya disponible para las tareas que crea o asigna la directora; ver "Señales que vas a ver")</li>
+        <li><strong>Etiqueta "Nueva"</strong> para todas las asignaciones, no solo las de Administración (ya disponible para esas; ver "Señales que vas a ver")</li>
         <li><strong>Correo automático</strong> cuando te asignan una tarea y cuando una tarea queda lista para revisión. Nunca te llegará un aviso por algo que hiciste tú mismo/a</li>
-        <li><strong>Enlace personal</strong> para cada integrante, para que el sistema sepa quién hizo cada cambio</li>
       </ul>
       <p style="margin-top:8px">Les avisaremos cuando estén disponibles.</p>
     </div>
@@ -392,17 +383,18 @@
       <ul>
         <li><span><strong>¿Por qué no puedo marcar mis tareas como Completada?</strong> Porque la validación es responsabilidad de tu coordinador/a. Cuando la pasas a Revisión, tu parte está hecha.</span></li>
         <li><span><strong>Mi coordinador/a me pidió cambios. ¿Qué hago con la tarea?</strong> Tu coordinador/a la devolverá a En progreso. Cuando corrijas, vuelve a pasarla a Revisión.</span></li>
-        <li><span><strong>¿Puedo ver las tareas de otras coordinaciones?</strong> Sí, desde la barra lateral. Úsalo para coordinarte, pero no modifiques tareas que no son tuyas.</span></li>
+        <li><span><strong>¿Puedo ver las tareas de otras coordinaciones?</strong> No: ves las de tu coordinación. Si necesitas coordinarte con otra, habla con tu coordinador/a.</span></li>
+        <li><span><strong>¿Puedo crear una tarea?</strong> No. Pásale el pedido a tu coordinador/a (qué piden, quién lo pide y para cuándo) para que lo ingrese y te lo asigne.</span></li>
         <li><span><strong>Moví una tarea al estado equivocado. ¿Es grave?</strong> No. Vuelve a cambiarla al estado correcto con el mismo selector.</span></li>
         <li><span><strong>¿Cada cuánto se actualiza la información?</strong> El dashboard se sincroniza solo cada 2 minutos. Si quieres ver los cambios al instante, usa el botón ↻ de la barra lateral.</span></li>
-        <li><span><strong>¿Qué pasa si archivo una tarea por error?</strong> No se pierde: avísale a tu coordinador/a, que puede recuperarla desde la Papelera.</span></li>
-        <li><span><strong>No aparezco en la lista de personas.</strong> Pídele a la directora que te agregue al equipo desde su vista.</span></li>
+        <li><span><strong>¿Qué pasa si se archiva una tarea por error?</strong> No se pierde: tu coordinador/a puede recuperarla desde la Papelera.</span></li>
+        <li><span><strong>No puedo entrar o no aparezco en la lista de personas.</strong> Pídele a Administración que te agregue al equipo con tu correo @ufrontera.cl.</span></li>
       </ul>
     </div>
   </div>
 
   <div class="footer">
-    Dirección de Comunicaciones · Universidad de La Frontera · Manual del Equipo v1.2<br>
+    Dirección de Comunicaciones · Universidad de La Frontera · Manual del Equipo v1.3<br>
     Para dudas sobre el uso del dashboard, consulta con tu coordinador/a
   </div>
 
