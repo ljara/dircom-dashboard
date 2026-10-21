@@ -8,11 +8,14 @@ function openModal(type, item){
 
   if(type==='tarea'){
     const extras = extraFields(state.tareasHeaders, SYSTEM_FIELDS_TAREA);
+    // Integrante: solo cambia estado (hasta Revisión), descripción y link; el resto se ve bloqueado
+    const limitado = isEdit && !puedeEditarTarea(item);
+    const dis = limitado ? ' disabled' : '';
     // Helper: genera select de opciones desde la pestaña opciones
     const opSelect = (fieldKey, currentVal, placeholder) => {
       const opts = state.opciones[fieldKey] || [];
-      if(!opts.length) return `<input id="f-${fieldKey}" value="${isEdit?escHtml(String(item[fieldKey]||'')):''}" placeholder="${placeholder}">`;
-      return `<select id="f-${fieldKey}">
+      if(!opts.length) return `<input id="f-${fieldKey}"${dis} value="${isEdit?escHtml(String(item[fieldKey]||'')):''}" placeholder="${placeholder}">`;
+      return `<select id="f-${fieldKey}"${dis}>
         <option value="">${placeholder}</option>
         ${opts.map(o=>`<option value="${escHtml(o)}"${isEdit&&String(item[fieldKey])===String(o)?' selected':''}>${escHtml(o)}</option>`).join('')}
       </select>`;
@@ -23,19 +26,20 @@ function openModal(type, item){
         <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="form-group"><label>Título *</label><input id="f-titulo" value="${isEdit?escHtml(item.titulo||''):''}" placeholder="Nombre de la tarea"></div>
+        ${limitado?`<div class="aviso-limitado">Puedes cambiar el estado (hasta Revisión), la descripción y el link. Para lo demás, habla con tu coordinador/a.</div>`:''}
+        <div class="form-group"><label>Título *</label><input id="f-titulo"${dis} value="${isEdit?escHtml(item.titulo||''):''}" placeholder="Nombre de la tarea"></div>
         <div class="form-group"><label>Descripción</label><textarea id="f-desc">${isEdit?escHtml(item.descripcion||''):''}</textarea></div>
         <div class="form-group"><label>Coordinación *</label>
-          <select id="f-coord">${state.coordinaciones.map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':(!isEdit&&state.filterCoord===c.id?' selected':'')}>${m.icon} ${m.name}</option>`;}).join('')}</select>
+          <select id="f-coord"${dis}>${coordsFormTarea(isEdit?item:null).map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':(!isEdit&&String(state.filterCoord||state.urlCoord)===String(c.id)?' selected':'')}>${m.icon} ${m.name}</option>`;}).join('')}</select>
         </div>
-        <div class="form-group"><label>Solicitante *</label><input id="f-solicitante" value="${isEdit?escHtml(item.solicitante||''):''}" placeholder="Nombre del solicitante"></div>
+        <div class="form-group"><label>Solicitante *</label><input id="f-solicitante"${dis} value="${isEdit?escHtml(item.solicitante||''):''}" placeholder="Nombre del solicitante"></div>
         <div class="form-group"><label>Tipo de requerimiento *</label>${opSelect('tipo_requerimiento', isEdit?item.tipo_requerimiento:'', 'Seleccionar tipo…')}</div>
         <div class="form-group"><label>Categoría *</label>${opSelect('categoria', isEdit?item.categoria:'', 'Seleccionar categoría…')}</div>
         <div class="form-group"><label>Asignado a *</label>
-          <select id="f-asig"><option value="">Seleccionar persona…</option>${state.personas.map(p=>`<option value="${p.nombre}"${isEdit&&item.asignado===p.nombre?' selected':''}>${p.nombre}</option>`).join('')}</select>
+          <select id="f-asig"${dis}><option value="">Seleccionar persona…</option>${state.personas.map(p=>`<option value="${p.nombre}"${isEdit&&item.asignado===p.nombre?' selected':''}>${p.nombre}</option>`).join('')}</select>
         </div>
         <div class="form-group"><label>Prioridad *</label>
-          <select id="f-prior">
+          <select id="f-prior"${dis}>
             <option value="baja"${isEdit&&item.prioridad==='baja'?' selected':''}>Baja</option>
             <option value="media"${!isEdit||item.prioridad==='media'?' selected':''}>Media</option>
             <option value="alta"${isEdit&&item.prioridad==='alta'?' selected':''}>Alta</option>
@@ -43,13 +47,13 @@ function openModal(type, item){
         </div>
         <div class="form-group"><label>Estado *</label>
           <select id="f-status">
-            ${['todo','progress','review','done'].map(s=>`<option value="${s}"${isEdit&&item.status===s?' selected':(!isEdit&&s==='todo'?' selected':'')}>${statusLabel(s)}</option>`).join('')}
+            ${(isEdit?estadosPermitidos(item):['todo','progress','review','done']).map(s=>`<option value="${s}"${isEdit&&item.status===s?' selected':(!isEdit&&s==='todo'?' selected':'')}>${statusLabel(s)}</option>`).join('')}
           </select>
         </div>
-        <div class="form-group"><label>Fecha límite *</label><input type="date" id="f-fecha" required value="${isEdit?(item.fecha||''):''}"></div>
+        <div class="form-group"><label>Fecha límite *</label><input type="date" id="f-fecha"${dis} required value="${isEdit?(item.fecha||''):''}"></div>
         <div class="form-group"><label>Link</label><input id="f-link" type="url" value="${isEdit?escHtml(item.link||''):''}" placeholder="https://"></div>
         ${extras.length?`<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;margin-top:4px;text-transform:uppercase;letter-spacing:.05em">Campos adicionales</div>`:''}
-        ${extras.map(f=>`<div class="form-group field-extra"><label>${f}</label><input id="f-extra-${f}" value="${isEdit?escHtml(String(item[f]||'')):''}" placeholder="${f}"></div>`).join('')}
+        ${extras.map(f=>`<div class="form-group field-extra"><label>${f}</label><input id="f-extra-${f}"${dis} value="${isEdit?escHtml(String(item[f]||'')):''}" placeholder="${f}"></div>`).join('')}
       </div>
       <div class="modal-footer">
         <button class="btn" onclick="closeModal()">Cancelar</button>
@@ -67,10 +71,11 @@ function openModal(type, item){
         <div class="form-group"><label>Nombre completo *</label><input id="p-nombre" value="${isEdit?escHtml(item.nombre||''):''}" placeholder="Nombre Apellido"></div>
         <div class="form-group"><label>Cargo / Rol</label><input id="p-rol" value="${isEdit?escHtml(item.rol||''):''}" placeholder="Ej: Diseñador/a, Periodista…"></div>
         <div class="form-group"><label>Coordinación *</label>
-          <select id="p-coord">${state.coordinaciones.map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':''}>${m.icon} ${m.name}</option>`;}).join('')}</select>
+          <select id="p-coord"${esDirector()?'':' disabled'}>${state.coordinaciones.map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':''}>${m.icon} ${m.name}</option>`;}).join('')}</select>
         </div>
+        ${esDirector()?`<div class="form-group"><label>Correo @ufrontera.cl</label><input id="p-correo" type="email" value="${isEdit?escHtml(item.correo||''):''}" placeholder="nombre.apellido@ufrontera.cl"></div>`:''}
         <div class="form-group"><label>¿Es coordinador/a?</label>
-          <select id="p-jefe">
+          <select id="p-jefe"${esDirector()?'':' disabled'}>
             <option value="false"${isEdit&&item.esJefe!=='true'&&item.esJefe!==true?' selected':''}>No</option>
             <option value="true"${isEdit&&(item.esJefe==='true'||item.esJefe===true)?' selected':''}>Sí</option>
           </select>
@@ -99,6 +104,12 @@ function openModal(type, item){
 }
 
 function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+// Coordinaciones que se pueden elegir en una tarea: el coordinador/a solo la suya
+function coordsFormTarea(item){
+  if(state.rol!=='coordinador') return state.coordinaciones;
+  return state.coordinaciones.filter(c=>String(c.id)===String(state.urlCoord) || (item && String(c.id)===String(item.coordId)));
+}
 
 // ── Vista detallada de tarea ───────────────────────────────
 function viewTask(t){
@@ -163,6 +174,6 @@ function viewTask(t){
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">Cerrar</button>
-      <button class="btn btn-edit" onclick='closeModal();openModal("tarea",${JSON.stringify(t)})'>✏ Editar tarea</button>
+      ${puedeAvanzarTarea(t)?`<button class="btn btn-edit" onclick='closeModal();openModal("tarea",${JSON.stringify(t)})'>✏ Editar tarea</button>`:''}
     </div>`;
 }

@@ -10,9 +10,11 @@ async function callAPI(action, data) {
     const res = await fetch(API_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, data, key: state.urlKey, coord: state.urlCoord })
+      body: JSON.stringify({ action, data, key: state.urlKey, coord: state.urlCoord, sesion: sesionGuardada() })
     });
     const json = await res.json().catch(() => ({}));
+    // Sesión vencida o persona quitada de Equipo: se borra y se vuelve a cargar sin ella
+    if (json.sesionInvalida) { cerrarSesion(); return new Promise(() => {}); }
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
     if (json.error) throw new Error(json.error);
     return json;
@@ -49,7 +51,8 @@ function normalizePersona(p){
     nombre:   p.nombre,
     rol:      p.rol||'',
     coordId:  p.coord_id,
-    esJefe:   p.es_jefe===true||p.es_jefe==='true'?'true':'false'
+    esJefe:   p.es_jefe===true||p.es_jefe==='true'?'true':'false',
+    correo:   p.correo||''   // solo llega a la directora
   };
 }
 
@@ -70,6 +73,16 @@ async function loadData(){
   try{
     const data = await callAPI('getAll');
     state.rol            = data.rol;
+    state.yo             = data.yo || null;
+    state.editable       = !!data.editable;
+    // Con Google: la persona ve su coordinación, como con el enlace ?coord= (la primera vez abre Tareas)
+    if(esPersona()){
+      if(!state.urlCoord){
+        state.view = 'tareas';
+        if(state.rol==='integrante') state.filterPersona = state.yo.nombre;
+      }
+      state.urlCoord = data.coord;
+    }
     aplicarPermisos();
     state.coordinaciones = (data.coordinaciones||[]).map(normalizeCoord);
     state.personas       = (data.personas||[]).map(normalizePersona);

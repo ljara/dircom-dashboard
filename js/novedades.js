@@ -16,7 +16,8 @@ function novedadesCoord(){
   const visto = new Date(leerVisto());
   return activeTareas()
     .filter(t=>String(t.coordId)===String(state.urlCoord) && t.asignadoPor==='directora'
-      && t.asignadoAt && new Date(t.asignadoAt) > visto)
+      && t.asignadoAt && new Date(t.asignadoAt) > visto
+      && (state.rol!=='integrante' || t.asignado===state.yo?.nombre))   // integrante: solo las suyas
     .sort((a,b)=>new Date(b.asignadoAt)-new Date(a.asignadoAt));
 }
 

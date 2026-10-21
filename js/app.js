@@ -12,6 +12,8 @@ function aplicarPermisos(){
   // Agregar persona solo para la directora
   const addPersona=document.getElementById('sidebar-add-persona');
   if(addPersona) addPersona.style.display = esDirector() ? '' : 'none';
+  const nuevaTarea=document.getElementById('sidebar-nueva-tarea');
+  if(nuevaTarea) nuevaTarea.style.display = puedeCrearTareas() ? '' : 'none';
   if(!esDirector() && VISTAS_DIRECTORA.includes(state.view)) state.view='tareas';
 }
 
@@ -53,6 +55,10 @@ function renderSidebarCoords(){
       rolEl.textContent = 'Vista: Directora';
       rolEl.style.color = 'var(--primary-dark)';
       rolEl.style.fontWeight = '500';
+    } else if(esPersona()){
+      const m = getCoordMeta(state.urlCoord);
+      rolEl.textContent = `${state.rol==='coordinador'?'Coordinador/a':'Equipo'} · ${m.icon} ${m.name}`;
+      rolEl.style.color = 'var(--text-muted)';
     } else if(!state.urlCoord){
       rolEl.textContent = 'Vista: General';
       rolEl.style.color = 'var(--text-muted)';
@@ -61,6 +67,12 @@ function renderSidebarCoords(){
       rolEl.textContent = `Vista: ${m.icon} ${m.name}`;
       rolEl.style.color = 'var(--text-muted)';
     }
+  }
+  const sesionEl=document.getElementById('sidebar-sesion');
+  // Solo si cambia: así el botón de Google no se vuelve a dibujar en cada actualización automática
+  const sesionHTML=sesionSidebarHTML();
+  if(sesionEl && sesionEl.dataset.html!==sesionHTML){
+    sesionEl.dataset.html=sesionHTML; sesionEl.innerHTML=sesionHTML; montarBotonesGoogle();
   }
 
   el.innerHTML = state.coordinaciones.map((c,i)=>{
@@ -94,6 +106,7 @@ function render(){
   else if(state.view==='papelera')       el.innerHTML=renderPapelera();
   else if(state.view==='reportes')       el.innerHTML=renderReportesView();
   actualizarTituloNovedades();
+  montarBotonesGoogle();
   if(foco){
     const nuevo=document.getElementById(foco.id);
     if(nuevo){

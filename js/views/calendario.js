@@ -77,7 +77,7 @@ function renderCalendario(){
         <button class="btn btn-sm" onclick="state.calModo=state.calModo==='mes'?'persona':'mes';render()">
           ${state.calModo==='mes'?'👤 Vista por persona':'📅 Vista mensual'}
         </button>
-        <button class="btn btn-primary btn-sm" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
+        ${puedeCrearTareas()?`<button class="btn btn-primary btn-sm" onclick="openModal('tarea',null)">＋ Nueva tarea</button>`:''}
       </div>
     </div>`;
 

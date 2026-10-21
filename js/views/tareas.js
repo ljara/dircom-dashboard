@@ -49,7 +49,7 @@ function renderTareasView(){
   });
 
   // Banner revisión pendiente para jefe de coordinación
-  const enRevision = state.urlCoord
+  const enRevision = state.urlCoord && state.rol!=='integrante'
     ? activeTareas().filter(t=>String(t.coordId)===String(state.urlCoord)&&t.status==='review')
     : [];
   const bannerRevision = enRevision.length ? `
@@ -69,9 +69,10 @@ function renderTareasView(){
       <div class="topbar-actions">
         ${state.filterPersona?`<button class="btn btn-ghost btn-sm" onclick="state.filterPersona=null;render()">✕ Quitar filtro de persona</button>`:''}
         ${state.filterCoord?`<button class="btn btn-ghost btn-sm" onclick="state.filterCoord=null;render()">✕ Quitar filtro</button>`:''}
-        <button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>
+        ${puedeCrearTareas()?`<button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>`:''}
       </div>
     </div>
+    ${bannerEntrarHTML()}
     ${bannerNovedadesHTML()}
     ${bannerRevision}
     <div class="section">

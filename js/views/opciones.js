@@ -29,7 +29,7 @@ function renderOpcionesView(){
                 <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">
                   <span style="width:20px;height:20px;border-radius:50%;background:var(--primary-light);color:var(--primary-dark);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span>
                   <span style="flex:1;font-size:13px">${v}</span>
-                  <button class="btn btn-sm btn-danger" onclick="deleteOpcion('${tipo}','${v.replace(/'/g,"\\'")}')">✕</button>
+                  ${esDirector()?`<button class="btn btn-sm btn-danger" onclick="deleteOpcion('${tipo}','${v.replace(/'/g,"\\'")}')">✕</button>`:''}
                 </div>`).join('')}
           </div>
           ${esDirector()?`<div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px">

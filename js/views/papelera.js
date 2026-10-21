@@ -11,7 +11,7 @@ function renderPapelera(){
     <div class="section">
       <div class="section-header">
         <div class="section-title">Tareas archivadas</div>
-        ${archivadas.length?`<button class="btn btn-sm btn-danger" onclick="emptyTrash()">Vaciar papelera</button>`:''}
+        ${archivadas.length&&archivadas.every(puedeEditarTarea)?`<button class="btn btn-sm btn-danger" onclick="emptyTrash()">Vaciar papelera</button>`:''}
       </div>
       ${archivadas.length===0
         ? `<div class="empty"><div class="empty-icon">🗑</div><p>La papelera está vacía</p></div>`
@@ -27,8 +27,8 @@ function renderPapelera(){
                   ${t.fecha?`<span>📅 ${formatFecha(t.fecha)}</span>`:''}
                 </div>
               </div>
-              <button class="btn btn-sm" onclick="restoreTask('${t.id}')" style="color:var(--green);border-color:transparent">↩ Restaurar</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteTaskPermanent('${t.id}')">✕ Eliminar</button>
+              ${puedeEditarTarea(t)?`<button class="btn btn-sm" onclick="restoreTask('${t.id}')" style="color:var(--green);border-color:transparent">↩ Restaurar</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteTaskPermanent('${t.id}')">✕ Eliminar</button>`:''}
             </div>`;
           }).join('')
       }

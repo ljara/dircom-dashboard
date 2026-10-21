@@ -14,3 +14,6 @@ const PALETTE = [
 // Campos del sistema que no se muestran como campos extra editables
 const SYSTEM_FIELDS_TAREA   = ['id','titulo','descripcion','coordId','asignado','status','prioridad','fecha','created','solicitante','tipo_requerimiento','categoria','link'];
 const SYSTEM_FIELDS_PERSONA = ['id','nombre','rol','coordId','esJefe'];
+
+// Entrar con Google (cuentas @ufrontera.cl). El ID de cliente es público; el servidor lo vuelve a verificar
+const GOOGLE_CLIENT_ID = '540830306378-ci8r51abn7f8eces34di97s20cc13hhu.apps.googleusercontent.com';

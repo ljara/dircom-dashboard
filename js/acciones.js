@@ -19,6 +19,21 @@ async function submitTarea(existingId){
   // Campos obligatorios (todos menos descripción y link). Al crear se exigen todos;
   // al editar no se puede vaciar uno que ya tenía valor (las tareas antiguas incompletas se pueden seguir editando)
   const original=existingId ? state.tareas.find(t=>t.id===existingId) : null;
+  // Integrante: solo se envían los campos que puede cambiar
+  if(original && !puedeEditarTarea(original)){
+    const cambios={
+      descripcion: document.getElementById('f-desc').value,
+      link:        document.getElementById('f-link').value,
+      status:      document.getElementById('f-status').value
+    };
+    closeModal();
+    state.tareas=state.tareas.map(t=>t.id===existingId?{...t,...cambios}:t);
+    render();
+    showToast('Tarea actualizada ✓');
+    try{ await callAPI('updateTarea', {id:existingId, ...cambios}); await loadData(); }
+    catch(e){ showToast('Error al guardar: '+e.message); await loadData(); }
+    return;
+  }
   const faltan=CAMPOS_OBLIGATORIOS_TAREA.filter(c=>{
     const el=document.getElementById(c.input);
     return el && !el.value.trim() && (!original || String(original[c.campo]||'').trim());
@@ -92,13 +107,24 @@ async function submitPersona(existingId){
     coord_id: document.getElementById('p-coord').value,
     es_jefe:  document.getElementById('p-jefe').value==='true'
   };
+  // Coordinación y rol de coordinador/a solo los cambia la directora
+  if(!esDirector()){ delete body.coord_id; delete body.es_jefe; }
+  // El correo (para entrar con Google) solo lo ve y edita la directora
+  const elCorreo=document.getElementById('p-correo');
+  if(elCorreo){
+    const correo=elCorreo.value.trim().toLowerCase();
+    if(correo && !/^[^@\s]+@ufrontera\.cl$/.test(correo)){ showToast('El correo debe ser @ufrontera.cl'); elCorreo.focus(); return; }
+    body.correo=correo;
+  }
   closeModal();
 
   // ── Optimistic update ──
   const tempId = existingId || ('p' + Date.now());
+  const previa = existingId ? state.personas.find(p=>p.id===existingId) : null;
   const optimisticPersona = normalizePersona({
-    id: tempId, ...body,
-    es_jefe: body.es_jefe
+    id: tempId,
+    ...(previa ? {coord_id: previa.coordId, es_jefe: previa.esJefe, correo: previa.correo} : {}),
+    ...body
   });
   if(existingId){
     state.personas = state.personas.map(p => p.id===existingId ? optimisticPersona : p);

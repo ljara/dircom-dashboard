@@ -23,12 +23,14 @@ function taskListHTML(tasks){
         </div>
       </div>
       <span class="badge badge-${t.prioridad}">${priorLabel(t.prioridad)}</span>
-      <select class="status-select" onchange="changeStatus('${t.id}',this.value)" onclick="event.stopPropagation()">
-        ${['todo','progress','review','done'].map(s=>`<option value="${s}"${t.status===s?' selected':''}>${statusLabel(s)}</option>`).join('')}
-      </select>
+      ${puedeAvanzarTarea(t)
+        ? `<select class="status-select" onchange="changeStatus('${t.id}',this.value)" onclick="event.stopPropagation()">
+        ${estadosPermitidos(t).map(s=>`<option value="${s}"${t.status===s?' selected':''}>${statusLabel(s)}</option>`).join('')}
+      </select>`
+        : `<span class="status-fijo">${statusLabel(t.status)}</span>`}
       <button class="btn btn-sm btn-view" onclick='viewTask(${JSON.stringify(t)})' title="Ver detalle">👁</button>
-      <button class="btn btn-sm btn-edit" onclick='openModal("tarea",${JSON.stringify(t)})' title="Editar">✏</button>
-      <button class="btn btn-sm btn-danger" onclick="archiveTask('${t.id}')" title="Archivar">🗑</button>
+      ${puedeAvanzarTarea(t)?`<button class="btn btn-sm btn-edit" onclick='openModal("tarea",${JSON.stringify(t)})' title="Editar">✏</button>`:''}
+      ${puedeEditarTarea(t)?`<button class="btn btn-sm btn-danger" onclick="archiveTask('${t.id}')" title="Archivar">🗑</button>`:''}
     </div>`;
   }).join('');
 }
@@ -49,10 +51,10 @@ function personaListHTML(personas){
       <div class="avatar" style="background:${col}22;color:${col}">${getInitials(p.nombre)}</div>
       <div class="persona-info">
         <div class="persona-name">${p.nombre} ${esJefe?'<span class="badge" style="background:var(--primary-light);color:var(--primary-dark);font-size:10px">Coordinador/a</span>':''}</div>
-        <div class="persona-role">${p.rol||''}${m?' · '+m.name:''}</div>
+        <div class="persona-role">${p.rol||''}${m?' · '+m.name:''}${esDirector()&&!p.correo?' · <span style="color:var(--amber)">sin correo</span>':''}</div>
       </div>
       <span class="persona-tareas" title="${pendientes} pendiente${pendientes!==1?'s':''} · ${completadas30} completada${completadas30!==1?'s':''} en los últimos 30 días">${pendientes}/${completadas30}</span>
-      <button class="btn btn-sm btn-edit" onclick='event.stopPropagation();openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>
+      ${puedeEditarPersona(p)?`<button class="btn btn-sm btn-edit" onclick='event.stopPropagation();openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>`:''}
       ${esDirector()?`<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deletePersona('${p.id}')" title="Eliminar">✕</button>`:''}
     </div>`;
   }).join('');

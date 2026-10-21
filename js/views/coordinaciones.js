@@ -20,7 +20,7 @@ function renderCoordsView(){
               <div class="persona-name">${m.name}</div>
               <div class="persona-role">ID: ${c.id} · ${cnt} tareas · ${pers} personas</div>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="deleteCoord('${c.id}')">✕ Eliminar</button>
+            ${esDirector()?`<button class="btn btn-sm btn-danger" onclick="deleteCoord('${c.id}')">✕ Eliminar</button>`:''}
           </div>`;
         }).join('')}
     </div>`;
