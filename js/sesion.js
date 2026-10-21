@@ -62,7 +62,7 @@ function mostrarPantallaLogin(){
   capa.innerHTML = `
     <div class="login-card">
       <div class="login-org">Universidad de La Frontera</div>
-      <div class="login-titulo">Comunicaciones</div>
+      <div class="login-titulo">DirCom</div>
       <div class="login-sub">Panel de gestión de tareas</div>
       <p class="login-texto">Entra con tu cuenta <strong>@ufrontera.cl</strong> para ver y actualizar tus tareas.</p>
       <div class="g-btn login-btn"></div>
