@@ -63,7 +63,7 @@ function mostrarPantallaLogin(){
     <div class="login-card">
       <div class="login-org">Universidad de La Frontera</div>
       <div class="login-titulo">DirCom</div>
-      <div class="login-sub">Panel de gestión de tareas</div>
+      <div class="login-sub">Gestión de tareas</div>
       <p class="login-texto">Entra con tu cuenta <strong>@ufrontera.cl</strong> para ver y actualizar tus tareas.</p>
       <div class="g-btn login-btn"></div>
       <p class="login-ayuda">¿Google te muestra tu cuenta personal? Agrega tu cuenta @ufrontera.cl en el navegador o abre una ventana de incógnito.</p>
