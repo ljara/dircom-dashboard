@@ -18,6 +18,8 @@ async function callAPI(action, data) {
     if (json.loginRequerido) throw Object.assign(new Error(json.error), { loginRequerido: true });
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
     if (json.error) throw new Error(json.error);
+    // Solo en modo prueba de correos (CORREO_PRUEBA en Vercel): resultado del envío
+    if (json.correo) setTimeout(() => alert('Prueba de correo: ' + json.correo), 300);
     return json;
   } finally { setSyncing(false); }
 }

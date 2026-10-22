@@ -222,7 +222,7 @@ async function registrarEvento(acceso, tipo, tarea, url) {
   };
   try { await sbPost('eventos', evento); }
   catch (e) { console.error('No se pudo registrar el evento:', e); }   // el aviso no debe frenar el cambio
-  await enviarCorreos(evento, tarea, url);
+  return enviarCorreos(evento, tarea, url);
 }
 
 // Quién recibe cada aviso (nunca quien hizo el cambio):
@@ -298,13 +298,14 @@ function armarCorreo(evento, tarea, coordNombre, dest, url) {
   return { asunto: `${asunto}: ${tarea.titulo}`, html };
 }
 
+// Devuelve un resumen del envío (se muestra en pantalla solo en modo prueba)
 let transporte = null;
 async function enviarCorreos(evento, tarea, url) {
   const usuario = process.env.CORREO_USUARIO, clave = process.env.CORREO_CLAVE;
-  if (!usuario || !clave) return;
+  if (!usuario || !clave) return 'no se envió: faltan CORREO_USUARIO o CORREO_CLAVE en Vercel';
   try {
     const dest = await destinatarios(evento);
-    if (!dest.length) return;
+    if (!dest.length) return 'nadie a quien avisar (¿la persona asignada y su coordinador/a tienen correo en Equipo?)';
     const [coord] = tarea.coord_id ? await sbGet('coordinaciones', `id=eq.${encodeURIComponent(tarea.coord_id)}&select=nombre`) : [];
     if (!transporte) {
       const { default: nodemailer } = await import('nodemailer');
@@ -322,9 +323,19 @@ async function enviarCorreos(evento, tarea, url) {
       });
     });
     const r = await Promise.allSettled(envios);
-    r.filter(x => x.status === 'rejected').forEach(x => console.error('No se pudo enviar un correo:', x.reason));
-  } catch (e) { console.error('Error al enviar correos:', e); }   // el correo no debe frenar el cambio
+    const fallidos = r.filter(x => x.status === 'rejected');
+    fallidos.forEach(x => console.error('No se pudo enviar un correo:', x.reason));
+    const nombres = dest.map(d => d.nombre).join(', ');
+    return fallidos.length ? `error al enviar a ${nombres}: ${fallidos[0].reason?.message || fallidos[0].reason}`
+                           : `enviado (para ${nombres})`;
+  } catch (e) {   // el correo no debe frenar el cambio
+    console.error('Error al enviar correos:', e);
+    return 'error: ' + e.message;
+  }
 }
+
+// Modo prueba: el resultado del envío vuelve al navegador para mostrarlo
+const resumenCorreo = r => (process.env.CORREO_PRUEBA || '').trim() && r ? { correo: r } : {};
 
 // Correo de la persona (para entrar con Google): solo la directora lo ve y lo modifica.
 // Devuelve el body sin correo, con el correo normalizado (null si viene vacío) o un error.
@@ -410,8 +421,8 @@ export default async function handler(req, res) {
         if (body.status === 'done') body.completed_at = new Date().toISOString();
         Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
-        await registrarEvento(acceso, 'creada', { id, ...body }, urlApp);
-        return res.json({ ok: true, id, data: result });
+        const correo = await registrarEvento(acceso, 'creada', { id, ...body }, urlApp);
+        return res.json({ ok: true, id, data: result, ...resumenCorreo(correo) });
       }
 
       case 'updateTarea': {
@@ -434,9 +445,10 @@ export default async function handler(req, res) {
         await sbPatch('tareas', id, body);
         await syncCompletedAt(id, body.status);
         const tarea = { id, ...actual, ...body };
-        if (cambio) await registrarEvento(acceso, 'asignada', tarea, urlApp);
-        if (body.status === 'review' && actual.status !== 'review') await registrarEvento(acceso, 'revision', tarea, urlApp);
-        return res.json({ ok: true });
+        const correos = [];
+        if (cambio) correos.push(await registrarEvento(acceso, 'asignada', tarea, urlApp));
+        if (body.status === 'review' && actual.status !== 'review') correos.push(await registrarEvento(acceso, 'revision', tarea, urlApp));
+        return res.json({ ok: true, ...resumenCorreo(correos.join(' · ')) });
       }
 
       // Marca los avisos como vistos hasta la fecha del más reciente (reloj del servidor)
