@@ -214,14 +214,15 @@ function registroAsignacion(acceso) {
 // ── Avisos (🔔) ────────────────────────────────────────────
 // Cada creación, reasignación o paso a Revisión queda en la tabla eventos.
 // tipo: 'creada' | 'asignada' | 'revision'; para = persona asignada (nombre)
-async function registrarEvento(acceso, tipo, tarea) {
-  try {
-    await sbPost('eventos', {
-      tipo, tarea_id: tarea.id, coord_id: tarea.coord_id ?? null, para: tarea.asignado || null,
-      actor_id: acceso.yo?.id || null, actor_rol: acceso.rol,
-      actor_nombre: acceso.rol === 'directora' ? 'Administración' : acceso.yo?.nombre || null
-    });
-  } catch (e) { console.error('No se pudo registrar el evento:', e); }   // el aviso no debe frenar el cambio
+async function registrarEvento(acceso, tipo, tarea, url) {
+  const evento = {
+    tipo, tarea_id: tarea.id, coord_id: tarea.coord_id ?? null, para: tarea.asignado || null,
+    actor_id: acceso.yo?.id || null, actor_rol: acceso.rol,
+    actor_nombre: acceso.rol === 'directora' ? 'Administración' : acceso.yo?.nombre || null
+  };
+  try { await sbPost('eventos', evento); }
+  catch (e) { console.error('No se pudo registrar el evento:', e); }   // el aviso no debe frenar el cambio
+  await enviarCorreos(evento, tarea, url);
 }
 
 // Quién recibe cada aviso (nunca quien hizo el cambio):
@@ -248,6 +249,81 @@ async function avisosDe(acceso) {
       `created_at=gt.${encodeURIComponent(desde)}&order=created_at.desc&limit=300`);
     return eventos.filter(e => avisoPara(acceso, e));
   } catch (e) { console.error('No se pudieron leer los eventos:', e); return []; }
+}
+
+// ── Avisos por correo ──────────────────────────────────────
+// Se envían al momento, con las mismas reglas que los avisos 🔔 (avisoPara).
+// Requiere CORREO_USUARIO y CORREO_CLAVE (contraseña de aplicación de Google).
+// CORREO_PRUEBA: si está, todos los correos van a esa dirección (para probar sin molestar al equipo).
+function accesoDe(p) {
+  if (correosDirectora().includes(p.correo)) return { rol: 'directora', yo: { id: p.id, nombre: p.nombre } };
+  if (p.gestiona_tareas === true) return { rol: 'gestor', yo: { id: p.id, nombre: p.nombre } };
+  return { rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
+           coord: String(p.coord_id || '-'), yo: { id: p.id, nombre: p.nombre } };
+}
+
+async function destinatarios(evento) {
+  const personas = await sbGet('personas', 'select=id,nombre,coord_id,es_jefe,gestiona_tareas,correo&correo=not.is.null');
+  const lista = personas.filter(p => avisoPara(accesoDe(p), evento)).map(p => ({ nombre: p.nombre, correo: p.correo }));
+  // Administración sin ficha en Equipo
+  const conFicha = new Set(personas.map(p => p.correo));
+  correosDirectora().filter(c => !conFicha.has(c))
+    .forEach(c => { if (avisoPara({ rol: 'directora', yo: { nombre: 'Administración' } }, evento)) lista.push({ nombre: 'Administración', correo: c }); });
+  return [...new Map(lista.map(d => [d.correo, d])).values()];
+}
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fechaCorta = f => { const d = new Date(String(f).slice(0, 10) + 'T12:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }); };
+
+function armarCorreo(evento, tarea, coordNombre, dest, url) {
+  const por = evento.actor_nombre || 'Alguien';
+  const paraTi = evento.para && evento.para === dest.nombre;
+  const [asunto, frase] =
+    evento.tipo === 'revision' ? ['Tarea en revisión', `${esc(por)} pasó a <strong>Revisión</strong> esta tarea. Revísala y dala por completada o devuélvela.`]
+    : evento.tipo === 'creada' ? ['Nueva tarea', paraTi ? `${esc(por)} te asignó una tarea nueva.` : `${esc(por)} creó una tarea nueva.`]
+    : ['Tarea asignada', paraTi ? `${esc(por)} te asignó esta tarea.` : `${esc(por)} asignó esta tarea${evento.para ? ' a ' + esc(evento.para) : ''}.`];
+  const fila = (k, v) => v ? `<tr><td style="padding:4px 12px 4px 0;color:#6b7280">${k}</td><td style="padding:4px 0">${esc(v)}</td></tr>` : '';
+  const html = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#1f2937;max-width:520px">
+  <p>Hola ${esc(dest.nombre)},</p>
+  <p>${frase}</p>
+  <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin:16px 0">
+    <div style="font-size:16px;font-weight:bold;margin-bottom:8px">${esc(tarea.titulo)}</div>
+    <table style="font-size:13px;border-collapse:collapse">
+      ${fila('Coordinación', coordNombre)}${fila('Asignada a', tarea.asignado)}${fila('Fecha límite', fechaCorta(tarea.fecha))}
+    </table>
+  </div>
+  <p><a href="${url}" style="background:#00447F;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;display:inline-block">Abrir DirCom</a></p>
+  <p style="font-size:12px;color:#6b7280;margin-top:24px">Aviso automático de DirCom — Gestión de tareas. No respondas este correo.</p>
+</div>`;
+  return { asunto: `${asunto}: ${tarea.titulo}`, html };
+}
+
+let transporte = null;
+async function enviarCorreos(evento, tarea, url) {
+  const usuario = process.env.CORREO_USUARIO, clave = process.env.CORREO_CLAVE;
+  if (!usuario || !clave) return;
+  try {
+    const dest = await destinatarios(evento);
+    if (!dest.length) return;
+    const [coord] = tarea.coord_id ? await sbGet('coordinaciones', `id=eq.${encodeURIComponent(tarea.coord_id)}&select=nombre`) : [];
+    if (!transporte) {
+      const { default: nodemailer } = await import('nodemailer');
+      transporte = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true,
+        auth: { user: usuario, pass: clave.replace(/\s/g, '') }, connectionTimeout: 5000, socketTimeout: 5000 });
+    }
+    const prueba = (process.env.CORREO_PRUEBA || '').trim();
+    const envios = dest.map(d => {
+      const { asunto, html } = armarCorreo(evento, tarea, coord?.nombre, d, url);
+      return transporte.sendMail({
+        from: `"DirCom" <${usuario}>`,
+        to: prueba || d.correo,
+        subject: prueba ? `[Prueba → ${d.nombre}] ${asunto}` : asunto,
+        html
+      });
+    });
+    const r = await Promise.allSettled(envios);
+    r.filter(x => x.status === 'rejected').forEach(x => console.error('No se pudo enviar un correo:', x.reason));
+  } catch (e) { console.error('Error al enviar correos:', e); }   // el correo no debe frenar el cambio
 }
 
 // Correo de la persona (para entrar con Google): solo la directora lo ve y lo modifica.
@@ -285,6 +361,9 @@ export default async function handler(req, res) {
       if (!p) return res.status(403).json({ error: `Tu correo ${correo} no está registrado en Equipo. Pídele a Administración que lo agregue.` });
       return res.json({ sesion: crearSesion({ pid: p.id, correo }), nombre: p.nombre });
     }
+
+    // Dirección del dashboard para el botón de los correos (producción o vista previa)
+    const urlApp = 'https://' + (req.headers?.['x-forwarded-host'] || req.headers?.host || 'dircom-dashboard.vercel.app');
 
     const acceso = await resolverAcceso(key, coord, sesion);
     if (!acceso) return res.status(403).json({ error: 'Clave de administración incorrecta: revisa el enlace' });
@@ -331,7 +410,7 @@ export default async function handler(req, res) {
         if (body.status === 'done') body.completed_at = new Date().toISOString();
         Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
-        await registrarEvento(acceso, 'creada', { id, ...body });
+        await registrarEvento(acceso, 'creada', { id, ...body }, urlApp);
         return res.json({ ok: true, id, data: result });
       }
 
@@ -340,7 +419,7 @@ export default async function handler(req, res) {
         // Campos obligatorios que vienen vacíos: solo se rechaza si la tarea ya tenía valor
         // (las tareas antiguas incompletas se pueden seguir editando)
         const vacios = OBLIGATORIOS_TAREA.filter(c => c in body && vacio(body[c]));
-        const campos = [...new Set(['coord_id', 'asignado', 'status', ...vacios])].join(',');
+        const campos = [...new Set(['coord_id', 'asignado', 'status', 'titulo', 'fecha', ...vacios])].join(',');
         const [actual] = await sbGet('tareas', `id=eq.${encodeURIComponent(id)}&select=${campos}`);
         if (!actual) return res.status(404).json({ error: 'La tarea ya no existe' });
         const motivo = denegar(acceso, action, body, actual);
@@ -355,8 +434,8 @@ export default async function handler(req, res) {
         await sbPatch('tareas', id, body);
         await syncCompletedAt(id, body.status);
         const tarea = { id, ...actual, ...body };
-        if (cambio) await registrarEvento(acceso, 'asignada', tarea);
-        if (body.status === 'review' && actual.status !== 'review') await registrarEvento(acceso, 'revision', tarea);
+        if (cambio) await registrarEvento(acceso, 'asignada', tarea, urlApp);
+        if (body.status === 'review' && actual.status !== 'review') await registrarEvento(acceso, 'revision', tarea, urlApp);
         return res.json({ ok: true });
       }
 
