@@ -289,13 +289,21 @@ function armarCorreo(evento, tarea, coordNombre, dest, url) {
   <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin:16px 0">
     <div style="font-size:16px;font-weight:bold;margin-bottom:8px">${esc(tarea.titulo)}</div>
     <table style="font-size:13px;border-collapse:collapse">
-      ${fila('Coordinación', coordNombre)}${fila('Asignada a', tarea.asignado)}${fila('Fecha límite', fechaCorta(tarea.fecha))}
+      ${fila('Coordinación', coordNombre)}${fila('Solicitante', tarea.solicitante)}${fila('Asignada a', tarea.asignado)}${fila('Fecha límite', fechaCorta(tarea.fecha))}
     </table>
   </div>
-  <p><a href="${url}" style="background:#00447F;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;display:inline-block">Abrir DirCom</a></p>
+  <p><a href="${url}" style="background:#00447F;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;display:inline-block">Ver en dashboard</a></p>
   <p style="font-size:12px;color:#6b7280;margin-top:24px">Aviso automático de DirCom — Gestión de tareas. No respondas este correo.</p>
 </div>`;
-  return { asunto: `${asunto}: ${tarea.titulo}`, html };
+  // Versión en texto plano: los correos solo HTML tienen más probabilidad de caer en spam
+  const texto = [
+    `Hola ${dest.nombre},`, '', frase.replace(/<[^>]+>/g, '').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'), '',
+    tarea.titulo,
+    ...[['Coordinación', coordNombre], ['Solicitante', tarea.solicitante], ['Asignada a', tarea.asignado], ['Fecha límite', fechaCorta(tarea.fecha)]]
+      .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`),
+    '', `Ver en dashboard: ${url}`, '', 'Aviso automático de DirCom — Gestión de tareas. No respondas este correo.'
+  ].join('\n');
+  return { asunto: `🔔 ${asunto}: ${tarea.titulo}`, html, texto };
 }
 
 // Devuelve un resumen del envío (se muestra en pantalla solo en modo prueba)
@@ -314,12 +322,12 @@ async function enviarCorreos(evento, tarea, url) {
     }
     const prueba = (process.env.CORREO_PRUEBA || '').trim();
     const envios = dest.map(d => {
-      const { asunto, html } = armarCorreo(evento, tarea, coord?.nombre, d, url);
+      const { asunto, html, texto } = armarCorreo(evento, tarea, coord?.nombre, d, url);
       return transporte.sendMail({
         from: `"DirCom" <${usuario}>`,
         to: prueba || d.correo,
-        subject: prueba ? `[Prueba → ${d.nombre}] ${asunto}` : asunto,
-        html
+        subject: prueba ? asunto.replace('🔔 ', `🔔 [Prueba → ${d.nombre}] `) : asunto,
+        html, text: texto
       });
     });
     const r = await Promise.allSettled(envios);
@@ -430,7 +438,7 @@ export default async function handler(req, res) {
         // Campos obligatorios que vienen vacíos: solo se rechaza si la tarea ya tenía valor
         // (las tareas antiguas incompletas se pueden seguir editando)
         const vacios = OBLIGATORIOS_TAREA.filter(c => c in body && vacio(body[c]));
-        const campos = [...new Set(['coord_id', 'asignado', 'status', 'titulo', 'fecha', ...vacios])].join(',');
+        const campos = [...new Set(['coord_id', 'asignado', 'status', 'titulo', 'fecha', 'solicitante', ...vacios])].join(',');
         const [actual] = await sbGet('tareas', `id=eq.${encodeURIComponent(id)}&select=${campos}`);
         if (!actual) return res.status(404).json({ error: 'La tarea ya no existe' });
         const motivo = denegar(acceso, action, body, actual);
