@@ -94,6 +94,21 @@ create unique index if not exists personas_correo_unico on personas (lower(corre
 alter table personas add column if not exists gestiona_tareas boolean not null default false;
 ```
 
+Desde v2.8.0 los avisos 🔔 salen de la tabla `eventos` (creada, asignada, revision), que llena el
+servidor; el "visto" de cada persona queda en `personas.visto_at`:
+
+```sql
+create table eventos (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  tipo text not null, tarea_id text not null, coord_id text, para text,
+  actor_id text, actor_rol text, actor_nombre text
+);
+create index eventos_created_at on eventos (created_at desc);
+alter table eventos enable row level security;
+alter table personas add column visto_at timestamptz;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -153,6 +168,7 @@ permisos se comprueban en el servidor (`denegar()`); la interfaz solo oculta los
 
 ## Historial de versiones
 
+- **v2.8.0** — Avisos 🔔 por persona: asignaciones (a la persona asignada y, si viene de Administración o de quien gestiona tareas, a su coordinador/a), tareas que pasan a Revisión (al coordinador/a) y tareas creadas por otras personas (a Administración); el "visto" se guarda en el servidor
 - **v2.7.0** — Login con Google (@ufrontera.cl) y permisos por persona aplicados en el servidor (Integrante, Gestiona tareas, Coordinador/a, Administración); pantalla de login sobre un tablero desenfocado (`SOLO_CON_GOOGLE`); la vista de la directora pasa a llamarse Administración; nombre "DirCom"
 - **v2.6.0** — Avisos para cada coordinación: tareas creadas o asignadas por la directora desde la última visita (aviso, etiqueta "Nueva" y contador en la pestaña); Equipo con tareas por persona
 - v2.4.0 — Vista de la directora protegida con clave; Reportes solo para la directora; cada coordinación recibe solo sus tareas

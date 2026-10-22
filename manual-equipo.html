@@ -3,10 +3,11 @@
 <head>
 <!--
   Manual del Equipo — Dashboard DIRCOM UFRO
-  Versión: 1.3.0
-  Fecha: 2026-10-20
+  Versión: 1.4.0
+  Fecha: 2026-10-22
   Complementa a manual-dircom.html (orientado a coordinadores/as y directora).
   Changelog:
+  - v1.4.0: Avisos 🔔 de todas las asignaciones (no solo de Administración); el "visto" se sincroniza entre equipos; "Lo que viene": correo
   - v1.3.0: Entrada con cuenta Google @ufrontera.cl; tabla "Quién hace qué" con los permisos que aplica el sistema; avisos de Administración
   - v1.2.2: Al pasar un pedido al coordinador/a: qué, quién lo pide y para cuándo (campos obligatorios)
   - v1.2.1: Fecha límite obligatoria al registrar tareas
@@ -18,7 +19,7 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/webp" href="img/favicon.webp">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.3.0</title>
+<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.4.0</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   :root {
@@ -147,7 +148,7 @@
   <div class="header">
     <div class="org">Universidad de La Frontera</div>
     <h1>Manual del Equipo<br>Dashboard DIRCOM</h1>
-    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.3</div>
+    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.4</div>
   </div>
   <div class="stripe"></div>
 
@@ -357,7 +358,7 @@
         <strong>⏳ En revisión</strong>: el aviso naranja que ve tu coordinador/a cuando le enviaste algo para validar.
       </div>
       <div class="alert" style="background:var(--blue-lt);color:#0C447C;border:1px solid #378ADD33;margin-bottom:0">
-        <strong>🔔 Tareas nuevas de Administración</strong>: el aviso azul que aparece al entrar cuando Administración te creó o asignó tareas. Esas tareas llevan la etiqueta <strong>Nueva</strong>. Al revisarlas, presiona <strong>✓ Marcar como visto</strong>.
+        <strong>🔔 Avisos</strong>: el aviso azul que aparece al entrar cuando alguien te creó o asignó una tarea. Esas tareas llevan la etiqueta <strong>Nueva</strong> y la pestaña del navegador muestra cuántas son. Al revisarlas, presiona <strong>✓ Marcar como visto</strong>: queda guardado en tu cuenta, así que tampoco lo verás en el celular.
       </div>
     </div>
   </div>
@@ -366,13 +367,9 @@
   <div class="section">
     <div class="section-title">🚀 Lo que viene</div>
     <div class="card" style="border-color:#009BD955">
-      <h3>🔔 Avisos de tareas nuevas <span class="badge" style="background:var(--azul-lt);color:var(--azul-dk)">En desarrollo</span></h3>
-      <p>Estamos preparando mejoras para que nadie tenga que estar revisando el dashboard para enterarse de algo nuevo:</p>
-      <ul>
-        <li><strong>Etiqueta "Nueva"</strong> para todas las asignaciones, no solo las de Administración (ya disponible para esas; ver "Señales que vas a ver")</li>
-        <li><strong>Correo automático</strong> cuando te asignan una tarea y cuando una tarea queda lista para revisión. Nunca te llegará un aviso por algo que hiciste tú mismo/a</li>
-      </ul>
-      <p style="margin-top:8px">Les avisaremos cuando estén disponibles.</p>
+      <h3>✉ Avisos por correo <span class="badge" style="background:var(--azul-lt);color:var(--azul-dk)">En desarrollo</span></h3>
+      <p>Los avisos 🔔 ya aparecen dentro del dashboard. El siguiente paso es que también lleguen por <strong>correo</strong>, para enterarte aunque no tengas el dashboard abierto. Seguirán la misma regla: nunca te llegará un aviso por algo que hiciste tú mismo/a.</p>
+      <p style="margin-top:8px">Les avisaremos cuando esté disponible.</p>
     </div>
   </div>
 
