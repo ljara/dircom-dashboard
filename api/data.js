@@ -131,27 +131,29 @@ function esClaveDirectora(key) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+const yoDe = p => ({ id: p.id, nombre: p.nombre, correo: p.correo, visto: p.visto_at || null });
+
 async function resolverAcceso(key, coord, sesion) {
   if (key) return esClaveDirectora(key) ? { rol: 'directora', coord: null } : null;
   if (sesion) {
     const s = leerSesion(sesion);
     if (s && (s.directora || s.pid)) {
       const [p] = s.pid
-        ? await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=id,nombre,coord_id,es_jefe,gestiona_tareas,correo`)
+        ? await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=id,nombre,coord_id,es_jefe,gestiona_tareas,correo,visto_at`)
         : [];
       // DIRECTORA_CORREO se revisa en cada petición: agregar o quitar un correo en Vercel
       // da o quita el acceso total sin volver a entrar
       if (correosDirectora().includes(s.correo))
         return { rol: 'directora', coord: null,
-                 yo: { id: p?.id, nombre: p && p.correo === s.correo ? p.nombre : 'Administración', correo: s.correo } };
+                 yo: p && p.correo === s.correo ? yoDe(p) : { nombre: 'Administración', correo: s.correo } };
       // Quitar a la persona de Equipo (o cambiar su correo) le corta el acceso
       // Gestiona tareas: crea y modifica tareas de todas las coordinaciones (sin etiqueta de cargo)
       if (p && p.correo === s.correo && p.gestiona_tareas === true)
-        return { rol: 'gestor', coord: null, yo: { id: p.id, nombre: p.nombre, correo: p.correo } };
+        return { rol: 'gestor', coord: null, yo: yoDe(p) };
       if (p && p.correo === s.correo) return {
         rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
         coord: String(p.coord_id || '-'),   // sin coordinación no ve tareas
-        yo: { id: p.id, nombre: p.nombre, correo: p.correo }
+        yo: yoDe(p)
       };
     }
     return { sesionInvalida: true };
@@ -209,6 +211,45 @@ function registroAsignacion(acceso) {
   return { asignado_por: por, asignado_at: new Date().toISOString() };
 }
 
+// ── Avisos (🔔) ────────────────────────────────────────────
+// Cada creación, reasignación o paso a Revisión queda en la tabla eventos.
+// tipo: 'creada' | 'asignada' | 'revision'; para = persona asignada (nombre)
+async function registrarEvento(acceso, tipo, tarea) {
+  try {
+    await sbPost('eventos', {
+      tipo, tarea_id: tarea.id, coord_id: tarea.coord_id ?? null, para: tarea.asignado || null,
+      actor_id: acceso.yo?.id || null, actor_rol: acceso.rol,
+      actor_nombre: acceso.rol === 'directora' ? 'Administración' : acceso.yo?.nombre || null
+    });
+  } catch (e) { console.error('No se pudo registrar el evento:', e); }   // el aviso no debe frenar el cambio
+}
+
+// Quién recibe cada aviso (nunca quien hizo el cambio):
+// - la persona asignada: cuando le crean o asignan una tarea
+// - coordinador/a: lo que Administración o quien gestiona tareas crea o asigna en su
+//   coordinación, y las tareas de su coordinación que pasan a Revisión
+// - Administración: las tareas que crea otra persona
+function avisoPara(acceso, e) {
+  const yo = acceso.yo;
+  if (e.actor_id && e.actor_id === yo.id) return false;
+  if (e.tipo !== 'revision' && e.para && e.para === yo.nombre) return true;
+  if (acceso.rol === 'directora') return e.tipo === 'creada' && e.actor_rol !== 'directora';
+  if (acceso.rol === 'coordinador' && String(e.coord_id ?? '') === acceso.coord)
+    return e.tipo === 'revision' || ['directora', 'gestor'].includes(e.actor_rol);
+  return false;
+}
+
+const DIAS_AVISOS = 7;   // sin visto guardado: avisos de la última semana
+async function avisosDe(acceso) {
+  if (!acceso.yo) return [];
+  const desde = acceso.yo.visto || new Date(Date.now() - DIAS_AVISOS * 864e5).toISOString();
+  try {
+    const eventos = await sbGet('eventos',
+      `created_at=gt.${encodeURIComponent(desde)}&order=created_at.desc&limit=300`);
+    return eventos.filter(e => avisoPara(acceso, e));
+  } catch (e) { console.error('No se pudieron leer los eventos:', e); return []; }
+}
+
 // Correo de la persona (para entrar con Google): solo la directora lo ve y lo modifica.
 // Devuelve el body sin correo, con el correo normalizado (null si viene vacío) o un error.
 function prepararCorreo(body, acceso) {
@@ -255,23 +296,27 @@ export default async function handler(req, res) {
       case 'getAll': {
         // Una coordinación solo recibe sus propias tareas
         const filtroTareas = acceso.coord ? `coord_id=eq.${encodeURIComponent(acceso.coord)}&` : '';
-        const [coords, personas, tareas, opcRows] = await Promise.all([
+        const [coords, personas, tareas, opcRows, avisos] = await Promise.all([
           sbGet('coordinaciones', 'order=created_at'),
           sbGet('personas',       'order=nombre'),
           sbGet('tareas',         filtroTareas + 'order=created_at.desc'),
-          sbGet('opciones',       'order=tipo,orden')
+          sbGet('opciones',       'order=tipo,orden'),
+          avisosDe(acceso)
         ]);
         const opciones = {};
         opcRows.forEach(o => {
           if (!opciones[o.tipo]) opciones[o.tipo] = [];
           opciones[o.tipo].push(o.valor);
         });
-        if (acceso.rol !== 'directora') personas.forEach(p => delete p.correo);
+        personas.forEach(p => { delete p.visto_at; if (acceso.rol !== 'directora') delete p.correo; });
         return res.json({
           rol: acceso.rol, coordinaciones: coords, personas, tareas, opciones,
           yo: acceso.yo ? { nombre: acceso.yo.nombre, correo: acceso.yo.correo } : null,
           coord: acceso.yo ? acceso.coord : undefined,
-          editable: acceso.antiguo ? enlacesEditables() : undefined
+          editable: acceso.antiguo ? enlacesEditables() : undefined,
+          avisos,
+          // Sin ficha en Equipo, el "visto" se guarda solo en el navegador
+          visto: acceso.yo?.id ? acceso.yo.visto : undefined
         });
       }
 
@@ -286,6 +331,7 @@ export default async function handler(req, res) {
         if (body.status === 'done') body.completed_at = new Date().toISOString();
         Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
+        await registrarEvento(acceso, 'creada', { id, ...body });
         return res.json({ ok: true, id, data: result });
       }
 
@@ -308,6 +354,18 @@ export default async function handler(req, res) {
         if (cambio) Object.assign(body, registroAsignacion(acceso));
         await sbPatch('tareas', id, body);
         await syncCompletedAt(id, body.status);
+        const tarea = { id, ...actual, ...body };
+        if (cambio) await registrarEvento(acceso, 'asignada', tarea);
+        if (body.status === 'review' && actual.status !== 'review') await registrarEvento(acceso, 'revision', tarea);
+        return res.json({ ok: true });
+      }
+
+      // Marca los avisos como vistos hasta la fecha del más reciente (reloj del servidor)
+      case 'marcarVisto': {
+        const hasta = new Date(data?.hasta);
+        if (isNaN(hasta) || hasta > new Date()) return res.status(400).json({ error: 'Fecha no válida' });
+        if (!acceso.yo?.id) return res.json({ ok: true });
+        await sbPatch('personas', acceso.yo.id, { visto_at: hasta.toISOString() });
         return res.json({ ok: true });
       }
 

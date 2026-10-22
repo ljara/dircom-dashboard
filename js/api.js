@@ -78,7 +78,11 @@ async function loadData(){
     state.rol            = data.rol;
     state.yo             = data.yo || null;
     state.editable       = !!data.editable;
-    // Con Google: la persona ve su coordinación, como con el enlace ?coord= (la primera vez abre Tareas)
+    state.avisos         = data.avisos || [];
+    // visto === undefined: sin ficha en Equipo, se recuerda en este navegador
+    state.vistoLocal     = data.visto === undefined;
+    if(!state.vistoLocal) state.visto = data.visto;
+    else if(primeraCarga) state.visto = null;    // Con Google: la persona ve su coordinación, como con el enlace ?coord= (la primera vez abre Tareas)
     // Quien gestiona tareas ve todas las coordinaciones (sin coordinación fija)
     if(esPersona()){
       if(primeraCarga){
