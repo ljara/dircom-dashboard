@@ -62,9 +62,9 @@
   .card p{font-size:13px;color:var(--text-mid);line-height:1.65;margin-bottom:8px}
   .card p:last-child{margin-bottom:0}
   .card ul{list-style:none;margin-top:6px}
-  .card ul li{font-size:13px;color:var(--text-mid);padding:4px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border)}
+  .card ul li{font-size:13px;color:var(--text-mid);line-height:1.6;padding:4px 0 4px 16px;position:relative;overflow-wrap:anywhere;border-bottom:1px solid var(--border)}
   .card ul li:last-child{border-bottom:none}
-  .card ul li::before{content:'›';color:var(--azul);font-weight:700;font-size:16px;line-height:1.2;flex-shrink:0}
+  .card ul li::before{content:'›';position:absolute;left:0;top:3px;color:var(--azul);font-weight:700;font-size:16px;line-height:1.2}
 
   /* Beneficios */
   .benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
