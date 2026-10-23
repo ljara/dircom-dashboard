@@ -31,7 +31,7 @@ function onSidebarSearch(q){
   resultsEl.innerHTML = matches.map(t=>{
     const m=getCoordMeta(t.coordId);
     const hoy=new Date();hoy.setHours(0,0,0,0);
-    const vencida=t.fecha&&t.status!=='done'&&(()=>{try{return new Date(t.fecha)<hoy;}catch(e){return false;}})();
+    const vencida=t.fecha&&t.status!=='done'&&(()=>{try{return fechaLocal(t.fecha)<hoy;}catch(e){return false;}})();
     return `<div onclick='viewTask(${JSON.stringify(t)});document.getElementById("sidebar-search").value="";onSidebarSearch("")'
       style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s"
       onmouseover="this.style.background='var(--gray-light)'" onmouseout="this.style.background='transparent'">

@@ -7,7 +7,7 @@ function taskListHTML(tasks){
   return tasks.map(t=>{
     const m=getCoordMeta(t.coordId);
     const hoy=new Date();hoy.setHours(0,0,0,0);
-    const esVencida=t.fecha&&t.status!=='done'&&(()=>{try{return new Date(t.fecha)<hoy;}catch(e){return false;}})();
+    const esVencida=t.fecha&&t.status!=='done'&&(()=>{try{return fechaLocal(t.fecha)<hoy;}catch(e){return false;}})();
     const extras=extraFields(state.tareasHeaders,SYSTEM_FIELDS_TAREA)
       .filter(f=>t[f]!==undefined&&t[f]!=='')
       .map(f=>`<span>· ${f}: ${t[f]}</span>`).join('');

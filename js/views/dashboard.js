@@ -22,7 +22,7 @@ function renderDashboard(){
 
   const vencidas = activeTareas().filter(t=>{
     if(!t.fecha||t.status==='done') return false;
-    try{ return new Date(t.fecha)<hoy; }catch(e){ return false; }
+    try{ return fechaLocal(t.fecha)<hoy; }catch(e){ return false; }
   });
 
   // Carga por persona
@@ -197,7 +197,7 @@ function mostrarVencidas(){
   const hoy=new Date();hoy.setHours(0,0,0,0);
   const vencidas=activeTareas().filter(t=>{
     if(!t.fecha||t.status==='done') return false;
-    try{ return new Date(t.fecha)<hoy; }catch(e){ return false; }
+    try{ return fechaLocal(t.fecha)<hoy; }catch(e){ return false; }
   });
   document.getElementById('modal').style.display='flex';
   document.getElementById('modal-inner').innerHTML=`
@@ -212,7 +212,7 @@ function mostrarVencidas(){
             const m=getCoordMeta(t.coordId);
             const diasStr=(()=>{
               try{
-                const diff=Math.floor((hoy-new Date(t.fecha))/(1000*60*60*24));
+                const diff=Math.round((hoy-fechaLocal(t.fecha))/(1000*60*60*24));
                 return `vencida hace ${diff} día${diff!==1?'s':''}`;
               }catch(e){return '';}
             })();

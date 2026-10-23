@@ -11,12 +11,19 @@ function getCoordMeta(id){
 }
 
 // ── Helpers ────────────────────────────────────────────────
+// Fecha límite "YYYY-MM-DD" como medianoche local: new Date("2026-11-05") la toma en UTC
+// y en Chile queda el día anterior a las 21:00
+function fechaLocal(f){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(f||''));
+  return m ? new Date(+m[1], m[2]-1, +m[3]) : new Date(f);
+}
 function formatFecha(d){
   if(!d) return '—';
   try{
-    const date = new Date(d);
+    const date = fechaLocal(d);
     if(isNaN(date)) return String(d);
-    return date.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Santiago'});
+    const soloFecha = /^\d{4}-\d{2}-\d{2}$/.test(String(d));
+    return date.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',...(soloFecha?{}:{timeZone:'America/Santiago'})});
   } catch(e){ return String(d); }
 }
 function statusLabel(s){ return {todo:'Por hacer',progress:'En progreso',review:'Revisión',done:'Completada'}[s]||s; }
