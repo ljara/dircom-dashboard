@@ -94,7 +94,7 @@ create unique index if not exists personas_correo_unico on personas (lower(corre
 alter table personas add column if not exists gestiona_tareas boolean not null default false;
 ```
 
-Desde v2.8.0 los avisos 🔔 salen de la tabla `eventos` (creada, asignada, revision), que llena el
+Desde v2.8.0 los avisos 🔔 salen de la tabla `eventos` (creada, asignada, fecha, revision), que llena el
 servidor; el "visto" de cada persona queda en `personas.visto_at`:
 
 ```sql

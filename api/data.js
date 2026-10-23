@@ -212,8 +212,8 @@ function registroAsignacion(acceso) {
 }
 
 // ── Avisos (🔔) ────────────────────────────────────────────
-// Cada creación, reasignación o paso a Revisión queda en la tabla eventos.
-// tipo: 'creada' | 'asignada' | 'revision'; para = persona asignada (nombre)
+// Cada creación, reasignación, cambio de fecha límite o paso a Revisión queda en la tabla eventos.
+// tipo: 'creada' | 'asignada' | 'fecha' | 'revision'; para = persona asignada (nombre)
 async function registrarEvento(acceso, tipo, tarea, url) {
   const evento = {
     tipo, tarea_id: tarea.id, coord_id: tarea.coord_id ?? null, para: tarea.asignado || null,
@@ -226,9 +226,9 @@ async function registrarEvento(acceso, tipo, tarea, url) {
 }
 
 // Quién recibe cada aviso (nunca quien hizo el cambio):
-// - la persona asignada: cuando le crean o asignan una tarea
-// - coordinador/a: lo que Administración o quien gestiona tareas crea o asigna en su
-//   coordinación, y las tareas de su coordinación que pasan a Revisión
+// - la persona asignada: cuando le crean o asignan una tarea, o le cambian la fecha límite
+// - coordinador/a: lo que Administración o quien gestiona tareas crea, asigna o cambia de fecha
+//   en su coordinación, y las tareas de su coordinación que pasan a Revisión
 // - Administración: las tareas que crea otra persona
 function avisoPara(acceso, e) {
   const yo = acceso.yo;
@@ -280,6 +280,7 @@ function armarCorreo(evento, tarea, coordNombre, dest, url) {
   const paraTi = evento.para && evento.para === dest.nombre;
   const [asunto, frase] =
     evento.tipo === 'revision' ? ['Tarea en revisión', `${esc(por)} pasó a <strong>Revisión</strong> esta tarea. Revísala y dala por completada o devuélvela.`]
+    : evento.tipo === 'fecha' ? ['Cambio de fecha límite', `${esc(por)} cambió la fecha límite${paraTi ? ' de tu tarea' : ''}${tarea.fecha_anterior ? ' (antes: ' + esc(fechaCorta(tarea.fecha_anterior)) + ')' : ''}.`]
     : evento.tipo === 'creada' ? ['Nueva tarea', paraTi ? `${esc(por)} te asignó una tarea nueva.` : `${esc(por)} creó una tarea nueva.`]
     : ['Tarea asignada', paraTi ? `${esc(por)} te asignó esta tarea.` : `${esc(por)} asignó esta tarea${evento.para ? ' a ' + esc(evento.para) : ''}.`];
   const fila = (k, v) => v ? `<tr><td style="padding:4px 12px 4px 0;color:#6b7280">${k}</td><td style="padding:4px 0">${esc(v)}</td></tr>` : '';
@@ -455,6 +456,9 @@ export default async function handler(req, res) {
         const tarea = { id, ...actual, ...body };
         const correos = [];
         if (cambio) correos.push(await registrarEvento(acceso, 'asignada', tarea, urlApp));
+        // Cambio de fecha límite (si además se reasignó, basta el aviso de asignación, que trae la fecha)
+        else if ('fecha' in body && String(body.fecha ?? '').slice(0, 10) !== String(actual.fecha ?? '').slice(0, 10))
+          correos.push(await registrarEvento(acceso, 'fecha', { ...tarea, fecha_anterior: actual.fecha }, urlApp));
         if (body.status === 'review' && actual.status !== 'review') correos.push(await registrarEvento(acceso, 'revision', tarea, urlApp));
         return res.json({ ok: true, ...resumenCorreo(correos.join(' · ')) });
       }

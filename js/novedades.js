@@ -1,4 +1,4 @@
-// Avisos (🔔) de cada persona: tareas que le crearon o asignaron, tareas de su coordinación
+// Avisos (🔔) de cada persona: tareas que le crearon, asignaron o cambiaron de fecha límite, tareas de su coordinación
 // que pasaron a Revisión y, para Administración, tareas que creó otra persona.
 // El servidor decide qué avisos le tocan a cada uno; el "visto" se guarda en su ficha de
 // Equipo (sincronizado entre equipos). Sin ficha, se recuerda solo en este navegador.
@@ -60,7 +60,7 @@ function textoAviso(e){
   // Administración y quien gestiona tareas ven todas las coordinaciones: se indica cuál
   const coord = state.urlCoord ? '' : ' · '+escHtml(getCoordMeta(e.tarea.coordId).name);
   const para = e.para ? (e.para===state.yo?.nombre ? ' para ti' : ' para '+escHtml(e.para)) : '';
-  return (e.tipo==='creada' ? 'nueva' : 'asignada') + para + coord + quien;
+  return (e.tipo==='creada' ? 'nueva' : e.tipo==='fecha' ? 'nueva fecha límite' : 'asignada') + para + coord + quien;
 }
 
 function bannerNovedadesHTML(){
