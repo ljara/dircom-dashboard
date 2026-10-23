@@ -280,7 +280,7 @@ function armarCorreo(evento, tarea, coordNombre, dest, url) {
   const paraTi = evento.para && evento.para === dest.nombre;
   const [asunto, frase] =
     evento.tipo === 'revision' ? ['Tarea en revisión', `${esc(por)} pasó a <strong>Revisión</strong> esta tarea. Revísala y dala por completada o devuélvela.`]
-    : evento.tipo === 'fecha' ? ['Cambio de fecha límite', `${esc(por)} cambió la fecha límite${paraTi ? ' de tu tarea' : ''}${tarea.fecha_anterior ? ' (antes: ' + esc(fechaCorta(tarea.fecha_anterior)) + ')' : ''}.`]
+    : evento.tipo === 'fecha' ? ['Cambio en fecha de entrega', `${esc(por)} cambió la fecha límite${paraTi ? ' de tu tarea' : ''}${tarea.fecha_anterior ? ' (antes: ' + esc(fechaCorta(tarea.fecha_anterior)) + ')' : ''}.`]
     : evento.tipo === 'creada' ? ['Nueva tarea', paraTi ? `${esc(por)} te asignó una tarea nueva.` : `${esc(por)} creó una tarea nueva.`]
     : ['Tarea asignada', paraTi ? `${esc(por)} te asignó esta tarea.` : `${esc(por)} asignó esta tarea${evento.para ? ' a ' + esc(evento.para) : ''}.`];
   const fila = (k, v) => v ? `<tr><td style="padding:4px 12px 4px 0;color:#6b7280">${k}</td><td style="padding:4px 0">${esc(v)}</td></tr>` : '';
