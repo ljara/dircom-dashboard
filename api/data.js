@@ -112,29 +112,14 @@ async function verificarGoogle(credential) {
 // Correos con los que la directora puede entrar con Google (variable DIRECTORA_CORREO, separados por coma)
 const correosDirectora = () => (process.env.DIRECTORA_CORREO || '').split(',').map(c => c.trim().toLowerCase()).filter(Boolean);
 
-// Enlaces antiguos (?coord= y tablero general): editables hasta que ENLACES_SOLO_LECTURA = 'si',
-// y cerrados del todo (no reciben datos; se pide entrar con Google) cuando SOLO_CON_GOOGLE = 'si'
-const activado = nombre => (process.env[nombre] || '').trim().toLowerCase() === 'si';
-const enlacesEditables = () => !activado('ENLACES_SOLO_LECTURA');
-
 // ── Rol de quien hace la petición ──────────────────────────
-// - ?k=<DIRECTORA_KEY>      → directora (todo, incluido Reportes)
-// - sesión de Google        → directora (DIRECTORA_CORREO), gestor (gestiona_tareas), coordinador (es_jefe)
-//                             o integrante, según Equipo
-// - ?coord=<id> (antiguo)   → coordinación (solo sus tareas)
-// - sin parámetros (antiguo)→ tablero general
-// null = clave incorrecta; { sesionInvalida } = la sesión venció o la persona ya no está en Equipo
-function esClaveDirectora(key) {
-  const secreto = (process.env.DIRECTORA_KEY || '').trim();
-  if (!secreto || typeof key !== 'string') return false;
-  const a = Buffer.from(key.trim()), b = Buffer.from(secreto);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
+// Solo con sesión de Google: directora (DIRECTORA_CORREO), gestor (gestiona_tareas),
+// coordinador (es_jefe) o integrante, según Equipo.
+// { loginRequerido } = sin sesión; { sesionInvalida } = la sesión venció o la persona ya no está en Equipo
 
 const yoDe = p => ({ id: p.id, nombre: p.nombre, correo: p.correo, visto: p.visto_at || null });
 
-async function resolverAcceso(key, coord, sesion) {
-  if (key) return esClaveDirectora(key) ? { rol: 'directora', coord: null } : null;
+async function resolverAcceso(sesion) {
   if (sesion) {
     const s = leerSesion(sesion);
     if (s && (s.directora || s.pid)) {
@@ -158,9 +143,7 @@ async function resolverAcceso(key, coord, sesion) {
     }
     return { sesionInvalida: true };
   }
-  if (activado('SOLO_CON_GOOGLE')) return { loginRequerido: true };
-  if (coord) return { rol: 'coordinacion', coord: String(coord), antiguo: true };
-  return { rol: 'general', coord: null, antiguo: true };
+  return { loginRequerido: true };
 }
 
 // ── Permisos (tabla "Quién hace qué" del manual del equipo) ─
@@ -173,7 +156,6 @@ const ESTADOS_INTEGRANTE = ['todo', 'progress', 'review'];
 function denegar(acceso, action, body = {}, actual = null) {
   if (acceso.rol === 'directora') return null;
   if (SOLO_DIRECTORA.includes(action)) return 'Solo Administración puede hacer esto';
-  if (acceso.antiguo) return enlacesEditables() ? null : 'Este enlace es solo de lectura: entra con tu cuenta @ufrontera.cl';
   const propia = c => String(c ?? '') === acceso.coord;
   if (acceso.rol === 'gestor')
     return action.endsWith('Tarea') ? null : 'Pídele este cambio a Administración';
@@ -203,11 +185,9 @@ const vacio = v => v === undefined || v === null || String(v).trim() === '';
 const errorObligatorios = campos => 'Falta completar: ' + campos.map(c => NOMBRES_CAMPOS[c]).join(', ');
 
 // Quién asignó la tarea y cuándo (para avisar a la coordinación cuando asigna la directora):
-// 'directora', 'persona:<id>', 'coord:<id>' o 'general'
+// 'directora' o 'persona:<id>'
 function registroAsignacion(acceso) {
-  const por = acceso.rol === 'directora' ? 'directora'
-            : acceso.yo ? 'persona:' + acceso.yo.id
-            : acceso.rol === 'coordinacion' ? 'coord:' + acceso.coord : acceso.rol;
+  const por = acceso.rol === 'directora' ? 'directora' : 'persona:' + acceso.yo.id;
   return { asignado_por: por, asignado_at: new Date().toISOString() };
 }
 
@@ -365,9 +345,9 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { action, data, key, coord, sesion } = req.method === 'GET'
+    const { action, data, sesion } = req.method === 'GET'
       ? { action: req.query.action, data: req.query.data ? JSON.parse(req.query.data) : null,
-          key: req.query.k, coord: req.query.coord, sesion: req.query.sesion }
+          sesion: req.query.sesion }
       : req.body;
 
     // Entrar con Google: no requiere sesión previa
@@ -385,8 +365,7 @@ export default async function handler(req, res) {
     // Dirección del dashboard para el botón de los correos (producción o vista previa)
     const urlApp = 'https://' + (req.headers?.['x-forwarded-host'] || req.headers?.host || 'dircom-dashboard.vercel.app');
 
-    const acceso = await resolverAcceso(key, coord, sesion);
-    if (!acceso) return res.status(403).json({ error: 'Clave de administración incorrecta: revisa el enlace' });
+    const acceso = await resolverAcceso(sesion);
     if (acceso.sesionInvalida) return res.status(401).json({ error: 'Tu sesión venció: vuelve a entrar con Google', sesionInvalida: true });
     if (acceso.loginRequerido) return res.status(401).json({ error: 'Entra con tu cuenta @' + DOMINIO, loginRequerido: true });
 
@@ -412,7 +391,6 @@ export default async function handler(req, res) {
           rol: acceso.rol, coordinaciones: coords, personas, tareas, opciones,
           yo: acceso.yo ? { nombre: acceso.yo.nombre, correo: acceso.yo.correo } : null,
           coord: acceso.yo ? acceso.coord : undefined,
-          editable: acceso.antiguo ? enlacesEditables() : undefined,
           avisos,
           // Sin ficha en Equipo, el "visto" se guarda solo en el navegador
           visto: acceso.yo?.id ? acceso.yo.visto : undefined

@@ -111,7 +111,6 @@ function renderDashboard(){
         ${esDirector()?`<button class="btn" onclick="setView('reportes')" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a">📈 Reportes</button>`:''}
       </div>
     </div>
-    ${bannerEntrarHTML()}
     ${bannerNovedadesHTML()}
 
     <div class="metrics">

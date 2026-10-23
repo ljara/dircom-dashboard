@@ -11,9 +11,9 @@ async function alEntrarConGoogle(resp){
   try{
     const json = await callAPI('login', {credential: resp.credential});
     try{ localStorage.setItem(CLAVE_SESION, json.sesion); }catch(e){}
-    // Entrar desde la URL general: los parámetros antiguos (?coord=) ya no hacen falta
+    // Se quitan de la dirección los parámetros de los enlaces antiguos (?coord=, ?k=), que ya no se usan
     const params = new URLSearchParams(location.search);
-    params.delete('coord');
+    params.delete('coord'); params.delete('k');
     location.search = params.toString();
   } catch(e){ showToast(e.message); }
 }
@@ -38,9 +38,6 @@ function montarBotonesGoogle(){
 }
 // La librería de Google carga en paralelo y avisa al terminar
 window.onGoogleLibraryLoad = montarBotonesGoogle;
-
-// ¿Mostrar la invitación a entrar? Solo en los enlaces antiguos (la directora con ?k= no la necesita)
-function mostrarEntrar(){ return !esDirector() && !esPersona() && !state.urlKey && !state.bloqueado; }
 
 // ── Pantalla de inicio de sesión (cuando el servidor exige entrar con Google) ──
 // El fondo es un tablero de muestra desenfocado: el servidor no entrega datos reales sin sesión
@@ -72,25 +69,10 @@ function mostrarPantallaLogin(){
   montarBotonesGoogle();
 }
 
-// Bloque de la barra lateral: quién está conectado o el botón para entrar
+// Bloque de la barra lateral: quién está conectado
 function sesionSidebarHTML(){
   if(state.yo) return `<div class="sesion-yo">👤 ${escHtml(state.yo.nombre)}
     <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()" title="${escHtml(state.yo.correo||'')}">Salir</button></div>`;
-  if(mostrarEntrar()) return `<div class="g-btn"></div>`;
   return '';
 }
 
-// Aviso en Dashboard y Tareas para quienes siguen usando un enlace antiguo
-function bannerEntrarHTML(){
-  if(!mostrarEntrar()) return '';
-  return `
-    <div class="banner-entrar">
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600">Entra con tu cuenta @ufrontera.cl</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${state.editable
-          ? 'Pronto este enlace dejará de permitir cambios.'
-          : 'Este enlace es solo de lectura: para crear o actualizar tareas, entra con tu cuenta.'}</div>
-      </div>
-      <div class="g-btn"></div>
-    </div>`;
-}

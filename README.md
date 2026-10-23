@@ -15,7 +15,7 @@ dircom-dashboard/
 │   └── favicon.webp
 ├── js/
 │   ├── config.js              Paleta de colores y campos del sistema
-│   ├── state.js               Estado global y rol según la URL (?coord=)
+│   ├── state.js               Estado global y permisos en pantalla
 │   ├── utils.js               Utilidades (fechas, colores, etiquetas, avisos)
 │   ├── api.js                 Llamadas a /api/data y normalización de datos
 │   ├── metricas.js            Cálculo de KPI por período (fechas, agregados, comparación)
@@ -56,11 +56,8 @@ Variables de entorno necesarias para `api/data.js`:
 |------------------------|-------------------------------------------|
 | `SUPABASE_URL`         | URL del proyecto Supabase                 |
 | `SUPABASE_SERVICE_KEY` | Service role key de Supabase (secreta)    |
-| `DIRECTORA_KEY`        | Clave del enlace de Administración `?k=` (secreta; respaldo del login con Google) |
 | `SESION_SECRETO`       | Firma las sesiones de Google (secreta). Sin ella no se puede entrar con Google |
 | `DIRECTORA_CORREO`     | Correos @ufrontera.cl con acceso total (Administración), separados por coma. Se revisa en cada petición |
-| `ENLACES_SOLO_LECTURA` | Opcional: `si` deja los enlaces antiguos (`?coord=` y general) en solo lectura |
-| `SOLO_CON_GOOGLE`      | Opcional: `si` cierra los enlaces antiguos; sin sesión se muestra la pantalla de login y la API no entrega datos |
 | `CRON_SECRET`          | Opcional: protege `/api/keepalive` para que solo lo llame el cron |
 | `CORREO_USUARIO`       | Opcional: cuenta @ufrontera.cl que envía los avisos por correo (Gmail SMTP). Sin ella y `CORREO_CLAVE` no se envían correos |
 | `CORREO_CLAVE`         | Contraseña de aplicación de Google de esa cuenta (secreta) |
@@ -149,7 +146,7 @@ sesión firmada de 30 días. El rol se vuelve a calcular en cada petición:
 
 | Rol | Cómo se define | Puede |
 |---|---|---|
-| Administración (`directora`) | Correo en `DIRECTORA_CORREO` o enlace `?k=` | Todo |
+| Administración (`directora`) | Correo en `DIRECTORA_CORREO` | Todo |
 | Gestiona tareas (`gestor`) | `personas.gestiona_tareas` | Crear y modificar tareas de todas las coordinaciones |
 | Coordinador/a (`coordinador`) | `personas.es_jefe` | Todo con las tareas de su coordinación; nombre y cargo de su equipo |
 | Integrante (`integrante`) | Resto | En sus tareas abiertas: estado hasta Revisión, descripción y link |
@@ -157,20 +154,13 @@ sesión firmada de 30 días. El rol se vuelve a calcular en cada petición:
 Personas, permisos, correos, coordinaciones y opciones solo los modifica Administración. Los
 permisos se comprueban en el servidor (`denegar()`); la interfaz solo oculta los botones.
 
-**Enlaces antiguos** (se retiran cuando todos entren con Google):
-
-- `https://<dominio>/?k=<DIRECTORA_KEY>` → vista de Administración (todas las coordinaciones y Reportes).
-- `https://<dominio>/?coord=<id>` → abre en las tareas de esa coordinación, con aviso de tareas en revisión.
-  La API solo entrega las tareas de esa coordinación y la vista Reportes no está disponible.
-- `https://<dominio>/` → tablero general con todas las coordinaciones, sin las opciones de la directora (Reportes).
-- Con una `k` incorrecta la API responde 403 y la app muestra "Clave de directora incorrecta".
-
-> El rol lo decide `api/data.js` comparando `k` con `DIRECTORA_KEY`. Para cambiar la clave basta
-> con actualizar la variable en Vercel y volver a desplegar; el enlace anterior deja de funcionar.
-> Generar una clave: `node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"`
+Sin sesión, la API responde 401 y no entrega datos: la app muestra la pantalla de login sobre un
+tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se retiraron el enlace
+`?k=` y los enlaces por coordinación `?coord=`).
 
 ## Historial de versiones
 
+- **v2.10.0** — Solo se entra con Google: se retiran el enlace de Administración `?k=` (`DIRECTORA_KEY`), los enlaces antiguos y las variables `ENLACES_SOLO_LECTURA` y `SOLO_CON_GOOGLE`
 - **v2.9.0** — Avisos por correo con las mismas reglas que los avisos 🔔 (botón "Ver en dashboard", modo prueba con `CORREO_PRUEBA`); aviso cuando cambia la fecha límite; la fecha límite ya no se muestra un día antes ni vence antes de tiempo
 - **v2.8.0** — Avisos 🔔 por persona: asignaciones (a la persona asignada y, si viene de Administración o de quien gestiona tareas, a su coordinador/a), tareas que pasan a Revisión (al coordinador/a) y tareas creadas por otras personas (a Administración); el "visto" se guarda en el servidor
 - **v2.7.0** — Login con Google (@ufrontera.cl) y permisos por persona aplicados en el servidor (Integrante, Gestiona tareas, Coordinador/a, Administración); pantalla de login sobre un tablero desenfocado (`SOLO_CON_GOOGLE`); la vista de la directora pasa a llamarse Administración; nombre "DirCom"

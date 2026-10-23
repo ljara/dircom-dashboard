@@ -10,7 +10,7 @@ async function callAPI(action, data) {
     const res = await fetch(API_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, data, key: state.urlKey, coord: state.urlCoord, sesion: sesionGuardada() })
+      body: JSON.stringify({ action, data, sesion: sesionGuardada() })
     });
     const json = await res.json().catch(() => ({}));
     // Sesión vencida o persona quitada de Equipo: se borra y se vuelve a cargar sin ella
@@ -73,13 +73,11 @@ function setSyncing(val){
 
 // ── loadData via API segura (v2.0.0) ─────────────────────
 async function loadData(){
-  initUrlParams();
   try{
     const data = await callAPI('getAll');
     const primeraCarga   = !state.rol;
     state.rol            = data.rol;
     state.yo             = data.yo || null;
-    state.editable       = !!data.editable;
     state.avisos         = data.avisos || [];
     // visto === undefined: sin ficha en Equipo, se recuerda en este navegador
     state.vistoLocal     = data.visto === undefined;
@@ -105,7 +103,7 @@ async function loadData(){
     document.getElementById('loading').style.display='none';
     if(e.loginRequerido){ mostrarPantallaLogin(); return; }
     console.error('loadData error:', e);
-    // Mostrar el motivo en pantalla en vez de un tablero vacío (ej. clave incorrecta)
+    // Mostrar el motivo en pantalla en vez de un tablero vacío
     document.getElementById('main-content').innerHTML =
       `<div class="section" style="margin:40px auto;max-width:480px;text-align:center">
         <div class="page-title">No se pudieron cargar los datos</div>
