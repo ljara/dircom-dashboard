@@ -62,6 +62,9 @@ Variables de entorno necesarias para `api/data.js`:
 | `ENLACES_SOLO_LECTURA` | Opcional: `si` deja los enlaces antiguos (`?coord=` y general) en solo lectura |
 | `SOLO_CON_GOOGLE`      | Opcional: `si` cierra los enlaces antiguos; sin sesión se muestra la pantalla de login y la API no entrega datos |
 | `CRON_SECRET`          | Opcional: protege `/api/keepalive` para que solo lo llame el cron |
+| `CORREO_USUARIO`       | Opcional: cuenta @ufrontera.cl que envía los avisos por correo (Gmail SMTP). Sin ella y `CORREO_CLAVE` no se envían correos |
+| `CORREO_CLAVE`         | Contraseña de aplicación de Google de esa cuenta (secreta) |
+| `CORREO_PRUEBA`        | Opcional, solo para probar: todos los correos van a esta dirección y la app muestra el resultado del envío. No usar en Production |
 
 El plan gratuito de Supabase pausa el proyecto tras 7 días sin actividad. Para evitarlo,
 `vercel.json` programa un cron diario (12:00 UTC) que llama a `/api/keepalive`, que hace una
@@ -168,6 +171,7 @@ permisos se comprueban en el servidor (`denegar()`); la interfaz solo oculta los
 
 ## Historial de versiones
 
+- **v2.9.0** — Avisos por correo con las mismas reglas que los avisos 🔔 (botón "Ver en dashboard", modo prueba con `CORREO_PRUEBA`); aviso cuando cambia la fecha límite; la fecha límite ya no se muestra un día antes ni vence antes de tiempo
 - **v2.8.0** — Avisos 🔔 por persona: asignaciones (a la persona asignada y, si viene de Administración o de quien gestiona tareas, a su coordinador/a), tareas que pasan a Revisión (al coordinador/a) y tareas creadas por otras personas (a Administración); el "visto" se guarda en el servidor
 - **v2.7.0** — Login con Google (@ufrontera.cl) y permisos por persona aplicados en el servidor (Integrante, Gestiona tareas, Coordinador/a, Administración); pantalla de login sobre un tablero desenfocado (`SOLO_CON_GOOGLE`); la vista de la directora pasa a llamarse Administración; nombre "DirCom"
 - **v2.6.0** — Avisos para cada coordinación: tareas creadas o asignadas por la directora desde la última visita (aviso, etiqueta "Nueva" y contador en la pestaña); Equipo con tareas por persona
