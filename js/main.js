@@ -11,6 +11,7 @@ async function silentRefresh(){
     state.coordinaciones = (data.coordinaciones||[]).map(normalizeCoord);
     state.personas       = (data.personas||[]).map(normalizePersona);
     state.tareas         = (data.tareas||[]).map(normalizeTarea);
+    state.tareasOtrasCoords = (data.calendario||[]).map(normalizeTarea);
     state.opciones       = data.opciones || {};
     renderSidebarCoords();
     render();

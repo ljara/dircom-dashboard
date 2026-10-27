@@ -2,6 +2,7 @@
 
 let state = {
   tareas:[], personas:[], coordinaciones:[],
+  tareasOtrasCoords:[],   // coordinador: tareas con fecha de las demás coordinaciones (solo calendario)
   tareasHeaders:[], personasHeaders:[],
   opciones:{},
   view:'dashboard', filterCoord:null, filterStatus:'all', filterPersona:null,

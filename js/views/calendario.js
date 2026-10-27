@@ -1,6 +1,13 @@
 // Vista: Calendario (mensual y por persona)
 
 // ── Calendario (v2.1.0) ────────────────────────────────────
+// Qué tareas ve cada rol: integrante solo las suyas; coordinador las de toda la Dirección
+// (las de otras coordinaciones llegan aparte y son solo lectura); gestor y Administración, todas
+function tareasDelCalendario(){
+  if(state.rol==='integrante') return activeTareas().filter(t=>t.asignado===state.yo?.nombre);
+  return activeTareas().concat(state.tareasOtrasCoords||[]);
+}
+
 function renderCalendario(){
   const hoy = new Date(); hoy.setHours(0,0,0,0);
   const ref = new Date(state.calFecha); ref.setDate(1);
@@ -10,15 +17,16 @@ function renderCalendario(){
   const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 
   // Tareas activas con fecha
-  let tareasCal = activeTareas().filter(t=>t.fecha);
-  if(state.calPersonaFiltro !== 'all')
+  let tareasCal = tareasDelCalendario().filter(t=>t.fecha);
+  const soloPropio = state.rol==='integrante';
+  if(!soloPropio && state.calPersonaFiltro !== 'all')
     tareasCal = tareasCal.filter(t=>t.asignado === state.calPersonaFiltro);
 
   // Colores por coordinación
   const coordColor = id => getCoordMeta(id).hex;
 
   // Personas con tareas para el filtro
-  const personasConTareas = [...new Set(activeTareas().filter(t=>t.fecha&&t.asignado).map(t=>t.asignado))].sort();
+  const personasConTareas = [...new Set(tareasDelCalendario().filter(t=>t.fecha&&t.asignado).map(t=>t.asignado))].sort();
 
   const navPrev = () => {
     const d = new Date(state.calFecha);
@@ -67,13 +75,13 @@ function renderCalendario(){
   const calHTML = `
     <div class="topbar">
       <div><div class="page-title">📅 Calendario de tareas</div>
-      <div class="page-sub">Tareas con fecha límite · ${meses[mes]} ${anio}</div></div>
+      <div class="page-sub">${soloPropio?'Tus tareas':'Tareas'} con fecha límite · ${meses[mes]} ${anio}</div></div>
       <div class="topbar-actions">
-        <select onchange="state.calPersonaFiltro=this.value;render()"
+        ${soloPropio?'':`<select onchange="state.calPersonaFiltro=this.value;render()"
           style="padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--surface);color:var(--text)">
           <option value="all"${state.calPersonaFiltro==='all'?' selected':''}>👥 Todas las personas</option>
           ${personasConTareas.map(p=>`<option value="${p}"${state.calPersonaFiltro===p?' selected':''}>${p}</option>`).join('')}
-        </select>
+        </select>`}
         <button class="btn btn-sm" onclick="state.calModo=state.calModo==='mes'?'persona':'mes';render()">
           ${state.calModo==='mes'?'👤 Vista por persona':'📅 Vista mensual'}
         </button>
@@ -87,13 +95,13 @@ function renderCalendario(){
     lunes.setDate(hoy.getDate() - (hoy.getDay()===0?6:hoy.getDay()-1));
     const semana = Array.from({length:7}, (_,i)=>{ const d=new Date(lunes); d.setDate(lunes.getDate()+i); return d; });
 
-    const personas = state.calPersonaFiltro === 'all'
-      ? personasConTareas
+    const personas = soloPropio ? [state.yo?.nombre].filter(Boolean)
+      : state.calPersonaFiltro === 'all' ? personasConTareas
       : [state.calPersonaFiltro];
 
     // Si no hay personas con tareas mostrar todas las personas del equipo
     const personasMostrar = personas.length ? personas :
-      [...new Set(activeTareas().filter(t=>t.asignado).map(t=>t.asignado))].sort();
+      [...new Set(tareasDelCalendario().filter(t=>t.asignado).map(t=>t.asignado))].sort();
 
     return calHTML + `
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
@@ -106,7 +114,7 @@ function renderCalendario(){
         </div>
       </div>
       ${personasMostrar.map(persona=>{
-        const tareasPersona = activeTareas().filter(t=>t.asignado===persona&&t.fecha);
+        const tareasPersona = tareasDelCalendario().filter(t=>t.asignado===persona&&t.fecha);
         const col = avatarColor(persona);
         return `<div class="persona-week">
           <div class="persona-week-header">

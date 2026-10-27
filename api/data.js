@@ -374,12 +374,16 @@ export default async function handler(req, res) {
       case 'getAll': {
         // Una coordinación solo recibe sus propias tareas
         const filtroTareas = acceso.coord ? `coord_id=eq.${encodeURIComponent(acceso.coord)}&` : '';
-        const [coords, personas, tareas, opcRows, avisos] = await Promise.all([
+        // El coordinador ve en el calendario las tareas con fecha de toda la Dirección (solo lectura)
+        const [coords, personas, tareas, opcRows, avisos, calendario] = await Promise.all([
           sbGet('coordinaciones', 'order=created_at'),
           sbGet('personas',       'order=nombre'),
           sbGet('tareas',         filtroTareas + 'order=created_at.desc'),
           sbGet('opciones',       'order=tipo,orden'),
-          avisosDe(acceso)
+          avisosDe(acceso),
+          acceso.rol === 'coordinador'
+            ? sbGet('tareas', `coord_id=neq.${encodeURIComponent(acceso.coord)}&fecha=not.is.null&status=neq.archivada&order=fecha`)
+            : null
         ]);
         const opciones = {};
         opcRows.forEach(o => {
@@ -389,6 +393,7 @@ export default async function handler(req, res) {
         personas.forEach(p => { delete p.visto_at; if (acceso.rol !== 'directora') delete p.correo; });
         return res.json({
           rol: acceso.rol, coordinaciones: coords, personas, tareas, opciones,
+          calendario: calendario || undefined,
           yo: acceso.yo ? { nombre: acceso.yo.nombre, correo: acceso.yo.correo } : null,
           coord: acceso.yo ? acceso.coord : undefined,
           avisos,

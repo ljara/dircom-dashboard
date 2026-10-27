@@ -3,10 +3,11 @@
 <head>
 <!--
   Manual del Equipo — Dashboard DIRCOM UFRO
-  Versión: 1.5.0
-  Fecha: 2026-10-23
+  Versión: 1.6.0
+  Fecha: 2026-10-27
   Complementa a manual-dircom.html (orientado a coordinadores/as y directora).
   Changelog:
+  - v1.6.0: El Calendario muestra solo tus tareas; coordinadores/as ven el de toda la Dirección
   - v1.5.0: Avisos también por correo; aviso cuando cambia la fecha límite de tu tarea; sale "Lo que viene"
   - v1.4.0: Avisos 🔔 de todas las asignaciones (no solo de Administración); el "visto" se sincroniza entre equipos; "Lo que viene": correo
   - v1.3.0: Entrada con cuenta Google @ufrontera.cl; tabla "Quién hace qué" con los permisos que aplica el sistema; avisos de Administración
@@ -20,7 +21,7 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/webp" href="img/favicon.webp">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.5.0</title>
+<title>Manual del Equipo — Dashboard DIRCOM UFRO v1.6.0</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   :root {
@@ -149,7 +150,7 @@
   <div class="header">
     <div class="org">Universidad de La Frontera</div>
     <h1>Manual del Equipo<br>Dashboard DIRCOM</h1>
-    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.4</div>
+    <div class="sub">Guía para todas las personas de la Dirección de Comunicaciones · Versión 1.6</div>
   </div>
   <div class="stripe"></div>
 
@@ -293,6 +294,7 @@
             <tr><td>Ver las tareas de la coordinación</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Pasar <strong>sus</strong> tareas a En progreso o Revisión</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Editar la descripción y el link de <strong>sus</strong> tareas</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
+            <tr><td>Ver en el Calendario las tareas de toda la Dirección</td><td class="no">— (solo las suyas)</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Marcar una tarea como Completada</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Crear tareas y asignarlas</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
             <tr><td>Modificar o archivar tareas de otros compañeros/as</td><td class="no">—</td><td class="si">✓</td><td class="si">✓</td></tr>
@@ -338,8 +340,10 @@
     <div class="card">
       <h3>📅 Calendario</h3>
       <ul>
-        <li><strong>Vista mensual</strong>: todas las tareas con fecha límite, cada una en su día y con el color de su estado</li>
-        <li><strong>Vista por persona</strong>: la semana de cada integrante. Elige tu nombre en el selector para ver tu agenda</li>
+        <li>Muestra <strong>tus</strong> tareas con fecha límite. Las tareas sin fecha no aparecen</li>
+        <li><strong>Vista mensual</strong>: cada tarea en su día, con el color de su estado</li>
+        <li><strong>Vista por persona</strong>: tu semana, día a día</li>
+        <li>Coordinadores/as y Administración ven el calendario de toda la Dirección</li>
       </ul>
     </div>
     <div class="card">
@@ -385,7 +389,7 @@
   </div>
 
   <div class="footer">
-    Dirección de Comunicaciones · Universidad de La Frontera · Manual del Equipo v1.5<br>
+    Dirección de Comunicaciones · Universidad de La Frontera · Manual del Equipo v1.6<br>
     Para dudas sobre el uso del dashboard, consulta con tu coordinador/a
   </div>
 
