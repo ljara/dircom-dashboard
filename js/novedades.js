@@ -33,6 +33,8 @@ async function marcarNovedadesVistas(){
   const nov = novedadesVisibles();
   if(!nov.length) return;
   const hasta = nov[0].created_at;
+  // Viendo como otra persona: no se marcan sus avisos
+  if(state.viendoComo){ state.visto = hasta; render(); return; }
   if(state.vistoLocal){
     try{ localStorage.setItem(claveVisto(), hasta); }catch(e){}
     state.visto = hasta;

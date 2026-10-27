@@ -118,28 +118,43 @@ const correosDirectora = () => (process.env.DIRECTORA_CORREO || '').split(',').m
 // { loginRequerido } = sin sesión; { sesionInvalida } = la sesión venció o la persona ya no está en Equipo
 
 const yoDe = p => ({ id: p.id, nombre: p.nombre, correo: p.correo, visto: p.visto_at || null });
+const CAMPOS_PERSONA = 'id,nombre,coord_id,es_jefe,gestiona_tareas,correo,visto_at';
 
-async function resolverAcceso(sesion) {
+// Rol de una persona de Equipo según su ficha
+function accesoPersona(p) {
+  if (correosDirectora().includes(p.correo)) return { rol: 'directora', coord: null, yo: yoDe(p) };
+  // Gestiona tareas: crea y modifica tareas de todas las coordinaciones (sin etiqueta de cargo)
+  if (p.gestiona_tareas === true) return { rol: 'gestor', coord: null, yo: yoDe(p) };
+  return {
+    rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
+    coord: String(p.coord_id || '-'),   // sin coordinación no ve tareas
+    yo: yoDe(p)
+  };
+}
+
+// "Ver como": solo los correos de VER_COMO_CORREO (separados por coma) pueden ver el dashboard
+// como otra persona de Equipo, en solo lectura
+const correosVerComo = () => (process.env.VER_COMO_CORREO || '').split(',').map(c => c.trim().toLowerCase()).filter(Boolean);
+
+async function resolverAcceso(sesion, verComo) {
   if (sesion) {
     const s = leerSesion(sesion);
     if (s && (s.directora || s.pid)) {
+      const puedeVerComo = correosVerComo().includes(s.correo);
+      if (verComo && puedeVerComo) {
+        const [o] = await sbGet('personas', `id=eq.${encodeURIComponent(verComo)}&select=${CAMPOS_PERSONA}`);
+        if (o) return { ...accesoPersona(o), viendoComo: true, puedeVerComo };
+      }
       const [p] = s.pid
-        ? await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=id,nombre,coord_id,es_jefe,gestiona_tareas,correo,visto_at`)
+        ? await sbGet('personas', `id=eq.${encodeURIComponent(s.pid)}&select=${CAMPOS_PERSONA}`)
         : [];
       // DIRECTORA_CORREO se revisa en cada petición: agregar o quitar un correo en Vercel
       // da o quita el acceso total sin volver a entrar
       if (correosDirectora().includes(s.correo))
-        return { rol: 'directora', coord: null,
+        return { rol: 'directora', coord: null, puedeVerComo,
                  yo: p && p.correo === s.correo ? yoDe(p) : { nombre: 'Administración', correo: s.correo } };
       // Quitar a la persona de Equipo (o cambiar su correo) le corta el acceso
-      // Gestiona tareas: crea y modifica tareas de todas las coordinaciones (sin etiqueta de cargo)
-      if (p && p.correo === s.correo && p.gestiona_tareas === true)
-        return { rol: 'gestor', coord: null, yo: yoDe(p) };
-      if (p && p.correo === s.correo) return {
-        rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
-        coord: String(p.coord_id || '-'),   // sin coordinación no ve tareas
-        yo: yoDe(p)
-      };
+      if (p && p.correo === s.correo) return { ...accesoPersona(p), puedeVerComo };
     }
     return { sesionInvalida: true };
   }
@@ -345,7 +360,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { action, data, sesion } = req.method === 'GET'
+    const { action, data, sesion, verComo } = req.method === 'GET'
       ? { action: req.query.action, data: req.query.data ? JSON.parse(req.query.data) : null,
           sesion: req.query.sesion }
       : req.body;
@@ -365,9 +380,12 @@ export default async function handler(req, res) {
     // Dirección del dashboard para el botón de los correos (producción o vista previa)
     const urlApp = 'https://' + (req.headers?.['x-forwarded-host'] || req.headers?.host || 'dircom-dashboard.vercel.app');
 
-    const acceso = await resolverAcceso(sesion);
+    const acceso = await resolverAcceso(sesion, verComo);
     if (acceso.sesionInvalida) return res.status(401).json({ error: 'Tu sesión venció: vuelve a entrar con Google', sesionInvalida: true });
     if (acceso.loginRequerido) return res.status(401).json({ error: 'Entra con tu cuenta @' + DOMINIO, loginRequerido: true });
+    // Viendo como otra persona no se cambia nada (ni se envían avisos a su nombre)
+    if (acceso.viendoComo && action !== 'getAll')
+      return res.status(403).json({ error: `Estás viendo como ${acceso.yo.nombre}: es solo lectura. Sal de "Ver como" para hacer cambios.` });
 
     switch (action) {
 
@@ -394,6 +412,8 @@ export default async function handler(req, res) {
         return res.json({
           rol: acceso.rol, coordinaciones: coords, personas, tareas, opciones,
           calendario: calendario || undefined,
+          puedeVerComo: acceso.puedeVerComo || undefined,
+          viendoComo: acceso.viendoComo ? acceso.yo.nombre : undefined,
           yo: acceso.yo ? { nombre: acceso.yo.nombre, correo: acceso.yo.correo } : null,
           coord: acceso.yo ? acceso.coord : undefined,
           avisos,

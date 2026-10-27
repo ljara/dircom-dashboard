@@ -10,7 +10,7 @@ async function callAPI(action, data) {
     const res = await fetch(API_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, data, sesion: sesionGuardada() })
+      body: JSON.stringify({ action, data, sesion: sesionGuardada(), verComo: verComoGuardado() || undefined })
     });
     const json = await res.json().catch(() => ({}));
     // Sesión vencida o persona quitada de Equipo: se borra y se vuelve a cargar sin ella
@@ -79,6 +79,9 @@ async function loadData(){
     state.rol            = data.rol;
     state.yo             = data.yo || null;
     state.avisos         = data.avisos || [];
+    state.puedeVerComo   = !!data.puedeVerComo;
+    state.viendoComo     = data.viendoComo || null;
+    if(!state.viendoComo && verComoGuardado()) verComo(null, false);   // el servidor no lo aceptó
     // visto === undefined: sin ficha en Equipo, se recuerda en este navegador
     state.vistoLocal     = data.visto === undefined;
     if(!state.vistoLocal) state.visto = data.visto;

@@ -61,6 +61,7 @@ Variables de entorno necesarias para `api/data.js`:
 | `CRON_SECRET`          | Opcional: protege `/api/keepalive` para que solo lo llame el cron |
 | `CORREO_USUARIO`       | Opcional: cuenta @ufrontera.cl que envía los avisos por correo (Gmail SMTP). Sin ella y `CORREO_CLAVE` no se envían correos |
 | `CORREO_CLAVE`         | Contraseña de aplicación de Google de esa cuenta (secreta) |
+| `VER_COMO_CORREO`      | Opcional: correos que pueden usar "👁 Ver como…" (ver el dashboard como otra persona de Equipo, en solo lectura), separados por coma |
 | `CORREO_PRUEBA`        | Opcional, solo para probar: todos los correos van a esta dirección y la app muestra el resultado del envío. No usar en Production |
 
 El plan gratuito de Supabase pausa el proyecto tras 7 días sin actividad. Para evitarlo,
@@ -160,7 +161,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
-- **v2.11.0** — Calendario de toda la Dirección para coordinadores/as: `getAll` les entrega aparte (`calendario`) las tareas con fecha de las demás coordinaciones, solo para el calendario y sin poder editarlas; integrantes ven solo su calendario
+- **v2.11.0** — Calendario de toda la Dirección para coordinadores/as: `getAll` les entrega aparte (`calendario`) las tareas con fecha de las demás coordinaciones, solo para el calendario y sin poder editarlas; integrantes ven solo su calendario. "👁 Ver como…" para los correos de `VER_COMO_CORREO`: el servidor arma la vista de otra persona y rechaza cualquier cambio mientras está activo
 - **v2.10.0** — Solo se entra con Google: se retiran el enlace de Administración `?k=` (`DIRECTORA_KEY`), los enlaces antiguos y las variables `ENLACES_SOLO_LECTURA` y `SOLO_CON_GOOGLE`
 - **v2.9.0** — Avisos por correo con las mismas reglas que los avisos 🔔 (botón "Ver en dashboard", modo prueba con `CORREO_PRUEBA`); aviso cuando cambia la fecha límite; la fecha límite ya no se muestra un día antes ni vence antes de tiempo
 - **v2.8.0** — Avisos 🔔 por persona: asignaciones (a la persona asignada y, si viene de Administración o de quien gestiona tareas, a su coordinador/a), tareas que pasan a Revisión (al coordinador/a) y tareas creadas por otras personas (a Administración); el "visto" se guarda en el servidor

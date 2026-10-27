@@ -20,6 +20,7 @@ async function alEntrarConGoogle(resp){
 
 function cerrarSesion(){
   try{ localStorage.removeItem(CLAVE_SESION); }catch(e){}
+  verComo(null, false);
   if(window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
   location.reload();
 }
@@ -71,8 +72,25 @@ function mostrarPantallaLogin(){
 
 // Bloque de la barra lateral: quién está conectado
 function sesionSidebarHTML(){
+  if(state.viendoComo) return `<div class="ver-como-activo">👁 Viendo como <strong>${escHtml(state.viendoComo)}</strong> · solo lectura
+    <button class="btn btn-sm" onclick="verComo(null)">Volver a mi vista</button></div>`;
+  const selector = state.puedeVerComo ? `<select class="ver-como-select" onchange="verComo(this.value)" title="Ver el dashboard como otra persona (solo lectura)">
+      <option value="">👁 Ver como…</option>
+      ${state.personas.map(p=>`<option value="${escHtml(String(p.id))}">${escHtml(p.nombre)}</option>`).join('')}
+    </select>` : '';
   if(state.yo) return `<div class="sesion-yo">👤 ${escHtml(state.yo.nombre)}
-    <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()" title="${escHtml(state.yo.correo||'')}">Salir</button></div>`;
+    <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()" title="${escHtml(state.yo.correo||'')}">Salir</button></div>${selector}`;
   return '';
+}
+
+// ── Ver como (solo VER_COMO_CORREO): el servidor arma la vista de esa persona, en solo lectura ──
+// Se guarda por pestaña: al cerrarla se vuelve a la vista propia
+const CLAVE_VER_COMO = 'dircom-ver-como';
+function verComoGuardado(){
+  try{ return sessionStorage.getItem(CLAVE_VER_COMO); }catch(e){ return null; }
+}
+function verComo(id, recargar=true){
+  try{ id ? sessionStorage.setItem(CLAVE_VER_COMO, id) : sessionStorage.removeItem(CLAVE_VER_COMO); }catch(e){}
+  if(recargar) location.reload();
 }
 
