@@ -80,7 +80,7 @@ function renderSidebarCoords(){
   }
 
   el.innerHTML = state.coordinaciones.map((c,i)=>{
-    const color = coordColor(i);
+    const color = coordColor(posicionColor(i));
     // Indicador: tareas en revisión de esta coordinación
     const enRevision = activeTareas().filter(t=>String(t.coordId)===String(c.id)&&t.status==='review').length;
     // Resaltar si es la coord del URL

@@ -2,11 +2,18 @@
 
 // ── Color helpers ──────────────────────────────────────────
 function coordColor(idx){ return PALETTE[idx % PALETTE.length]; }
+// Imagen y Diseño y Marketing llevan el color de la otra (el color sale de la posición de la coordinación)
+const COLORES_INTERCAMBIADOS = [/imagen/i, /marketing/i];
+function posicionColor(idx){
+  const [a, b] = COLORES_INTERCAMBIADOS.map(re=>state.coordinaciones.findIndex(c=>re.test(c.nombre)));
+  if(a<0 || b<0) return idx;
+  return idx===a ? b : idx===b ? a : idx;
+}
 function getCoordMeta(id){
   const idx = state.coordinaciones.findIndex(c=>String(c.id)===String(id));
   const coord = state.coordinaciones[idx];
   if(!coord) return {name:id||'Sin coordinación',icon:'📁',hex:'#888',bg:'rgba(136,136,136,.13)'};
-  const color = coordColor(idx);
+  const color = coordColor(posicionColor(idx));
   return {name:coord.nombre,icon:coord.icon||'📁',hex:color.hex,bg:color.bg};
 }
 
