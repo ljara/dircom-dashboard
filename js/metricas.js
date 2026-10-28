@@ -56,7 +56,6 @@ function clasificarTarea(t, desde, hasta){
   const limite     = diaChile(t.fecha);
   const enPeriodo  = d => !!d && d >= desde && d <= hasta;
   // Pendiente al cierre: ya existía y no estaba completada al terminar el período.
-  // Las completadas sin fecha de término (anteriores a v2.3.0) no se pueden ubicar y no cuentan como pendientes.
   const pendienteAlCierre = !!creada && creada <= hasta && (t.status!=='done' || (!!completada && completada > hasta));
   return {
     t, creada, completada, limite,
@@ -65,8 +64,7 @@ function clasificarTarea(t, desde, hasta){
     pendienteAlCierre,
     vencidaAlCierre:     pendienteAlCierre && !!limite && limite < hasta,
     diasResolucion:      completada && creada ? Math.max(0, diasEntre(creada, completada)) : null,
-    aTiempo:             completada && limite ? completada <= limite : null,
-    sinFechaTermino:     t.status==='done' && !completada
+    aTiempo:             completada && limite ? completada <= limite : null
   };
 }
 
@@ -111,9 +109,7 @@ function calcularMetricas(tareas, desde, hasta){
     porCoord:       agruparFilas(filas, f=>getCoordMeta(f.t.coordId).name),
     porTipo:        agruparFilas(filas, f=>f.t.tipo_requerimiento||'Sin tipo'),
     porCategoria:   agruparFilas(filas, f=>f.t.categoria||'Sin categoría'),
-    porSolicitante: agruparFilas(filas, f=>f.t.solicitante||'Sin solicitante'),
-    // Completadas sin fecha de término que existían al cierre (no se pueden asignar a un período)
-    sinFechaTermino: activas.filter(t=>t.status==='done' && !diaChile(t.completado) && diaChile(t.created) && diaChile(t.created) <= hasta).length
+    porSolicitante: agruparFilas(filas, f=>f.t.solicitante||'Sin solicitante')
   };
 }
 

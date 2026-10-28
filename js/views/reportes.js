@@ -63,11 +63,6 @@ function renderReportesView(){
       </div>`).join('')}
     </div>
 
-    ${met.sinFechaTermino ? `<div class="rep-aviso">
-      ℹ ${met.sinFechaTermino} tarea${met.sinFechaTermino!==1?'s':''} completada${met.sinFechaTermino!==1?'s':''} antes de que se registrara la fecha de término:
-      no se ${met.sinFechaTermino!==1?'incluyen':'incluye'} en "Completadas", tiempos ni cumplimiento.
-    </div>` : ''}
-
     <div class="section">
       <div class="section-header"><div class="section-title">👤 Carga de trabajo por persona</div></div>
       <div class="tabla-wrap">${tablaGruposHTML(met.porPersona, 'Persona')}</div>

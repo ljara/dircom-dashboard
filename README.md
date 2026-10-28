@@ -130,8 +130,7 @@ y comparación con el período anterior de igual duración.
 
 Desglose por persona, coordinación, tipo de requerimiento, categoría y solicitante.
 Salidas: **PDF** (ventana de impresión) y **Excel (CSV)** con el detalle de cada tarea y columnas
-Sí/No para filtrar o armar tablas dinámicas. Las tareas en la papelera no se consideran; las
-completadas antes de v2.3.0 no tienen fecha de término y se informan aparte.
+Sí/No para filtrar o armar tablas dinámicas. Las tareas en la papelera no se consideran.
 
 ## Desarrollo local
 
@@ -168,6 +167,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.12.1** — Imagen y Diseño y Marketing intercambian su color; se quita el aviso de tareas sin fecha de término (las tareas anteriores al lanzamiento se borraron)
 - **v2.12.0** — Permiso "Gestiona tareas de su coordinación" (`personas.gestiona_coord`, rol `gestorCoord`): crea, edita, completa y archiva tareas solo de su coordinación; su coordinador/a recibe aviso 🔔 y correo de lo que crea, asigna o cambia de fecha
 - **v2.11.0** — Calendario de toda la Dirección para coordinadores/as: `getAll` les entrega aparte (`calendario`) las tareas con fecha de las demás coordinaciones, solo para el calendario y sin poder editarlas; integrantes ven solo su calendario. "👁 Ver como…" para los correos de `VER_COMO_CORREO`: el servidor arma la vista de otra persona y rechaza cualquier cambio mientras está activo
 - **v2.10.0** — Solo se entra con Google: se retiran el enlace de Administración `?k=` (`DIRECTORA_KEY`), los enlaces antiguos y las variables `ENLACES_SOLO_LECTURA` y `SOLO_CON_GOOGLE`

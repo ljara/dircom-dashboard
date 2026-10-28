@@ -67,7 +67,6 @@ function generarReporte(){
   .metric .mv{font-size:22px;font-weight:800;line-height:1.1}
   .metric .ms{font-size:9px;color:#999;margin-top:3px}
   .metric .mc{font-size:9px;font-weight:600;margin-top:4px}
-  .aviso{font-size:10px;color:#633806;background:#FAEEDA;border-radius:6px;padding:8px 12px;margin-top:10px}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .box{border:1px solid #DCE8F1;border-radius:8px;overflow:hidden;page-break-inside:avoid}
   table{width:100%;border-collapse:collapse;font-size:10.5px}
@@ -108,7 +107,6 @@ function generarReporte(){
         <div class="ms">${k.sub}</div><div class="mc" style="color:${tonos[k.var.tono]}">${k.var.texto}</div>
       </div>`).join('')}
     </div>
-    ${met.sinFechaTermino?`<div class="aviso">ℹ ${met.sinFechaTermino} tarea(s) completada(s) antes de que se registrara la fecha de término no se incluyen en completadas, tiempos ni cumplimiento.</div>`:''}
   </div>
 
   <div class="section">
