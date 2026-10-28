@@ -110,6 +110,12 @@ alter table eventos enable row level security;
 alter table personas add column visto_at timestamptz;
 ```
 
+Desde v2.12.0 el permiso "Gestiona tareas de su coordinación":
+
+```sql
+alter table personas add column if not exists gestiona_coord boolean not null default false;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -150,6 +156,7 @@ sesión firmada de 30 días. El rol se vuelve a calcular en cada petición:
 | Administración (`directora`) | Correo en `DIRECTORA_CORREO` | Todo |
 | Gestiona tareas (`gestor`) | `personas.gestiona_tareas` | Crear y modificar tareas de todas las coordinaciones |
 | Coordinador/a (`coordinador`) | `personas.es_jefe` | Todo con las tareas de su coordinación; nombre y cargo de su equipo |
+| Gestiona tareas de su coordinación (`gestorCoord`) | `personas.gestiona_coord` | Crear y modificar tareas de su coordinación (como el coordinador/a, sin editar personas ni recibir los avisos de Revisión) |
 | Integrante (`integrante`) | Resto | En sus tareas abiertas: estado hasta Revisión, descripción y link |
 
 Personas, permisos, correos, coordinaciones y opciones solo los modifica Administración. Los
@@ -161,6 +168,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.12.0** — Permiso "Gestiona tareas de su coordinación" (`personas.gestiona_coord`, rol `gestorCoord`): crea, edita, completa y archiva tareas solo de su coordinación; su coordinador/a recibe aviso 🔔 y correo de lo que crea, asigna o cambia de fecha
 - **v2.11.0** — Calendario de toda la Dirección para coordinadores/as: `getAll` les entrega aparte (`calendario`) las tareas con fecha de las demás coordinaciones, solo para el calendario y sin poder editarlas; integrantes ven solo su calendario. "👁 Ver como…" para los correos de `VER_COMO_CORREO`: el servidor arma la vista de otra persona y rechaza cualquier cambio mientras está activo
 - **v2.10.0** — Solo se entra con Google: se retiran el enlace de Administración `?k=` (`DIRECTORA_KEY`), los enlaces antiguos y las variables `ENLACES_SOLO_LECTURA` y `SOLO_CON_GOOGLE`
 - **v2.9.0** — Avisos por correo con las mismas reglas que los avisos 🔔 (botón "Ver en dashboard", modo prueba con `CORREO_PRUEBA`); aviso cuando cambia la fecha límite; la fecha límite ya no se muestra un día antes ni vence antes de tiempo

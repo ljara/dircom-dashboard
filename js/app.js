@@ -60,7 +60,8 @@ function renderSidebarCoords(){
       rolEl.style.color = 'var(--text-muted)';
     } else if(esPersona()){
       const m = getCoordMeta(state.urlCoord);
-      rolEl.textContent = `${state.rol==='coordinador'?'Coordinador/a':'Equipo'} · ${m.icon} ${m.name}`;
+      const etiqueta = {coordinador:'Coordinador/a', gestorCoord:'Gestión de tareas'}[state.rol] || 'Equipo';
+      rolEl.textContent = `${etiqueta} · ${m.icon} ${m.name}`;
       rolEl.style.color = 'var(--text-muted)';
     } else if(!state.urlCoord){
       rolEl.textContent = 'Vista: General';

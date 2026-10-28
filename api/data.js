@@ -114,11 +114,17 @@ const correosDirectora = () => (process.env.DIRECTORA_CORREO || '').split(',').m
 
 // ── Rol de quien hace la petición ──────────────────────────
 // Solo con sesión de Google: directora (DIRECTORA_CORREO), gestor (gestiona_tareas),
-// coordinador (es_jefe) o integrante, según Equipo.
+// coordinador (es_jefe), gestorCoord (gestiona_coord) o integrante, según Equipo.
 // { loginRequerido } = sin sesión; { sesionInvalida } = la sesión venció o la persona ya no está en Equipo
 
 const yoDe = p => ({ id: p.id, nombre: p.nombre, correo: p.correo, visto: p.visto_at || null });
-const CAMPOS_PERSONA = 'id,nombre,coord_id,es_jefe,gestiona_tareas,correo,visto_at';
+const CAMPOS_PERSONA = 'id,nombre,coord_id,es_jefe,gestiona_tareas,gestiona_coord,correo,visto_at';
+
+// Dentro de una coordinación: coordinador/a, gestiona las tareas de su coordinación
+// (como el coordinador/a, pero sin el cargo ni sus avisos) o integrante
+const rolCoordinacion = p =>
+  p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador'
+  : p.gestiona_coord === true ? 'gestorCoord' : 'integrante';
 
 // Rol de una persona de Equipo según su ficha
 function accesoPersona(p) {
@@ -126,7 +132,7 @@ function accesoPersona(p) {
   // Gestiona tareas: crea y modifica tareas de todas las coordinaciones (sin etiqueta de cargo)
   if (p.gestiona_tareas === true) return { rol: 'gestor', coord: null, yo: yoDe(p) };
   return {
-    rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
+    rol: rolCoordinacion(p),
     coord: String(p.coord_id || '-'),   // sin coordinación no ve tareas
     yo: yoDe(p)
   };
@@ -174,7 +180,9 @@ function denegar(acceso, action, body = {}, actual = null) {
   const propia = c => String(c ?? '') === acceso.coord;
   if (acceso.rol === 'gestor')
     return action.endsWith('Tarea') ? null : 'Pídele este cambio a Administración';
-  if (acceso.rol === 'coordinador') {
+  // Gestiona las tareas de su coordinación: lo mismo que el coordinador/a, pero solo tareas
+  if (acceso.rol === 'gestorCoord' && !action.endsWith('Tarea')) return 'Pídele este cambio a tu coordinador/a';
+  if (acceso.rol === 'coordinador' || acceso.rol === 'gestorCoord') {
     if (actual && !propia(actual.coord_id)) return 'Solo puedes modificar lo de tu coordinación';
     if (action.endsWith('Tarea') && 'coord_id' in body && !propia(body.coord_id))
       return 'Solo puedes crear o mover tareas dentro de tu coordinación';
@@ -222,8 +230,8 @@ async function registrarEvento(acceso, tipo, tarea, url) {
 
 // Quién recibe cada aviso (nunca quien hizo el cambio):
 // - la persona asignada: cuando le crean o asignan una tarea, o le cambian la fecha límite
-// - coordinador/a: lo que Administración o quien gestiona tareas crea, asigna o cambia de fecha
-//   en su coordinación, y las tareas de su coordinación que pasan a Revisión
+// - coordinador/a: lo que Administración o quien gestiona tareas (de todas o de su coordinación)
+//   crea, asigna o cambia de fecha en su coordinación, y las tareas de su coordinación que pasan a Revisión
 // - Administración: las tareas que crea otra persona
 function avisoPara(acceso, e) {
   const yo = acceso.yo;
@@ -231,7 +239,7 @@ function avisoPara(acceso, e) {
   if (e.tipo !== 'revision' && e.para && e.para === yo.nombre) return true;
   if (acceso.rol === 'directora') return e.tipo === 'creada' && e.actor_rol !== 'directora';
   if (acceso.rol === 'coordinador' && String(e.coord_id ?? '') === acceso.coord)
-    return e.tipo === 'revision' || ['directora', 'gestor'].includes(e.actor_rol);
+    return e.tipo === 'revision' || ['directora', 'gestor', 'gestorCoord'].includes(e.actor_rol);
   return false;
 }
 
@@ -253,12 +261,11 @@ async function avisosDe(acceso) {
 function accesoDe(p) {
   if (correosDirectora().includes(p.correo)) return { rol: 'directora', yo: { id: p.id, nombre: p.nombre } };
   if (p.gestiona_tareas === true) return { rol: 'gestor', yo: { id: p.id, nombre: p.nombre } };
-  return { rol: p.es_jefe === true || p.es_jefe === 'true' ? 'coordinador' : 'integrante',
-           coord: String(p.coord_id || '-'), yo: { id: p.id, nombre: p.nombre } };
+  return { rol: rolCoordinacion(p), coord: String(p.coord_id || '-'), yo: { id: p.id, nombre: p.nombre } };
 }
 
 async function destinatarios(evento) {
-  const personas = await sbGet('personas', 'select=id,nombre,coord_id,es_jefe,gestiona_tareas,correo&correo=not.is.null');
+  const personas = await sbGet('personas', 'select=id,nombre,coord_id,es_jefe,gestiona_tareas,gestiona_coord,correo&correo=not.is.null');
   const lista = personas.filter(p => avisoPara(accesoDe(p), evento)).map(p => ({ nombre: p.nombre, correo: p.correo }));
   // Administración sin ficha en Equipo
   const conFicha = new Set(personas.map(p => p.correo));
@@ -503,7 +510,7 @@ export default async function handler(req, res) {
         const p = prepararCorreo(resto, acceso);
         if (p.error) return res.status(400).json({ error: p.error });
         // Coordinación y rol de coordinador/a definen permisos: solo los cambia la directora
-        if (acceso.rol !== 'directora') { delete p.body.coord_id; delete p.body.es_jefe; delete p.body.gestiona_tareas; }
+        if (acceso.rol !== 'directora') { delete p.body.coord_id; delete p.body.es_jefe; delete p.body.gestiona_tareas; delete p.body.gestiona_coord; }
         await sbPatch('personas', id, p.body);
         return res.json({ ok: true });
       }

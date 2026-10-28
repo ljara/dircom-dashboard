@@ -18,15 +18,17 @@ let state = {
 // ── Rol actual ─────────────────────────────────────────────
 function esDirector(){ return state.rol==='directora'; }
 function coordActual(){ return state.urlCoord; }
-function esPersona(){ return ['gestor','coordinador','integrante'].includes(state.rol); }
+function esPersona(){ return ['gestor','coordinador','gestorCoord','integrante'].includes(state.rol); }
 
 // ── Permisos en pantalla (el servidor los vuelve a comprobar) ──
 // Gestiona tareas: crea y modifica tareas de todas las coordinaciones
-// Coordinador/a: todo en su coordinación · Integrante: estado (hasta Revisión), descripción y link de sus tareas
-function puedeCrearTareas(){ return esDirector() || state.rol==='gestor' || state.rol==='coordinador'; }
+// Coordinador/a: todo en su coordinación · Gestiona tareas de su coordinación: las tareas de su coordinación
+// Integrante: estado (hasta Revisión), descripción y link de sus tareas
+function gestionaSuCoord(){ return state.rol==='coordinador' || state.rol==='gestorCoord'; }
+function puedeCrearTareas(){ return esDirector() || state.rol==='gestor' || gestionaSuCoord(); }
 function puedeEditarTarea(t){
   return esDirector() || state.rol==='gestor'
-    || (state.rol==='coordinador' && String(t.coordId)===String(state.urlCoord));
+    || (gestionaSuCoord() && String(t.coordId)===String(state.urlCoord));
 }
 function puedeAvanzarTarea(t){
   return puedeEditarTarea(t)

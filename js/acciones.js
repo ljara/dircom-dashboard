@@ -106,10 +106,11 @@ async function submitPersona(existingId){
     rol:      document.getElementById('p-rol').value,
     coord_id: document.getElementById('p-coord').value,
     es_jefe:         document.getElementById('p-permisos').value==='coordinador',
-    gestiona_tareas: document.getElementById('p-permisos').value==='gestiona'
+    gestiona_tareas: document.getElementById('p-permisos').value==='gestiona',
+    gestiona_coord:  document.getElementById('p-permisos').value==='gestionaCoord'
   };
   // Coordinación y permisos solo los cambia la directora
-  if(!esDirector()){ delete body.coord_id; delete body.es_jefe; delete body.gestiona_tareas; }
+  if(!esDirector()){ delete body.coord_id; delete body.es_jefe; delete body.gestiona_tareas; delete body.gestiona_coord; }
   // El correo (para entrar con Google) solo lo ve y edita la directora
   const elCorreo=document.getElementById('p-correo');
   if(elCorreo){
@@ -124,7 +125,7 @@ async function submitPersona(existingId){
   const previa = existingId ? state.personas.find(p=>p.id===existingId) : null;
   const optimisticPersona = normalizePersona({
     id: tempId,
-    ...(previa ? {coord_id: previa.coordId, es_jefe: previa.esJefe, gestiona_tareas: previa.gestiona, correo: previa.correo} : {}),
+    ...(previa ? {coord_id: previa.coordId, es_jefe: previa.esJefe, gestiona_tareas: previa.gestiona, gestiona_coord: previa.gestionaCoord, correo: previa.correo} : {}),
     ...body
   });
   if(existingId){

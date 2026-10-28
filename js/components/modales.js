@@ -78,6 +78,7 @@ function openModal(type, item){
           <select id="p-permisos"${esDirector()?'':' disabled'}>
             ${[['integrante','Integrante — actualiza sus tareas'],
                ['gestiona','Gestiona tareas — crea y modifica tareas de todas las coordinaciones'],
+               ['gestionaCoord','Gestiona tareas de su coordinación — crea y modifica tareas de su coordinación'],
                ['coordinador','Coordinador/a — todo en su coordinación']]
               .map(([v,l])=>`<option value="${v}"${permisoPersona(isEdit?item:null)===v?' selected':''}>${l}</option>`).join('')}
           </select>
@@ -107,16 +108,17 @@ function openModal(type, item){
 
 function closeModal(){ document.getElementById('modal').style.display='none'; }
 
-// Permiso de una persona en el formulario: 'integrante' | 'gestiona' | 'coordinador'
+// Permiso de una persona en el formulario: 'integrante' | 'gestiona' | 'gestionaCoord' | 'coordinador'
 function permisoPersona(p){
   if(!p) return 'integrante';
   if(p.gestiona) return 'gestiona';
-  return p.esJefe==='true'||p.esJefe===true ? 'coordinador' : 'integrante';
+  if(p.esJefe==='true'||p.esJefe===true) return 'coordinador';
+  return p.gestionaCoord ? 'gestionaCoord' : 'integrante';
 }
 
-// Coordinaciones que se pueden elegir en una tarea: el coordinador/a solo la suya
+// Coordinaciones que se pueden elegir en una tarea: el coordinador/a (y quien gestiona su coordinación) solo la suya
 function coordsFormTarea(item){
-  if(state.rol!=='coordinador') return state.coordinaciones;
+  if(!gestionaSuCoord()) return state.coordinaciones;
   return state.coordinaciones.filter(c=>String(c.id)===String(state.urlCoord) || (item && String(c.id)===String(item.coordId)));
 }
 

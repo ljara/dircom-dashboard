@@ -56,6 +56,7 @@ function normalizePersona(p){
     coordId:  p.coord_id,
     esJefe:   p.es_jefe===true||p.es_jefe==='true'?'true':'false',
     gestiona: p.gestiona_tareas===true,   // crea y modifica tareas de todas las coordinaciones
+    gestionaCoord: p.gestiona_coord===true,   // crea y modifica tareas de su coordinación
     correo:   p.correo||''   // solo llega a la directora
   };
 }

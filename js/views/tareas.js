@@ -49,7 +49,7 @@ function renderTareasView(){
   });
 
   // Banner revisión pendiente para jefe de coordinación
-  const enRevision = state.urlCoord && state.rol!=='integrante'
+  const enRevision = state.urlCoord && !['integrante','gestorCoord'].includes(state.rol)
     ? activeTareas().filter(t=>String(t.coordId)===String(state.urlCoord)&&t.status==='review')
     : [];
   const bannerRevision = enRevision.length ? `
