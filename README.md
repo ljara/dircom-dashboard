@@ -187,6 +187,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.15.1** — Unificar solicitantes: "✋ Unificar a mano" (cualquier combinación de nombres, con buscador), "🚫 Grupos descartados" con "Volver a mostrar", y la detección ignora el orden de las palabras y los títulos (Sr., Sra., Dr., Dra., Prof., etc.)
 - **v2.15.0** — Solicitantes: sugerencias al escribir (por cualquier palabra, sin importar tildes); los reportes juntan las formas que solo difieren en mayúsculas, tildes o espacios; "Unificar solicitantes" en 🏷 Opciones detecta nombres parecidos (errores de tipeo, uno o dos apellidos, iniciales) y corrige todas sus tareas, o los marca como personas distintas (`solicitantes_distintos`)
 - **v2.14.0** — Descripción con formato simple al estilo WhatsApp: botones **B**, *I* y • Lista sobre el cuadro; el detalle muestra párrafos, saltos de línea, `*negrita*`, `_cursiva_`, listas `- ` y enlaces clicables. El texto se sigue guardando plano (se escapa antes de dar formato)
 - **v2.13.0** — Campaña: etiqueta opcional (una por tarea) para agrupar tareas de un macroproceso institucional. Lista en 🏷 Opciones (solo Administración); se ve como etiqueta 📣 en la tarea, se filtra y se busca en Tareas, y aparece en Reportes, el PDF y el Excel. Si se quita de la lista, las tareas la conservan

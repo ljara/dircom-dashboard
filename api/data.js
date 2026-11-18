@@ -171,7 +171,7 @@ async function resolverAcceso(sesion, verComo) {
 // Devuelve el motivo si el rol no puede hacer la acción, o null si puede.
 // actual = fila actual de la tarea o persona que se modifica.
 const SOLO_DIRECTORA = ['addPersona', 'deletePersona', 'addCoordinacion', 'deleteCoordinacion', 'addOpcion', 'deleteOpcion',
-  'unificarSolicitante', 'ignorarSolicitantes'];
+  'unificarSolicitante', 'ignorarSolicitantes', 'restaurarSolicitantes'];
 const CAMPOS_INTEGRANTE = ['status', 'descripcion', 'link'];
 const ESTADOS_INTEGRANTE = ['todo', 'progress', 'review'];
 
@@ -567,6 +567,16 @@ export default async function handler(req, res) {
         await fetch(`${SUPABASE_URL}/rest/v1/solicitantes_distintos`, {
           method: 'POST', headers: { ...headers, Prefer: 'resolution=ignore-duplicates' }, body: JSON.stringify({ clave })
         }).then(async r => { if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.message || r.statusText); } });
+        return res.json({ ok: true });
+      }
+
+      // Administración: un grupo descartado vuelve a sugerirse
+      case 'restaurarSolicitantes': {
+        const motivo = denegar(acceso, action);
+        if (motivo) return res.status(403).json({ error: motivo });
+        const clave = String(data?.clave || '').trim();
+        if (!clave) return res.status(400).json({ error: 'Falta el grupo' });
+        await sbDeleteWhere('solicitantes_distintos', `clave=eq.${encodeURIComponent(clave)}`);
         return res.json({ ok: true });
       }
 

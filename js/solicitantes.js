@@ -8,6 +8,14 @@ function normSol(s){
     .toLowerCase().replace(/[.,]/g,' ').replace(/\s+/g,' ').trim();
 }
 
+// Títulos y tratamientos que no cuentan al comparar ("Sra. Carmen Hernández" = "Carmen Hernández")
+const TITULOS_SOL = new Set(['sr','sra','srta','don','dona','dr','dra','prof','profa','profesor','profesora','mg','mag']);
+function palabrasSol(clave){
+  const p = clave.split(' ');
+  const sin = p.filter(w=>!TITULOS_SOL.has(w));
+  return sin.length ? sin : p;
+}
+
 function distancia(a, b){   // Levenshtein
   if(a===b) return 0;
   let prev = Array.from({length:b.length+1}, (_,j)=>j);
@@ -19,28 +27,43 @@ function distancia(a, b){   // Levenshtein
   return prev[b.length];
 }
 
-// Dos palabras equivalen si son iguales, si una es la inicial de la otra o si difieren en una letra
-function palabraIgual(a, b){
+// Dos palabras equivalen si son iguales o difieren en una letra; con conInicial, también si una es la inicial de la otra
+function palabraIgual(a, b, conInicial=true){
   if(a===b) return true;
-  if(a.length===1 || b.length===1) return a[0]===b[0];
+  if(a.length===1 || b.length===1) return conInicial && a[0]===b[0];
   return Math.min(a.length,b.length)>=4 && distancia(a,b)<=1;
 }
 
 // ¿Pueden ser la misma persona? (claves ya normalizadas y distintas)
 // - error de tipeo: "carmen hernandes" / "carmen hernandez"
 // - uno contenido en el otro: "carmen hernandez" / "carmen hernandez soto" / "c hernandez"
+// - otro orden: "hernandez carmen" / "carmen hernandez soto"
+// - con título: "sra carmen hernandez" / "carmen hernandez"
+// Un nombre de una sola palabra ("Carmen") no se agrupa solo: se unifica a mano.
 function posibleMismaPersona(x, y){
-  if(Math.min(x.length,y.length)>=8 && distancia(x,y)<=2) return true;
-  const px=x.split(' '), py=y.split(' ');
+  const px=palabrasSol(x), py=palabrasSol(y);
+  const sx=px.join(' '), sy=py.join(' ');
+  if(sx===sy) return true;
+  if(Math.min(sx.length,sy.length)>=8 && distancia(sx,sy)<=2) return true;
   const [corto, largo] = px.length<=py.length ? [px,py] : [py,px];
-  if(corto.length<2 || !palabraIgual(corto[0], largo[0])) return false;
-  let j=1;
-  for(let i=1;i<corto.length;i++){
-    while(j<largo.length && !palabraIgual(corto[i], largo[j])) j++;
-    if(j>=largo.length) return false;
-    j++;
+  if(corto.length<2) return false;
+  // En orden, empezando por el nombre (admite iniciales: "c hernandez")
+  if(palabraIgual(corto[0], largo[0])){
+    let j=1, ok=true;
+    for(let i=1;i<corto.length && ok;i++){
+      while(j<largo.length && !palabraIgual(corto[i], largo[j])) j++;
+      if(j>=largo.length) ok=false;
+      j++;
+    }
+    if(ok) return true;
   }
-  return true;
+  // En cualquier orden (sin iniciales): cada palabra del corto está en el largo
+  const usadas = new Set();
+  return corto.every(w=>{
+    const k = largo.findIndex((v,i)=>!usadas.has(i) && palabraIgual(w, v, false));
+    if(k<0) return false;
+    usadas.add(k); return true;
+  });
 }
 
 // ── Formas conocidas ───────────────────────────────────────
@@ -140,16 +163,32 @@ function gruposSolicitantes(){
     .sort((a,b)=>b.formas.reduce((s,f)=>s+f.n,0)-a.formas.reduce((s,f)=>s+f.n,0));
 }
 
-// Nombre propuesto: el más completo (más palabras), con tildes y mayúsculas, y luego el más usado
+// Nombre propuesto: el más completo (más palabras, sin contar títulos), con tildes y mayúsculas, y luego el más usado
 function nombreSugerido(formas){
-  const puntaje = f => normSol(f.nombre).split(' ').length*10000
+  const puntaje = f => palabrasSol(normSol(f.nombre)).length*10000
     + (f.nombre!==f.nombre.normalize('NFD').replace(/[̀-ͯ]/g,'') ? 1000 : 0)
-    + (/^\p{Lu}/u.test(f.nombre) ? 500 : 0) + f.n;
+    + (/^\s*\p{Lu}/u.test(f.nombre) ? 500 : 0) + f.n;
   return [...formas].sort((a,b)=>puntaje(b)-puntaje(a))[0].nombre.trim();
+}
+
+// Fila de una forma escrita, con casilla para marcarla; clic en el nombre lo usa como nombre correcto
+function formaSolHTML(f, idCaja, marcada){
+  const espacios = f.nombre!==f.nombre.trim() || /\s\s/.test(f.nombre);
+  return `<label class="unif-forma" data-clave="${escHtml(normSol(f.nombre))}">
+    <input type="checkbox"${marcada?' checked':''} data-nombre="${escHtml(f.nombre)}"${idCaja==='unif-manual'?' onchange="contarManual()"':''}>
+    <span class="unif-nombre" title="Usar este nombre" data-nombre="${escHtml(f.nombre)}"
+      onclick="event.preventDefault();document.querySelector('#${idCaja} .unif-final').value=this.dataset.nombre.trim()">${escHtml(f.nombre.trim())}</span>
+    ${espacios?'<span class="sug-n">(con espacios de más)</span>':''}
+    <span class="sug-n">${f.n} tarea${f.n!==1?'s':''}</span>
+  </label>`;
 }
 
 function unificarSolicitantesHTML(){
   const grupos = gruposSolicitantes();
+  const todas = solicitantesConocidos().lista.flatMap(g=>g.formas)
+    .sort((a,b)=>a.nombre.trim().localeCompare(b.nombre.trim(),'es'));
+  const ignorados = state.solicitantesIgnorados||[];
+  const nombreClave = k => solicitantesConocidos().porClave[k]?.nombre || k;
   return `<div class="section" style="margin-top:16px">
     <div class="section-header">
       <div class="section-title">🙋 Unificar solicitantes</div>
@@ -159,27 +198,59 @@ function unificarSolicitantesHTML(){
     ${!grupos.length ? `<div class="empty" style="padding:16px"><p>No hay solicitantes por unificar ✓</p></div>`
       : grupos.map((g,gi)=>`
       <div class="unif-grupo" id="unif-${gi}" data-clave="${escHtml(g.clave)}">
-        ${g.formas.map(f=>`<label class="unif-forma">
-          <input type="checkbox" checked data-nombre="${escHtml(f.nombre)}">
-          <span class="unif-nombre" title="Usar este nombre" data-nombre="${escHtml(f.nombre)}" onclick="event.preventDefault();document.querySelector('#unif-${gi} .unif-final').value=this.dataset.nombre.trim()">${escHtml(f.nombre.trim())}</span>${f.nombre!==f.nombre.trim()||/ss/.test(f.nombre)?'<span class="sug-n">(con espacios de más)</span>':''}
-          <span class="sug-n">${f.n} tarea${f.n!==1?'s':''}</span>
-        </label>`).join('')}
+        ${g.formas.map(f=>formaSolHTML(f, 'unif-'+gi, true)).join('')}
         <div class="unif-acciones">
           <input class="unif-final" value="${escHtml(g.sugerido)}" title="Nombre correcto (haz clic en una forma para usarla, o escríbelo)">
-          <button class="btn btn-primary btn-sm" onclick="unificarSolicitantes(${gi})">Unificar</button>
-          <button class="btn btn-sm" onclick="ignorarGrupoSolicitantes(${gi})">No son la misma persona</button>
+          <button class="btn btn-primary btn-sm" onclick="unificarSolicitantes('unif-${gi}')">Unificar</button>
+          <button class="btn btn-sm" onclick="ignorarGrupoSolicitantes('unif-${gi}')">No son la misma persona</button>
         </div>
       </div>`).join('')}
+
+    <details class="unif-extra">
+      <summary>✋ Unificar a mano <span class="sug-n">(para casos que no aparecen arriba: siglas, nombres sueltos, etc.)</span></summary>
+      <div class="unif-grupo" id="unif-manual" style="border-bottom:none">
+        <input class="unif-buscar" placeholder="Buscar solicitante…" oninput="filtrarManual(this.value)">
+        <div class="unif-todas">
+          ${todas.length ? todas.map(f=>formaSolHTML(f, 'unif-manual', false)).join('') : '<p class="sug-n">Sin solicitantes</p>'}
+        </div>
+        <div class="unif-acciones">
+          <input class="unif-final" placeholder="Nombre correcto (clic en un nombre para usarlo, o escríbelo)">
+          <button class="btn btn-primary btn-sm" onclick="unificarSolicitantes('unif-manual')">Unificar <span id="unif-manual-n">(0)</span></button>
+        </div>
+      </div>
+    </details>
+
+    ${ignorados.length ? `<details class="unif-extra">
+      <summary>🚫 Grupos descartados <span class="sug-n">(${ignorados.length}, marcados como "No son la misma persona")</span></summary>
+      ${ignorados.map(k=>`<div class="unif-descartado">
+        <span>${k.split('|').map(c=>escHtml(nombreClave(c))).join(' · ')}</span>
+        <button class="btn btn-sm" data-clave="${escHtml(k)}" onclick="restaurarGrupoSolicitantes(this.dataset.clave)">Volver a mostrar</button>
+      </div>`).join('')}
+    </details>` : ''}
   </div>`;
 }
 
-async function unificarSolicitantes(gi){
-  const caja = document.getElementById('unif-'+gi); if(!caja) return;
+// Unificar a mano: buscar (sin perder lo marcado) y contar lo marcado
+function filtrarManual(texto){
+  const palabras = normSol(texto).split(' ').filter(Boolean);
+  document.querySelectorAll('#unif-manual .unif-forma').forEach(el=>{
+    const pc = el.dataset.clave.split(' ');
+    const ve = !palabras.length || palabras.every(p=>pc.some(w=>w.startsWith(p)));
+    el.style.display = ve || el.querySelector('input').checked ? '' : 'none';
+  });
+}
+function contarManual(){
+  const n = document.querySelectorAll('#unif-manual input[type=checkbox]:checked').length;
+  const el = document.getElementById('unif-manual-n'); if(el) el.textContent = `(${n})`;
+}
+
+async function unificarSolicitantes(idCaja){
+  const caja = document.getElementById(idCaja); if(!caja) return;
   const a = caja.querySelector('.unif-final').value.trim();
   const de = [...caja.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.dataset.nombre);
   if(!a){ showToast('Escribe el nombre correcto'); return; }
   if(!de.length || (de.length===1 && de[0]===a)){ showToast('Marca al menos una forma distinta del nombre correcto'); return; }
-  if(!confirm(`¿Cambiar el solicitante de todas las tareas de:\n\n${de.map(d=>'• '+d).join('\n')}\n\npor "${a}"?`)) return;
+  if(!confirm(`¿Cambiar el solicitante de todas las tareas de:\n\n${de.map(d=>'• '+d.trim()).join('\n')}\n\npor "${a}"?`)) return;
   try{
     const r = await callAPI('unificarSolicitante', { de, a });
     showToast(`${r.cambiadas} tarea${r.cambiadas!==1?'s':''} actualizada${r.cambiadas!==1?'s':''} ✓`);
@@ -187,13 +258,22 @@ async function unificarSolicitantes(gi){
   } catch(e){ showToast('Error: '+e.message); }
 }
 
-async function ignorarGrupoSolicitantes(gi){
-  const caja = document.getElementById('unif-'+gi); if(!caja) return;
+async function ignorarGrupoSolicitantes(idCaja){
+  const caja = document.getElementById(idCaja); if(!caja) return;
   const clave = caja.dataset.clave;
   try{
     await callAPI('ignorarSolicitantes', { clave });
     state.solicitantesIgnorados = [...(state.solicitantesIgnorados||[]), clave];
     render();
     showToast('Listo: ese grupo no volverá a aparecer');
+  } catch(e){ showToast('Error: '+e.message); }
+}
+
+async function restaurarGrupoSolicitantes(clave){
+  try{
+    await callAPI('restaurarSolicitantes', { clave });
+    state.solicitantesIgnorados = (state.solicitantesIgnorados||[]).filter(k=>k!==clave);
+    render();
+    showToast('El grupo vuelve a aparecer para revisarlo');
   } catch(e){ showToast('Error: '+e.message); }
 }

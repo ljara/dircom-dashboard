@@ -74,6 +74,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .unif-nombre{cursor:pointer;text-decoration:underline dotted var(--text-faint)}
 .unif-acciones{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .unif-final{flex:1;min-width:180px;padding:6px 9px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:13px;font-family:inherit}
+.unif-extra{border-top:1px solid var(--border);padding:10px 14px}
+.unif-extra summary{cursor:pointer;font-size:13px;font-weight:500}
+.unif-extra .unif-grupo{padding:10px 0 0}
+.unif-buscar{width:100%;padding:6px 9px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;margin-bottom:6px}
+.unif-todas{max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px}
+.unif-descartado{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)}
 .barra-formato{display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap}
 .barra-formato button{border:1px solid var(--border-md);background:var(--surface);color:var(--text);border-radius:4px;padding:2px 9px;font-size:12px;font-family:inherit;cursor:pointer;min-width:28px}
 .barra-formato button:hover{background:var(--gray-light)}
