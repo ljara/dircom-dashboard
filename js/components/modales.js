@@ -1,6 +1,38 @@
 // Formularios (tarea, persona, coordinaciÃ³n) y detalle de tarea
 
 // ── Modals ─────────────────────────────────────────────────
+// Botones de formato sobre la descripción: marcan el texto seleccionado al estilo WhatsApp
+function barraFormatoHTML(){
+  return `<div class="barra-formato">
+    <button type="button" onmousedown="event.preventDefault()" onclick="marcarDesc('*')" title="Negrita: *texto*"><strong>B</strong></button>
+    <button type="button" onmousedown="event.preventDefault()" onclick="marcarDesc('_')" title="Cursiva: _texto_"><em>I</em></button>
+    <button type="button" onmousedown="event.preventDefault()" onclick="marcarDesc('-')" title="Lista: una línea por punto">• Lista</button>
+    <span class="barra-formato-ayuda">*negrita* · _cursiva_ · línea en blanco = párrafo</span>
+  </div>`;
+}
+function marcarDesc(marca){
+  const ta = document.getElementById('f-desc'); if(!ta) return;
+  const v = ta.value; let ini = ta.selectionStart, fin = ta.selectionEnd;
+  if(marca === '-'){
+    // Lista: agrega "- " al inicio de cada línea seleccionada (o de la línea actual)
+    ini = v.lastIndexOf('\n', ini - 1) + 1;
+    const corte = v.indexOf('\n', fin > ini && v[fin-1] === '\n' ? fin - 1 : fin);
+    fin = corte < 0 ? v.length : corte;
+    const bloque = v.slice(ini, fin).split('\n').map(l => /^\s*[-•]\s/.test(l) ? l : '- ' + l).join('\n');
+    ta.value = v.slice(0, ini) + bloque + v.slice(fin);
+    ta.setSelectionRange(ini, ini + bloque.length);
+  } else {
+    // Negrita / cursiva: sin espacios dentro de las marcas, para que el formato se reconozca
+    let sel = v.slice(ini, fin);
+    const izq = sel.length - sel.trimStart().length, der = sel.length - sel.trimEnd().length;
+    ini += izq; fin -= der; sel = v.slice(ini, fin);
+    ta.value = v.slice(0, ini) + marca + sel + marca + v.slice(fin);
+    if(sel) ta.setSelectionRange(ini, fin + 2);
+    else ta.setSelectionRange(ini + 1, ini + 1);
+  }
+  ta.focus();
+}
+
 // Campaña (macroproceso institucional): opcional, de la lista que administra la directora en Opciones.
 // Si la tarea tiene una campaña que ya se quitó de la lista, se mantiene como opción para no perderla.
 function campanaSelect(actual, dis){
@@ -39,7 +71,7 @@ function openModal(type, item){
       <div class="modal-body">
         ${limitado?`<div class="aviso-limitado">Puedes cambiar el estado (hasta Revisión), la descripción y el link. Para lo demás, habla con tu coordinador/a.</div>`:''}
         <div class="form-group"><label>Título *</label><input id="f-titulo"${dis} value="${isEdit?escHtml(item.titulo||''):''}" placeholder="Nombre de la tarea"></div>
-        <div class="form-group"><label>Descripción</label><textarea id="f-desc">${isEdit?escHtml(item.descripcion||''):''}</textarea></div>
+        <div class="form-group"><label>Descripción</label>${barraFormatoHTML()}<textarea id="f-desc" rows="5">${isEdit?escHtml(item.descripcion||''):''}</textarea></div>
         <div class="form-group"><label>Coordinación *</label>
           <select id="f-coord"${dis}>${coordsFormTarea(isEdit?item:null).map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':(!isEdit&&String(state.filterCoord||state.urlCoord)===String(c.id)?' selected':'')}>${m.icon} ${m.name}</option>`;}).join('')}</select>
         </div>
@@ -192,7 +224,7 @@ function viewTask(t){
           ? `<span style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:50%;background:${avatarColor(t.asignado)}22;color:${avatarColor(t.asignado)};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">${getInitials(t.asignado)}</span>${escHtml(t.asignado)}</span>`
           : '<span style="color:var(--text-faint)">Sin asignar</span>')}
       </div>
-      ${t.descripcion ? `<div class="detail-desc"><div class="d-label">Descripción</div><div class="d-value">${escHtml(String(t.descripcion))}</div></div>` : ''}
+      ${t.descripcion ? `<div class="detail-desc"><div class="d-label">Descripción</div><div class="d-value texto-formato">${formatoTexto(t.descripcion)}</div></div>` : ''}
       ${t.link ? `<div class="detail-desc"><div class="d-label">Link</div><div class="d-value"><a href="${escHtml(String(t.link))}" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:underline;word-break:break-all">${escHtml(String(t.link))}</a></div></div>` : ''}
       ${extrasHTML ? `<div class="detail-grid" style="margin-top:10px">${extrasHTML}</div>` : ''}
     </div>

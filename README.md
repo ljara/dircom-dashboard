@@ -174,6 +174,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.14.0** — Descripción con formato simple al estilo WhatsApp: botones **B**, *I* y • Lista sobre el cuadro; el detalle muestra párrafos, saltos de línea, `*negrita*`, `_cursiva_`, listas `- ` y enlaces clicables. El texto se sigue guardando plano (se escapa antes de dar formato)
 - **v2.13.0** — Campaña: etiqueta opcional (una por tarea) para agrupar tareas de un macroproceso institucional. Lista en 🏷 Opciones (solo Administración); se ve como etiqueta 📣 en la tarea, se filtra y se busca en Tareas, y aparece en Reportes, el PDF y el Excel. Si se quita de la lista, las tareas la conservan
 - **v2.12.1** — Imagen y Diseño y Marketing intercambian su color; se quita el aviso de tareas sin fecha de término (las tareas anteriores al lanzamiento se borraron)
 - **v2.12.0** — Permiso "Gestiona tareas de su coordinación" (`personas.gestiona_coord`, rol `gestorCoord`): crea, edita, completa y archiva tareas solo de su coordinación; su coordinador/a recibe aviso 🔔 y correo de lo que crea, asigna o cambia de fecha

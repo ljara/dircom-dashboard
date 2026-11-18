@@ -18,6 +18,33 @@ function getCoordMeta(id){
 }
 
 // ── Helpers ────────────────────────────────────────────────
+// Formato simple de la descripción, al estilo WhatsApp: *negrita*, _cursiva_, líneas "- " como lista,
+// línea en blanco = párrafo nuevo y enlaces https:// en los que se puede hacer clic.
+// Se escapa todo primero: el texto se guarda plano y nunca se interpreta como HTML.
+function formatoLinea(s){
+  const URL_RE = /(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g;
+  return s.split(URL_RE).map((parte, i)=>{
+    if(i % 2) return `<a href="${parte}" target="_blank" rel="noopener">${parte}</a>`;   // la URL ya viene escapada
+    return parte
+      .replace(/(^|[\s(¡¿"'])\*(\S(?:[^*\n]*?\S)?)\*(?=$|[\s.,;:!?)"'])/g, '$1<strong>$2</strong>')
+      .replace(/(^|[\s(¡¿"'>])_(\S(?:[^_\n]*?\S)?)_(?=$|[\s.,;:!?)"'<])/g, '$1<em>$2</em>');
+  }).join('');
+}
+function formatoTexto(texto){
+  const lineas = escHtml(String(texto||'')).replace(/\r/g,'').split('\n');
+  const bloques = []; let parrafo = [], lista = [];
+  const cerrarParrafo = ()=>{ if(parrafo.length){ bloques.push('<p>'+parrafo.map(formatoLinea).join('<br>')+'</p>'); parrafo=[]; } };
+  const cerrarLista   = ()=>{ if(lista.length){ bloques.push('<ul>'+lista.map(l=>'<li>'+formatoLinea(l)+'</li>').join('')+'</ul>'); lista=[]; } };
+  for(const l of lineas){
+    const item = l.match(/^\s*(?:[-•]|\*(?=\s))\s+(.*)$/);
+    if(item){ cerrarParrafo(); lista.push(item[1]); }
+    else if(!l.trim()){ cerrarParrafo(); cerrarLista(); }
+    else { cerrarLista(); parrafo.push(l); }
+  }
+  cerrarParrafo(); cerrarLista();
+  return bloques.join('');
+}
+
 // Fecha límite "YYYY-MM-DD" como medianoche local: new Date("2026-11-05") la toma en UTC
 // y en Chile queda el día anterior a las 21:00
 function fechaLocal(f){
