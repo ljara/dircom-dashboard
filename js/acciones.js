@@ -63,6 +63,15 @@ async function submitTarea(existingId){
     link:               document.getElementById('f-link').value,
     ...extraData
   };
+  // Producción Programa: invitados del capítulo (filas completas: nombre, género y origen)
+  if(invitadosVisibles()){
+    const inv = leerInvitados();
+    if(inv.errores.length){
+      showToast(`Invitados: falta nombre, género u origen (fila${inv.errores.length>1?'s':''} ${inv.errores.join(', ')})`);
+      return;
+    }
+    body.invitados = inv.lista;
+  }
 
   closeModal();
 

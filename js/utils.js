@@ -75,4 +75,6 @@ function extraFields(headers, systemFields){
   return headers.filter(h => h && !systemFields.includes(h));
 }
 
+// Objeto como JSON dentro de un atributo onclick='…': sin esto, un apóstrofo ("O'Higgins") rompe el botón
+function jsonAttr(o){ return JSON.stringify(o).replace(/&/g,'&amp;').replace(/'/g,'&#39;'); }
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }

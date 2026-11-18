@@ -134,6 +134,13 @@ create table if not exists solicitantes_distintos (
 alter table solicitantes_distintos enable row level security;
 ```
 
+Desde v2.16.0 las tareas de tipo "Producción Programa" (UFROmedios) registran los invitados de cada capítulo
+(`[{nombre, cargo, genero: mujer|hombre|otro, ufro: true|false}]`):
+
+```sql
+alter table tareas add column if not exists invitados jsonb;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -147,6 +154,8 @@ y comparación con el período anterior de igual duración.
 | Cumplimiento de plazos | Completadas en o antes de su fecha límite ÷ completadas con fecha límite |
 
 Desglose por persona, coordinación, campaña, tipo de requerimiento, categoría y solicitante.
+**Invitados en programas**: de los capítulos de "Producción Programa" completados en el período, invitados por género
+(Mujer, Hombre, Otro) y origen (UFRO, externo), con totales; también en el PDF y en columnas del Excel.
 En el desglose por solicitante, las formas que solo difieren en mayúsculas, tildes o espacios cuentan como
 una sola (se muestra la más usada); el Excel conserva el nombre tal como se escribió.
 Salidas: **PDF** (ventana de impresión) y **Excel (CSV)** con el detalle de cada tarea y columnas
@@ -187,6 +196,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.16.0** — Invitados de programas (UFROmedios): cuando el tipo de requerimiento es "Producción Programa", la tarea (un capítulo) registra cada invitado con nombre, cargo o institución, género (Mujer, Hombre, Otro) y origen (UFRO o externo). Lo llenan quienes pueden editar la tarea (no integrantes). Totales en el detalle y la lista; bloque "Invitados en programas" en Reportes y el PDF; columnas en el Excel (`tareas.invitados`, jsonb)
 - **v2.15.1** — Unificar solicitantes: "✋ Unificar a mano" (cualquier combinación de nombres, con buscador), "🚫 Grupos descartados" con "Volver a mostrar", y la detección ignora el orden de las palabras y los títulos (Sr., Sra., Dr., Dra., Prof., etc.)
 - **v2.15.0** — Solicitantes: sugerencias al escribir (por cualquier palabra, sin importar tildes); los reportes juntan las formas que solo difieren en mayúsculas, tildes o espacios; "Unificar solicitantes" en 🏷 Opciones detecta nombres parecidos (errores de tipeo, uno o dos apellidos, iniciales) y corrige todas sus tareas, o los marca como personas distintas (`solicitantes_distintos`)
 - **v2.14.0** — Descripción con formato simple al estilo WhatsApp: botones **B**, *I* y • Lista sobre el cuadro; el detalle muestra párrafos, saltos de línea, `*negrita*`, `_cursiva_`, listas `- ` y enlaces clicables. El texto se sigue guardando plano (se escapa antes de dar formato)

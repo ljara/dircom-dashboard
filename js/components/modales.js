@@ -57,8 +57,8 @@ function openModal(type, item){
     // Helper: genera select de opciones desde la pestaña opciones
     const opSelect = (fieldKey, currentVal, placeholder) => {
       const opts = state.opciones[fieldKey] || [];
-      if(!opts.length) return `<input id="f-${fieldKey}"${dis} value="${isEdit?escHtml(String(item[fieldKey]||'')):''}" placeholder="${placeholder}">`;
-      return `<select id="f-${fieldKey}"${dis}>
+      if(!opts.length) return `<input id="f-${fieldKey}"${dis} oninput="toggleInvitados()" value="${isEdit?escHtml(String(item[fieldKey]||'')):''}" placeholder="${placeholder}">`;
+      return `<select id="f-${fieldKey}"${dis} onchange="toggleInvitados()">
         <option value="">${placeholder}</option>
         ${opts.map(o=>`<option value="${escHtml(o)}"${isEdit&&String(item[fieldKey])===String(o)?' selected':''}>${escHtml(o)}</option>`).join('')}
       </select>`;
@@ -96,6 +96,7 @@ function openModal(type, item){
         </div>
         <div class="form-group"><label>Fecha límite *</label><input type="date" id="f-fecha"${dis} required value="${isEdit?(item.fecha||''):''}"></div>
         <div class="form-group"><label>Link</label><input id="f-link" type="url" value="${isEdit?escHtml(item.link||''):''}" placeholder="https://"></div>
+        ${seccionInvitadosHTML(isEdit?item:null, dis)}
         ${extras.length?`<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;margin-top:4px;text-transform:uppercase;letter-spacing:.05em">Campos adicionales</div>`:''}
         ${extras.map(f=>`<div class="form-group field-extra"><label>${f}</label><input id="f-extra-${f}"${dis} value="${isEdit?escHtml(String(item[f]||'')):''}" placeholder="${f}"></div>`).join('')}
       </div>
@@ -225,11 +226,12 @@ function viewTask(t){
           : '<span style="color:var(--text-faint)">Sin asignar</span>')}
       </div>
       ${t.descripcion ? `<div class="detail-desc"><div class="d-label">Descripción</div><div class="d-value texto-formato">${formatoTexto(t.descripcion)}</div></div>` : ''}
+      ${detalleInvitadosHTML(t)}
       ${t.link ? `<div class="detail-desc"><div class="d-label">Link</div><div class="d-value"><a href="${escHtml(String(t.link))}" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:underline;word-break:break-all">${escHtml(String(t.link))}</a></div></div>` : ''}
       ${extrasHTML ? `<div class="detail-grid" style="margin-top:10px">${extrasHTML}</div>` : ''}
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">Cerrar</button>
-      ${puedeAvanzarTarea(t)?`<button class="btn btn-edit" onclick='closeModal();openModal("tarea",${JSON.stringify(t)})'>✏ Editar tarea</button>`:''}
+      ${puedeAvanzarTarea(t)?`<button class="btn btn-edit" onclick='closeModal();openModal("tarea",${jsonAttr(t)})'>✏ Editar tarea</button>`:''}
     </div>`;
 }

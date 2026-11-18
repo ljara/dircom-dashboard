@@ -78,6 +78,12 @@ function renderReportesView(){
       <div class="tabla-wrap">${tablaGruposHTML(met.porCampana, 'Campaña')}</div>
     </div>`:''}
 
+    ${(()=>{ const inv = metricasInvitados(met.filas); return inv.capitulos ? `<div class="section">
+      <div class="section-header"><div class="section-title">🎙 Invitados en programas</div>
+      <span style="font-size:12px;color:var(--text-muted)">capítulos de Producción Programa completados en el período</span></div>
+      <div class="tabla-wrap">${invitadosReporteHTML(inv)}</div>
+    </div>` : ''; })()}
+
     <div class="rep-tres">
       <div class="section">
         <div class="section-header"><div class="section-title">📋 Por tipo de requerimiento</div></div>

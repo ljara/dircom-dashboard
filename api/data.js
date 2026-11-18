@@ -206,6 +206,21 @@ const NOMBRES_CAMPOS = { titulo: 'título', coord_id: 'coordinación', solicitan
   tipo_requerimiento: 'tipo de requerimiento', categoria: 'categoría', asignado: 'persona asignada',
   prioridad: 'prioridad', status: 'estado', fecha: 'fecha límite' };
 const vacio = v => v === undefined || v === null || String(v).trim() === '';
+// Invitados de un capítulo de programa: lista limpia [{nombre, cargo, genero, ufro}] o error
+function limpiarInvitados(v) {
+  if (v === null || v === undefined) return { lista: null };
+  if (!Array.isArray(v) || v.length > 60) return { error: 'Lista de invitados no válida' };
+  const lista = v.map(i => ({
+    nombre: String(i?.nombre ?? '').trim().slice(0, 150),
+    cargo:  String(i?.cargo ?? '').trim().slice(0, 150),
+    genero: i?.genero,
+    ufro:   i?.ufro
+  }));
+  if (lista.some(i => !i.nombre || !['mujer', 'hombre', 'otro'].includes(i.genero) || typeof i.ufro !== 'boolean'))
+    return { error: 'Cada invitado necesita nombre, género y origen (UFRO o externo)' };
+  return { lista };
+}
+
 const errorObligatorios = campos => 'Falta completar: ' + campos.map(c => NOMBRES_CAMPOS[c]).join(', ');
 
 // Quién asignó la tarea y cuándo (para avisar a la coordinación cuando asigna la directora):
@@ -447,6 +462,11 @@ export default async function handler(req, res) {
         if (motivo) return res.status(403).json({ error: motivo });
         const faltan = OBLIGATORIOS_TAREA.filter(c => vacio(body[c]));
         if (faltan.length) return res.status(400).json({ error: errorObligatorios(faltan) });
+        if ('invitados' in body) {
+          const inv = limpiarInvitados(body.invitados);
+          if (inv.error) return res.status(400).json({ error: inv.error });
+          body.invitados = inv.lista;
+        }
         if (body.status === 'done') body.completed_at = new Date().toISOString();
         Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
@@ -466,6 +486,11 @@ export default async function handler(req, res) {
         if (motivo) return res.status(403).json({ error: motivo });
         const quitados = vacios.filter(c => !vacio(actual[c]));
         if (quitados.length) return res.status(400).json({ error: errorObligatorios(quitados) });
+        if ('invitados' in body) {
+          const inv = limpiarInvitados(body.invitados);
+          if (inv.error) return res.status(400).json({ error: inv.error });
+          body.invitados = inv.lista;
+        }
         // Si cambia la coordinación o la persona asignada, queda registrado quién lo hizo
         const cambio =
           ('coord_id' in body && String(body.coord_id ?? '') !== String(actual.coord_id ?? '')) ||

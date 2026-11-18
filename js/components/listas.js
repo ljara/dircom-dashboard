@@ -12,8 +12,8 @@ function taskListHTML(tasks){
       .filter(f=>t[f]!==undefined&&t[f]!=='')
       .map(f=>`<span>· ${f}: ${t[f]}</span>`).join('');
     return `<div class="task-item">
-      <div class="task-status-dot dot-${t.status}" style="cursor:pointer" onclick='viewTask(${JSON.stringify(t)})'></div>
-      <div class="task-body" style="cursor:pointer" onclick='viewTask(${JSON.stringify(t)})'>
+      <div class="task-status-dot dot-${t.status}" style="cursor:pointer" onclick='viewTask(${jsonAttr(t)})'></div>
+      <div class="task-body" style="cursor:pointer" onclick='viewTask(${jsonAttr(t)})'>
         <div class="task-title task-title-link">${esVencida?'<span title="Tarea vencida" style="color:var(--red);margin-right:4px">⚠</span>':''}${nuevas.has(t.id)?'<span class="badge badge-nueva" title="Tiene un aviso desde tu última visita">Nueva</span> ':''}${t.titulo||''}</div>
         <div class="task-meta">
           ${t.campana?`<span class="badge badge-campana" title="Campaña">📣 ${escHtml(t.campana)}</span>`:''}
@@ -21,6 +21,7 @@ function taskListHTML(tasks){
           ${t.solicitante?`<span>📋 ${t.solicitante}</span>`:'<span style="color:var(--text-faint)">Sin solicitante</span>'}
           ${t.asignado?`<span>👤 ${t.asignado}</span>`:'<span style="color:var(--text-faint)">Sin asignar</span>'}
           ${t.fecha?`<span>📅 ${formatFecha(t.fecha)}</span>`:'<span style="color:var(--text-faint)">Sin fecha</span>'}
+          ${chipInvitados(t)}
         </div>
       </div>
       <span class="badge badge-${t.prioridad}">${priorLabel(t.prioridad)}</span>
@@ -29,8 +30,8 @@ function taskListHTML(tasks){
         ${estadosPermitidos(t).map(s=>`<option value="${s}"${t.status===s?' selected':''}>${statusLabel(s)}</option>`).join('')}
       </select>`
         : `<span class="status-fijo">${statusLabel(t.status)}</span>`}
-      <button class="btn btn-sm btn-view" onclick='viewTask(${JSON.stringify(t)})' title="Ver detalle">👁</button>
-      ${puedeAvanzarTarea(t)?`<button class="btn btn-sm btn-edit" onclick='openModal("tarea",${JSON.stringify(t)})' title="Editar">✏</button>`:''}
+      <button class="btn btn-sm btn-view" onclick='viewTask(${jsonAttr(t)})' title="Ver detalle">👁</button>
+      ${puedeAvanzarTarea(t)?`<button class="btn btn-sm btn-edit" onclick='openModal("tarea",${jsonAttr(t)})' title="Editar">✏</button>`:''}
       ${puedeEditarTarea(t)?`<button class="btn btn-sm btn-danger" onclick="archiveTask('${t.id}')" title="Archivar">🗑</button>`:''}
     </div>`;
   }).join('');
@@ -55,7 +56,7 @@ function personaListHTML(personas){
         <div class="persona-role">${p.rol||''}${m?' · '+m.name:''}${esDirector()&&!p.correo?' · <span style="color:var(--amber)">sin correo</span>':''}</div>
       </div>
       <span class="persona-tareas" title="${pendientes} pendiente${pendientes!==1?'s':''} · ${completadas30} completada${completadas30!==1?'s':''} en los últimos 30 días">${pendientes}/${completadas30}</span>
-      ${puedeEditarPersona(p)?`<button class="btn btn-sm btn-edit" onclick='event.stopPropagation();openModal("persona",${JSON.stringify(p)})' title="Editar">✏</button>`:''}
+      ${puedeEditarPersona(p)?`<button class="btn btn-sm btn-edit" onclick='event.stopPropagation();openModal("persona",${jsonAttr(p)})' title="Editar">✏</button>`:''}
       ${esDirector()?`<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deletePersona('${p.id}')" title="Eliminar">✕</button>`:''}
     </div>`;
   }).join('');

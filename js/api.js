@@ -38,6 +38,7 @@ function normalizeTarea(t){
     tipo_requerimiento: t.tipo_requerimiento||'',
     categoria:          t.categoria||'',
     campana:            t.campana||'',
+    invitados:          Array.isArray(t.invitados) ? t.invitados : [],
     status:             t.status||'todo',
     prioridad:          t.prioridad||'media',
     fecha:              t.fecha||'',

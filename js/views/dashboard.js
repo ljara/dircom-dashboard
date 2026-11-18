@@ -225,7 +225,7 @@ function mostrarVencidas(){
                   <span style="color:var(--red);font-weight:500">📅 ${formatFecha(t.fecha)} · ${diasStr}</span>
                 </div>
               </div>
-              ${puedeAvanzarTarea(t)?`<button class="btn btn-sm btn-edit" onclick='closeModal();openModal("tarea",${JSON.stringify(t)})' title="Editar">✏</button>`:''}
+              ${puedeAvanzarTarea(t)?`<button class="btn btn-sm btn-edit" onclick='closeModal();openModal("tarea",${jsonAttr(t)})' title="Editar">✏</button>`:''}
             </div>`;
           }).join('')
       }

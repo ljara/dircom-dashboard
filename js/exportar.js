@@ -7,6 +7,12 @@ function csvCelda(v){
   return /[";\r\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
 }
 
+// Columnas de invitados: solo en tareas de Producción Programa (o que tengan invitados)
+function invCol(f, k){
+  if(!esPrograma(f.t) && !(f.t.invitados||[]).length) return '';
+  return resumenInvitados(f.t.invitados)[k];
+}
+
 function exportarTareasCSV(){
   if(!esDirector()) return;
   const { desde, hasta } = periodoReporte();
@@ -23,6 +29,13 @@ function exportarTareasCSV(){
     ['Tipo de requerimiento', f=>f.t.tipo_requerimiento],
     ['Categoría',             f=>f.t.categoria],
     ['Campaña',               f=>f.t.campana],
+    ['Invitados',             f=>invCol(f,'total')],
+    ['Invitadas mujeres',     f=>invCol(f,'mujer')],
+    ['Invitados hombres',     f=>invCol(f,'hombre')],
+    ['Invitados otro',        f=>invCol(f,'otro')],
+    ['Invitados UFRO',        f=>invCol(f,'ufro')],
+    ['Invitados externos',    f=>invCol(f,'externo')],
+    ['Nombres invitados',     f=>(f.t.invitados||[]).map(i=>`${i.nombre} (${GENEROS_INV[i.genero]||'—'}, ${i.ufro?'UFRO':'Externo'})`).join(' | ')],
     ['Prioridad',             f=>priorLabel(f.t.prioridad)],
     ['Estado actual',         f=>statusLabel(f.t.status)],
     ['Fecha creación',        f=>f.creada],

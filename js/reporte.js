@@ -124,6 +124,11 @@ function generarReporte(){
     <div class="box">${tablaGruposHTML(met.porCampana, 'Campaña')}</div>
   </div>`:''}
 
+  ${(()=>{ const inv = metricasInvitados(met.filas); return inv.capitulos ? `<div class="section">
+    <div class="section-title">Invitados en programas (capítulos completados en el período)</div>
+    <div class="box">${invitadosReporteHTML(inv)}</div>
+  </div>` : ''; })()}
+
   <div class="section">
     <div class="two-col">
       <div><div class="section-title">Por tipo de requerimiento</div><div class="box">${tablaGruposHTML(met.porTipo, 'Tipo', {completa:false, max:10})}</div></div>

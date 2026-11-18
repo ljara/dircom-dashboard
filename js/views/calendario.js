@@ -135,7 +135,7 @@ function renderCalendario(){
                 </div>
                 ${tareasDia.map(t=>{
                   const sc=STATUS_COLORS[t.status]||STATUS_COLORS.todo;
-                  return `<div class="persona-day-task" style="background:${sc.bg};color:${sc.text}" title="${t.titulo}" onclick='viewTask(${JSON.stringify(t)})'>${t.titulo}</div>`;
+                  return `<div class="persona-day-task" style="background:${sc.bg};color:${sc.text}" title="${t.titulo}" onclick='viewTask(${jsonAttr(t)})'>${t.titulo}</div>`;
                 }).join('')}
                 ${!tareasDia.length?`<div style="font-size:10px;color:var(--text-faint);text-align:center;margin-top:8px">libre</div>`:''}
               </div>`;
@@ -176,7 +176,7 @@ function renderCalendario(){
             const sc=STATUS_COLORS[t.status]||STATUS_COLORS.todo;
             return `<div class="cal-task" style="background:${sc.bg};color:${sc.text};border-left:3px solid ${coordColor(t.coordId)}"
               title="${t.titulo}${t.asignado?' · '+t.asignado:''}"
-              onclick='viewTask(${JSON.stringify(t)})'>${t.titulo}</div>`;
+              onclick='viewTask(${jsonAttr(t)})'>${t.titulo}</div>`;
           }).join('')}
           ${tareas.length>MAX_VISIBLE?`<div class="cal-more" onclick="state.calPersonaFiltro='all';state.filterStatus='all';state.busqueda='';setView('tareas')">+${tareas.length-MAX_VISIBLE} más</div>`:''}
         </div>`;
