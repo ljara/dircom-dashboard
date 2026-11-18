@@ -116,6 +116,13 @@ Desde v2.12.0 el permiso "Gestiona tareas de su coordinación":
 alter table personas add column if not exists gestiona_coord boolean not null default false;
 ```
 
+Desde v2.13.0 cada tarea puede llevar una **Campaña** (macroproceso institucional, como "Admisión 2027").
+Es opcional, una por tarea, y la lista la administra solo Administración en 🏷 Opciones (tipo `campana`):
+
+```sql
+alter table tareas add column if not exists campana text;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -128,7 +135,7 @@ y comparación con el período anterior de igual duración.
 | Tiempo de resolución | Días entre creación y término (promedio y mediana) |
 | Cumplimiento de plazos | Completadas en o antes de su fecha límite ÷ completadas con fecha límite |
 
-Desglose por persona, coordinación, tipo de requerimiento, categoría y solicitante.
+Desglose por persona, coordinación, campaña, tipo de requerimiento, categoría y solicitante.
 Salidas: **PDF** (ventana de impresión) y **Excel (CSV)** con el detalle de cada tarea y columnas
 Sí/No para filtrar o armar tablas dinámicas. Las tareas en la papelera no se consideran.
 
@@ -167,6 +174,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.13.0** — Campaña: etiqueta opcional (una por tarea) para agrupar tareas de un macroproceso institucional. Lista en 🏷 Opciones (solo Administración); se ve como etiqueta 📣 en la tarea, se filtra y se busca en Tareas, y aparece en Reportes, el PDF y el Excel. Si se quita de la lista, las tareas la conservan
 - **v2.12.1** — Imagen y Diseño y Marketing intercambian su color; se quita el aviso de tareas sin fecha de término (las tareas anteriores al lanzamiento se borraron)
 - **v2.12.0** — Permiso "Gestiona tareas de su coordinación" (`personas.gestiona_coord`, rol `gestorCoord`): crea, edita, completa y archiva tareas solo de su coordinación; su coordinador/a recibe aviso 🔔 y correo de lo que crea, asigna o cambia de fecha
 - **v2.11.0** — Calendario de toda la Dirección para coordinadores/as: `getAll` les entrega aparte (`calendario`) las tareas con fecha de las demás coordinaciones, solo para el calendario y sin poder editarlas; integrantes ven solo su calendario. "👁 Ver como…" para los correos de `VER_COMO_CORREO`: el servidor arma la vista de otra persona y rechaza cualquier cambio mientras está activo

@@ -16,6 +16,7 @@ function taskListHTML(tasks){
       <div class="task-body" style="cursor:pointer" onclick='viewTask(${JSON.stringify(t)})'>
         <div class="task-title task-title-link">${esVencida?'<span title="Tarea vencida" style="color:var(--red);margin-right:4px">⚠</span>':''}${nuevas.has(t.id)?'<span class="badge badge-nueva" title="Tiene un aviso desde tu última visita">Nueva</span> ':''}${t.titulo||''}</div>
         <div class="task-meta">
+          ${t.campana?`<span class="badge badge-campana" title="Campaña">📣 ${escHtml(t.campana)}</span>`:''}
           <span>${m.icon} ${m.name}</span>
           ${t.solicitante?`<span>📋 ${t.solicitante}</span>`:'<span style="color:var(--text-faint)">Sin solicitante</span>'}
           ${t.asignado?`<span>👤 ${t.asignado}</span>`:'<span style="color:var(--text-faint)">Sin asignar</span>'}

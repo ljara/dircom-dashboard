@@ -73,6 +73,11 @@ function renderReportesView(){
       <div class="tabla-wrap">${tablaGruposHTML(met.porCoord, 'Coordinación')}</div>
     </div>
 
+    ${met.porCampana.length?`<div class="section">
+      <div class="section-header"><div class="section-title">📣 Por campaña</div></div>
+      <div class="tabla-wrap">${tablaGruposHTML(met.porCampana, 'Campaña')}</div>
+    </div>`:''}
+
     <div class="rep-tres">
       <div class="section">
         <div class="section-header"><div class="section-title">📋 Por tipo de requerimiento</div></div>

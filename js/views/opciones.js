@@ -5,9 +5,12 @@ function renderOpcionesView(){
   const tipos = Object.keys(state.opciones).length
     ? Object.keys(state.opciones)
     : ['tipo_requerimiento','categoria'];
+  // Campaña siempre aparece, aunque todavía no tenga opciones
+  if(!tipos.includes('campana')) tipos.push('campana');
 
   const tipoLabel = t => t==='tipo_requerimiento'?'Tipo de requerimiento':
-                         t==='categoria'?'Categoría':t;
+                         t==='categoria'?'Categoría':
+                         t==='campana'?'Campaña':t;
 
   return `
     <div class="topbar">
@@ -22,6 +25,7 @@ function renderOpcionesView(){
             <div class="section-title">📋 ${tipoLabel(tipo)}</div>
             <span style="font-size:12px;color:var(--text-muted)">${valores.length} opciones</span>
           </div>
+          ${tipo==='campana'?`<div style="padding:8px 14px 0;font-size:12px;color:var(--text-muted)">Macroprocesos institucionales (ej. Admisión 2027). Es opcional en cada tarea. Si quitas una, las tareas que la tienen la conservan.</div>`:''}
           <div style="padding:8px 0">
             ${valores.length===0
               ? `<div class="empty" style="padding:16px"><p>Sin opciones aún</p></div>`
@@ -63,7 +67,8 @@ async function agregarOpcion(tipo){
 }
 
 async function deleteOpcion(tipo, valor){
-  if(!confirm(`¿Eliminar "${valor}" de ${tipo}?`)) return;
+  const nombres={tipo_requerimiento:'Tipo de requerimiento', categoria:'Categoría', campana:'Campaña'};
+  if(!confirm(`¿Eliminar "${valor}" de ${nombres[tipo]||tipo}?`)) return;
   setSyncing(true);
   try{
     // Borrar por tipo+valor en Supabase

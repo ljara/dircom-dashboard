@@ -55,6 +55,7 @@ async function submitTarea(existingId){
     solicitante:        document.getElementById('f-solicitante').value,
     tipo_requerimiento: document.getElementById('f-tipo_requerimiento').value,
     categoria:          document.getElementById('f-categoria').value,
+    campana:            document.getElementById('f-campana').value,
     asignado:           document.getElementById('f-asig').value,
     prioridad:          document.getElementById('f-prior').value,
     status:             document.getElementById('f-status').value,

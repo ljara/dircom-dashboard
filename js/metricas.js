@@ -109,6 +109,7 @@ function calcularMetricas(tareas, desde, hasta){
     porCoord:       agruparFilas(filas, f=>getCoordMeta(f.t.coordId).name),
     porTipo:        agruparFilas(filas, f=>f.t.tipo_requerimiento||'Sin tipo'),
     porCategoria:   agruparFilas(filas, f=>f.t.categoria||'Sin categoría'),
+    porCampana:     agruparFilas(filas.filter(f=>f.t.campana), f=>f.t.campana),   // solo tareas con campaña
     porSolicitante: agruparFilas(filas, f=>f.t.solicitante||'Sin solicitante')
   };
 }

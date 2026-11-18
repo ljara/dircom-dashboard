@@ -1,6 +1,17 @@
 // Formularios (tarea, persona, coordinaciÃ³n) y detalle de tarea
 
 // ── Modals ─────────────────────────────────────────────────
+// Campaña (macroproceso institucional): opcional, de la lista que administra la directora en Opciones.
+// Si la tarea tiene una campaña que ya se quitó de la lista, se mantiene como opción para no perderla.
+function campanaSelect(actual, dis){
+  const opts = [...(state.opciones.campana || [])];
+  if(actual && !opts.includes(actual)) opts.unshift(actual);
+  return `<select id="f-campana"${dis}>
+    <option value="">Sin campaña</option>
+    ${opts.map(o=>`<option value="${escHtml(o)}"${String(actual)===String(o)?' selected':''}>${escHtml(o)}</option>`).join('')}
+  </select>`;
+}
+
 function openModal(type, item){
   document.getElementById('modal').style.display='flex';
   const inner=document.getElementById('modal-inner');
@@ -35,6 +46,7 @@ function openModal(type, item){
         <div class="form-group"><label>Solicitante *</label><input id="f-solicitante"${dis} value="${isEdit?escHtml(item.solicitante||''):''}" placeholder="Nombre del solicitante"></div>
         <div class="form-group"><label>Tipo de requerimiento *</label>${opSelect('tipo_requerimiento', isEdit?item.tipo_requerimiento:'', 'Seleccionar tipo…')}</div>
         <div class="form-group"><label>Categoría *</label>${opSelect('categoria', isEdit?item.categoria:'', 'Seleccionar categoría…')}</div>
+        <div class="form-group"><label>Campaña</label>${campanaSelect(isEdit?item.campana:'', dis)}</div>
         <div class="form-group"><label>Asignado a *</label>
           <select id="f-asig"${dis}><option value="">Seleccionar persona…</option>${state.personas.map(p=>`<option value="${p.nombre}"${isEdit&&item.asignado===p.nombre?' selected':''}>${p.nombre}</option>`).join('')}</select>
         </div>
@@ -172,6 +184,7 @@ function viewTask(t){
         ${field('Solicitante', t.solicitante ? escHtml(String(t.solicitante)) : '<span style="color:var(--text-faint)">—</span>')}
         ${field('Tipo de requerimiento', t.tipo_requerimiento ? escHtml(String(t.tipo_requerimiento)) : '<span style="color:var(--text-faint)">—</span>')}
         ${field('Categoría', t.categoria ? escHtml(String(t.categoria)) : '<span style="color:var(--text-faint)">—</span>')}
+        ${field('Campaña', t.campana ? `<span class="badge badge-campana">📣 ${escHtml(String(t.campana))}</span>` : '<span style="color:var(--text-faint)">—</span>')}
         ${field('Fecha de creación', formatDate(t.created))}
         ${field('Fecha límite', t.fecha ? `📅 ${formatFecha(t.fecha)}` : '<span style="color:var(--text-faint)">Sin fecha</span>')}
         ${t.status==='done' ? field('Fecha de término', t.completado ? formatDate(t.completado) : '<span style="color:var(--text-faint)">No registrada</span>') : ''}

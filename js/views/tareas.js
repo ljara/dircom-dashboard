@@ -7,6 +7,9 @@ function renderTareasView(){
   if(state.filterCoord) tasks=tasks.filter(t=>String(t.coordId)===String(state.filterCoord));
   if(state.filterStatus!=='all') tasks=tasks.filter(t=>t.status===state.filterStatus);
   if(state.filterPersona) tasks=tasks.filter(t=>t.asignado===state.filterPersona);
+  if(state.filterCampana) tasks=tasks.filter(t=>t.campana===state.filterCampana);
+  // Campañas para el filtro: las de la lista y las que aún tienen tareas aunque se hayan quitado
+  const campanas=[...new Set([...(state.opciones.campana||[]), ...activeTareas().map(t=>t.campana).filter(Boolean)])];
   if(state.busqueda){
     const q=state.busqueda.toLowerCase();
     tasks=tasks.filter(t=>
@@ -15,7 +18,8 @@ function renderTareasView(){
       (t.asignado||'').toLowerCase().includes(q)||
       (t.descripcion||'').toLowerCase().includes(q)||
       (t.tipo_requerimiento||'').toLowerCase().includes(q)||
-      (t.categoria||'').toLowerCase().includes(q)
+      (t.categoria||'').toLowerCase().includes(q)||
+      (t.campana||'').toLowerCase().includes(q)
     );
   }
 
@@ -65,7 +69,7 @@ function renderTareasView(){
   return `
     <div class="topbar">
       <div><div class="page-title">${state.filterPersona?('👤 '+state.filterPersona):coord?(getCoordMeta(coord.id).icon+' '+coord.nombre):'Todas las tareas'}</div>
-      <div class="page-sub">${tasks.length} tarea${tasks.length!==1?'s':''}${state.busqueda?` · búsqueda: "${state.busqueda}"`:''}</div></div>
+      <div class="page-sub">${tasks.length} tarea${tasks.length!==1?'s':''}${state.filterCampana?` · campaña: ${escHtml(state.filterCampana)}`:''}${state.busqueda?` · búsqueda: "${state.busqueda}"`:''}</div></div>
       <div class="topbar-actions">
         ${state.filterPersona?`<button class="btn btn-ghost btn-sm" onclick="state.filterPersona=null;render()">✕ Quitar filtro de persona</button>`:''}
         ${state.filterCoord?`<button class="btn btn-ghost btn-sm" onclick="state.filterCoord=null;render()">✕ Quitar filtro</button>`:''}
@@ -84,6 +88,11 @@ function renderTareasView(){
           <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none">🔍</span>
           ${state.busqueda?`<button onclick="state.busqueda='';render()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--text-muted)">✕</button>`:''}
         </div>
+        ${campanas.length?`<select onchange="state.filterCampana=this.value;render()" title="Filtrar por campaña"
+          style="padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;flex-shrink:0;max-width:180px">
+          <option value="">📣 Todas las campañas</option>
+          ${campanas.map(c=>`<option value="${escHtml(c)}"${state.filterCampana===c?' selected':''}>${escHtml(c)}</option>`).join('')}
+        </select>`:''}
         <select onchange="state.ordenTareas=this.value;render()"
           style="padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;flex-shrink:0">
           <option value="created_desc"${state.ordenTareas==='created_desc'?' selected':''}>↓ Más recientes</option>

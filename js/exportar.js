@@ -22,6 +22,7 @@ function exportarTareasCSV(){
     ['Solicitante',           f=>f.t.solicitante],
     ['Tipo de requerimiento', f=>f.t.tipo_requerimiento],
     ['Categoría',             f=>f.t.categoria],
+    ['Campaña',               f=>f.t.campana],
     ['Prioridad',             f=>priorLabel(f.t.prioridad)],
     ['Estado actual',         f=>statusLabel(f.t.status)],
     ['Fecha creación',        f=>f.creada],

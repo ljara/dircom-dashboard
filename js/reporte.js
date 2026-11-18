@@ -119,6 +119,11 @@ function generarReporte(){
     <div class="box">${tablaGruposHTML(met.porCoord, 'Coordinación')}</div>
   </div>
 
+  ${met.porCampana.length?`<div class="section">
+    <div class="section-title">Por campaña</div>
+    <div class="box">${tablaGruposHTML(met.porCampana, 'Campaña')}</div>
+  </div>`:''}
+
   <div class="section">
     <div class="two-col">
       <div><div class="section-title">Por tipo de requerimiento</div><div class="box">${tablaGruposHTML(met.porTipo, 'Tipo', {completa:false, max:10})}</div></div>

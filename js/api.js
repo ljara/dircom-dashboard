@@ -37,6 +37,7 @@ function normalizeTarea(t){
     solicitante:        t.solicitante||'',
     tipo_requerimiento: t.tipo_requerimiento||'',
     categoria:          t.categoria||'',
+    campana:            t.campana||'',
     status:             t.status||'todo',
     prioridad:          t.prioridad||'media',
     fecha:              t.fecha||'',
@@ -101,7 +102,7 @@ async function loadData(){
     state.tareas         = (data.tareas||[]).map(normalizeTarea);
     state.tareasOtrasCoords = (data.calendario||[]).map(normalizeTarea);   // solo para el calendario del coordinador
     state.opciones       = data.opciones || {};
-    state.tareasHeaders  = ['id','titulo','descripcion','coordId','asignado','solicitante','tipo_requerimiento','categoria','status','prioridad','fecha','link','created'];
+    state.tareasHeaders  = ['id','titulo','descripcion','coordId','asignado','solicitante','tipo_requerimiento','categoria','campana','status','prioridad','fecha','link','created'];
     state.personasHeaders= ['id','nombre','rol','coordId','esJefe'];
     renderSidebarCoords();
   } catch(e){

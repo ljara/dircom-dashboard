@@ -16,7 +16,8 @@ function onSidebarSearch(q){
     (t.titulo||'').toLowerCase().includes(lower)||
     (t.solicitante||'').toLowerCase().includes(lower)||
     (t.asignado||'').toLowerCase().includes(lower)||
-    (t.descripcion||'').toLowerCase().includes(lower)
+    (t.descripcion||'').toLowerCase().includes(lower)||
+    (t.campana||'').toLowerCase().includes(lower)
   ).slice(0,8);
 
   if(!resultsEl) return;

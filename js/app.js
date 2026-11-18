@@ -19,7 +19,7 @@ function aplicarPermisos(){
 
 function setView(v){
   if(!esDirector() && VISTAS_DIRECTORA.includes(v)) return;
-  state.view=v; state.filterCoord=null; state.filterStatus='all'; state.filterPersona=null;
+  state.view=v; state.filterCoord=null; state.filterStatus='all'; state.filterPersona=null; state.filterCampana='';
   document.querySelectorAll('.nav-item[id]').forEach(el=>el.classList.remove('active'));
   const a=document.getElementById('nav-'+v);
   if(a) a.classList.add('active');
