@@ -102,6 +102,8 @@ async function loadData(){
     state.tareas         = (data.tareas||[]).map(normalizeTarea);
     state.tareasOtrasCoords = (data.calendario||[]).map(normalizeTarea);   // solo para el calendario del coordinador
     state.opciones       = data.opciones || {};
+    state.solicitantes   = data.solicitantes || [];
+    state.solicitantesIgnorados = data.solicitantesIgnorados || [];
     state.tareasHeaders  = ['id','titulo','descripcion','coordId','asignado','solicitante','tipo_requerimiento','categoria','campana','status','prioridad','fecha','link','created'];
     state.personasHeaders= ['id','nombre','rol','coordId','esJefe'];
     renderSidebarCoords();

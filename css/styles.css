@@ -63,6 +63,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .texto-formato p{margin:0 0 8px}.texto-formato p:last-child,.texto-formato ul:last-child{margin-bottom:0}
 .texto-formato ul{margin:0 0 8px;padding-left:20px}.texto-formato li{margin:2px 0}
 .texto-formato a{color:var(--blue);text-decoration:underline}
+/* Solicitante: sugerencias al escribir y Unificar solicitantes */
+.sug-wrap{position:relative}
+.sug-lista{position:absolute;left:0;right:0;top:100%;margin-top:2px;background:var(--surface);border:1px solid var(--border-md);border-radius:var(--radius-sm);box-shadow:0 6px 18px rgba(0,0,0,.12);z-index:20;max-height:240px;overflow:auto}
+.sug-item{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;font-size:13px;cursor:pointer}
+.sug-item:hover,.sug-item.activo{background:var(--primary-light)}
+.sug-n{font-size:11px;color:var(--text-faint);white-space:nowrap}
+.unif-grupo{padding:10px 14px;border-bottom:1px solid var(--border)}
+.unif-forma{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px}
+.unif-nombre{cursor:pointer;text-decoration:underline dotted var(--text-faint)}
+.unif-acciones{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.unif-final{flex:1;min-width:180px;padding:6px 9px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:13px;font-family:inherit}
 .barra-formato{display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap}
 .barra-formato button{border:1px solid var(--border-md);background:var(--surface);color:var(--text);border-radius:4px;padding:2px 9px;font-size:12px;font-family:inherit;cursor:pointer;min-width:28px}
 .barra-formato button:hover{background:var(--gray-light)}

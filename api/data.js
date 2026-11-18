@@ -170,7 +170,8 @@ async function resolverAcceso(sesion, verComo) {
 // ── Permisos (tabla "Quién hace qué" del manual del equipo) ─
 // Devuelve el motivo si el rol no puede hacer la acción, o null si puede.
 // actual = fila actual de la tarea o persona que se modifica.
-const SOLO_DIRECTORA = ['addPersona', 'deletePersona', 'addCoordinacion', 'deleteCoordinacion', 'addOpcion', 'deleteOpcion'];
+const SOLO_DIRECTORA = ['addPersona', 'deletePersona', 'addCoordinacion', 'deleteCoordinacion', 'addOpcion', 'deleteOpcion',
+  'unificarSolicitante', 'ignorarSolicitantes'];
 const CAMPOS_INTEGRANTE = ['status', 'descripcion', 'link'];
 const ESTADOS_INTEGRANTE = ['todo', 'progress', 'review'];
 
@@ -400,7 +401,7 @@ export default async function handler(req, res) {
         // Una coordinación solo recibe sus propias tareas
         const filtroTareas = acceso.coord ? `coord_id=eq.${encodeURIComponent(acceso.coord)}&` : '';
         // El coordinador ve en el calendario las tareas con fecha de toda la Dirección (solo lectura)
-        const [coords, personas, tareas, opcRows, avisos, calendario] = await Promise.all([
+        const [coords, personas, tareas, opcRows, avisos, calendario, solRows, ignorados] = await Promise.all([
           sbGet('coordinaciones', 'order=created_at'),
           sbGet('personas',       'order=nombre'),
           sbGet('tareas',         filtroTareas + 'order=created_at.desc'),
@@ -408,8 +409,15 @@ export default async function handler(req, res) {
           avisosDe(acceso),
           acceso.rol === 'coordinador'
             ? sbGet('tareas', `coord_id=neq.${encodeURIComponent(acceso.coord)}&fecha=not.is.null&status=neq.archivada&order=fecha`)
-            : null
+            : null,
+          // Solicitantes de toda la Dirección (para sugerir al escribir y agrupar en reportes)
+          sbGet('tareas', 'select=solicitante&solicitante=not.is.null'),
+          acceso.rol === 'directora' ? sbGet('solicitantes_distintos', 'select=clave') : null
         ]);
+        const cuenta = {};
+        // Se envía tal como está escrito (con espacios de más) para poder unificarlo después
+        solRows.forEach(({ solicitante: s }) => { s = String(s ?? ''); if (s.trim()) cuenta[s] = (cuenta[s] || 0) + 1; });
+        const solicitantes = Object.entries(cuenta).map(([nombre, n]) => ({ nombre, n }));
         const opciones = {};
         opcRows.forEach(o => {
           if (!opciones[o.tipo]) opciones[o.tipo] = [];
@@ -419,6 +427,8 @@ export default async function handler(req, res) {
         return res.json({
           rol: acceso.rol, coordinaciones: coords, personas, tareas, opciones,
           calendario: calendario || undefined,
+          solicitantes,
+          solicitantesIgnorados: ignorados ? ignorados.map(r => r.clave) : undefined,
           puedeVerComo: acceso.puedeVerComo || undefined,
           viendoComo: acceso.viendoComo ? acceso.yo.nombre : undefined,
           yo: acceso.yo ? { nombre: acceso.yo.nombre, correo: acceso.yo.correo } : null,
@@ -533,6 +543,30 @@ export default async function handler(req, res) {
         const motivo = denegar(acceso, action);
         if (motivo) return res.status(403).json({ error: motivo });
         await sbDelete('coordinaciones', data.id);
+        return res.json({ ok: true });
+      }
+
+      // Administración: cambia el solicitante de todas las tareas escritas de otra forma
+      case 'unificarSolicitante': {
+        const motivo = denegar(acceso, action);
+        if (motivo) return res.status(403).json({ error: motivo });
+        const a = String(data?.a || '').trim();
+        const de = [...new Set((Array.isArray(data?.de) ? data.de : []).map(String))].filter(d => d !== a);
+        if (!a || !de.length || de.length > 50) return res.status(400).json({ error: 'Datos incompletos para unificar' });
+        const lista = de.map(d => '"' + d.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"').join(',');
+        const cambiadas = await sbPatchWhere('tareas', `solicitante=in.(${encodeURIComponent(lista)})`, { solicitante: a });
+        return res.json({ ok: true, cambiadas: cambiadas.length });
+      }
+
+      // Administración: un grupo de nombres parecidos que no son la misma persona (no se vuelve a sugerir)
+      case 'ignorarSolicitantes': {
+        const motivo = denegar(acceso, action);
+        if (motivo) return res.status(403).json({ error: motivo });
+        const clave = String(data?.clave || '').trim();
+        if (!clave) return res.status(400).json({ error: 'Falta el grupo' });
+        await fetch(`${SUPABASE_URL}/rest/v1/solicitantes_distintos`, {
+          method: 'POST', headers: { ...headers, Prefer: 'resolution=ignore-duplicates' }, body: JSON.stringify({ clave })
+        }).then(async r => { if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.message || r.statusText); } });
         return res.json({ ok: true });
       }
 

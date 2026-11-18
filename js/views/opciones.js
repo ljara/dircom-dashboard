@@ -44,7 +44,8 @@ function renderOpcionesView(){
           </div>`:''}
         </div>`;
       }).join('')}
-    </div>`;
+    </div>
+    ${esDirector()?unificarSolicitantesHTML():''}`;
 }
 
 async function agregarOpcion(tipo){

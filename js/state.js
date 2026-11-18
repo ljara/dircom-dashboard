@@ -5,6 +5,7 @@ let state = {
   tareasOtrasCoords:[],   // coordinador: tareas con fecha de las demás coordinaciones (solo calendario)
   tareasHeaders:[], personasHeaders:[],
   opciones:{},
+  solicitantes:[], solicitantesIgnorados:[],   // formas escritas de cada solicitante [{nombre,n}] y grupos descartados
   view:'dashboard', filterCoord:null, filterStatus:'all', filterPersona:null, filterCampana:'',
   filtroPeriodo:'todo', urlCoord:null,   // urlCoord: coordinación de quien entró (la entrega el servidor)
   rol:null,   // lo define el servidor: 'directora' | 'gestor' | 'coordinador' | 'integrante'

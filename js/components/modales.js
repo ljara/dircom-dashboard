@@ -75,7 +75,7 @@ function openModal(type, item){
         <div class="form-group"><label>Coordinación *</label>
           <select id="f-coord"${dis}>${coordsFormTarea(isEdit?item:null).map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':(!isEdit&&String(state.filterCoord||state.urlCoord)===String(c.id)?' selected':'')}>${m.icon} ${m.name}</option>`;}).join('')}</select>
         </div>
-        <div class="form-group"><label>Solicitante *</label><input id="f-solicitante"${dis} value="${isEdit?escHtml(item.solicitante||''):''}" placeholder="Nombre del solicitante"></div>
+        <div class="form-group"><label>Solicitante *</label>${campoSolicitanteHTML(isEdit?item.solicitante:'', dis)}</div>
         <div class="form-group"><label>Tipo de requerimiento *</label>${opSelect('tipo_requerimiento', isEdit?item.tipo_requerimiento:'', 'Seleccionar tipo…')}</div>
         <div class="form-group"><label>Categoría *</label>${opSelect('categoria', isEdit?item.categoria:'', 'Seleccionar categoría…')}</div>
         <div class="form-group"><label>Campaña</label>${campanaSelect(isEdit?item.campana:'', dis)}</div>

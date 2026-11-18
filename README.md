@@ -123,6 +123,17 @@ Es opcional, una por tarea, y la lista la administra solo Administración en �
 alter table tareas add column if not exists campana text;
 ```
 
+Desde v2.15.0 "Unificar solicitantes" (🏷 Opciones, solo Administración) recuerda los grupos de nombres
+parecidos que no son la misma persona:
+
+```sql
+create table if not exists solicitantes_distintos (
+  clave text primary key,            -- nombres del grupo, normalizados y ordenados, separados por |
+  created_at timestamptz default now()
+);
+alter table solicitantes_distintos enable row level security;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -136,6 +147,8 @@ y comparación con el período anterior de igual duración.
 | Cumplimiento de plazos | Completadas en o antes de su fecha límite ÷ completadas con fecha límite |
 
 Desglose por persona, coordinación, campaña, tipo de requerimiento, categoría y solicitante.
+En el desglose por solicitante, las formas que solo difieren en mayúsculas, tildes o espacios cuentan como
+una sola (se muestra la más usada); el Excel conserva el nombre tal como se escribió.
 Salidas: **PDF** (ventana de impresión) y **Excel (CSV)** con el detalle de cada tarea y columnas
 Sí/No para filtrar o armar tablas dinámicas. Las tareas en la papelera no se consideran.
 
@@ -174,6 +187,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.15.0** — Solicitantes: sugerencias al escribir (por cualquier palabra, sin importar tildes); los reportes juntan las formas que solo difieren en mayúsculas, tildes o espacios; "Unificar solicitantes" en 🏷 Opciones detecta nombres parecidos (errores de tipeo, uno o dos apellidos, iniciales) y corrige todas sus tareas, o los marca como personas distintas (`solicitantes_distintos`)
 - **v2.14.0** — Descripción con formato simple al estilo WhatsApp: botones **B**, *I* y • Lista sobre el cuadro; el detalle muestra párrafos, saltos de línea, `*negrita*`, `_cursiva_`, listas `- ` y enlaces clicables. El texto se sigue guardando plano (se escapa antes de dar formato)
 - **v2.13.0** — Campaña: etiqueta opcional (una por tarea) para agrupar tareas de un macroproceso institucional. Lista en 🏷 Opciones (solo Administración); se ve como etiqueta 📣 en la tarea, se filtra y se busca en Tareas, y aparece en Reportes, el PDF y el Excel. Si se quita de la lista, las tareas la conservan
 - **v2.12.1** — Imagen y Diseño y Marketing intercambian su color; se quita el aviso de tareas sin fecha de término (las tareas anteriores al lanzamiento se borraron)
