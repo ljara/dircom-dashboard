@@ -127,6 +127,14 @@ function generarReporte(){
   ${(()=>{ const inv = metricasInvitados(met.filas); return inv.capitulos ? `<div class="section">
     <div class="section-title">Invitados en programas (capítulos completados en el período)</div>
     <div class="box">${invitadosReporteHTML(inv)}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Invitados por programa</div>
+    <div class="box">${invitadosGruposHTML(inv.porPrograma, 'Programa', true)}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Invitados por tipo de contenido</div>
+    <div class="box">${invitadosGruposHTML(inv.porTipo, 'Tipo de contenido', false)}</div>
   </div>` : ''; })()}
 
   <div class="section">

@@ -83,7 +83,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Invitados de programas */
 .inv-wrap{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px;background:var(--bg)}
 .inv-titulo{font-size:13px;font-weight:600;margin-bottom:8px}
-.inv-fila{display:grid;grid-template-columns:1.3fr 1.3fr .9fr .9fr auto;gap:6px;margin-bottom:6px}
+.inv-fila{display:grid;grid-template-columns:1.2fr 1.2fr .8fr .8fr 1.2fr auto;gap:6px;margin-bottom:6px}
 .inv-fila input,.inv-fila select{width:100%;padding:6px 8px;border:1px solid var(--border-md);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:12px;font-family:inherit;min-width:0}
 .inv-totales{font-size:12px;color:var(--text-muted);margin-top:8px}
 .inv-tabla{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}

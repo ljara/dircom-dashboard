@@ -38,6 +38,7 @@ function normalizeTarea(t){
     tipo_requerimiento: t.tipo_requerimiento||'',
     categoria:          t.categoria||'',
     campana:            t.campana||'',
+    programa:           t.programa||'',
     invitados:          Array.isArray(t.invitados) ? t.invitados : [],
     status:             t.status||'todo',
     prioridad:          t.prioridad||'media',
@@ -105,7 +106,7 @@ async function loadData(){
     state.opciones       = data.opciones || {};
     state.solicitantes   = data.solicitantes || [];
     state.solicitantesIgnorados = data.solicitantesIgnorados || [];
-    state.tareasHeaders  = ['id','titulo','descripcion','coordId','asignado','solicitante','tipo_requerimiento','categoria','campana','status','prioridad','fecha','link','created'];
+    state.tareasHeaders  = ['id','titulo','descripcion','coordId','asignado','solicitante','tipo_requerimiento','categoria','campana','programa','status','prioridad','fecha','link','created'];
     state.personasHeaders= ['id','nombre','rol','coordId','esJefe'];
     renderSidebarCoords();
   } catch(e){

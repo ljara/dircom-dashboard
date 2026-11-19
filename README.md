@@ -141,6 +141,13 @@ Desde v2.16.0 las tareas de tipo "Producción Programa" (UFROmedios) registran l
 alter table tareas add column if not exists invitados jsonb;
 ```
 
+Desde v2.17.0 cada capítulo tiene **programa** (`tareas.programa`, lista `programa` en Opciones) y cada invitado
+su **tipo de contenido** (`tipo`, lista `tipo_contenido` en Opciones):
+
+```sql
+alter table tareas add column if not exists programa text;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -196,6 +203,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.17.0** — Programas UFROmedios: cada capítulo elige su **programa** y cada invitado su **tipo de contenido** (listas en Opciones, administradas por la directora). Reportes y PDF: invitados por programa y por tipo de contenido. Nuevo botón "⬇ Invitados (CSV)": una fila por invitado, con las columnas de la planilla antigua más el origen. Sin importar el historial de la planilla: se parte desde noviembre 2026
 - **v2.16.0** — Invitados de programas (UFROmedios): cuando el tipo de requerimiento es "Producción Programa", la tarea (un capítulo) registra cada invitado con nombre, cargo o institución, género (Mujer, Hombre, Otro) y origen (UFRO o externo). Lo llenan quienes pueden editar la tarea (no integrantes). Totales en el detalle y la lista; bloque "Invitados en programas" en Reportes y el PDF; columnas en el Excel (`tareas.invitados`, jsonb)
 - **v2.15.1** — Unificar solicitantes: "✋ Unificar a mano" (cualquier combinación de nombres, con buscador), "🚫 Grupos descartados" con "Volver a mostrar", y la detección ignora el orden de las palabras y los títulos (Sr., Sra., Dr., Dra., Prof., etc.)
 - **v2.15.0** — Solicitantes: sugerencias al escribir (por cualquier palabra, sin importar tildes); los reportes juntan las formas que solo difieren en mayúsculas, tildes o espacios; "Unificar solicitantes" en 🏷 Opciones detecta nombres parecidos (errores de tipeo, uno o dos apellidos, iniciales) y corrige todas sus tareas, o los marca como personas distintas (`solicitantes_distintos`)

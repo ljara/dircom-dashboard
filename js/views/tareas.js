@@ -19,7 +19,8 @@ function renderTareasView(){
       (t.descripcion||'').toLowerCase().includes(q)||
       (t.tipo_requerimiento||'').toLowerCase().includes(q)||
       (t.categoria||'').toLowerCase().includes(q)||
-      (t.campana||'').toLowerCase().includes(q)
+      (t.campana||'').toLowerCase().includes(q) ||
+      (t.programa||'').toLowerCase().includes(q)
     );
   }
 

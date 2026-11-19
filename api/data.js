@@ -206,7 +206,7 @@ const NOMBRES_CAMPOS = { titulo: 'título', coord_id: 'coordinación', solicitan
   tipo_requerimiento: 'tipo de requerimiento', categoria: 'categoría', asignado: 'persona asignada',
   prioridad: 'prioridad', status: 'estado', fecha: 'fecha límite' };
 const vacio = v => v === undefined || v === null || String(v).trim() === '';
-// Invitados de un capítulo de programa: lista limpia [{nombre, cargo, genero, ufro}] o error
+// Invitados de un capítulo de programa: lista limpia [{nombre, cargo, genero, ufro, tipo}] o error
 function limpiarInvitados(v) {
   if (v === null || v === undefined) return { lista: null };
   if (!Array.isArray(v) || v.length > 60) return { error: 'Lista de invitados no válida' };
@@ -214,7 +214,8 @@ function limpiarInvitados(v) {
     nombre: String(i?.nombre ?? '').trim().slice(0, 150),
     cargo:  String(i?.cargo ?? '').trim().slice(0, 150),
     genero: i?.genero,
-    ufro:   i?.ufro
+    ufro:   i?.ufro,
+    tipo:   String(i?.tipo ?? '').trim().slice(0, 100)
   }));
   if (lista.some(i => !i.nombre || !['mujer', 'hombre', 'otro'].includes(i.genero) || typeof i.ufro !== 'boolean'))
     return { error: 'Cada invitado necesita nombre, género y origen (UFRO o externo)' };
@@ -467,6 +468,7 @@ export default async function handler(req, res) {
           if (inv.error) return res.status(400).json({ error: inv.error });
           body.invitados = inv.lista;
         }
+        if ('programa' in body) body.programa = String(body.programa ?? '').trim().slice(0, 100) || null;
         if (body.status === 'done') body.completed_at = new Date().toISOString();
         Object.assign(body, registroAsignacion(acceso));
         const result = await sbPost('tareas', { id, ...body });
@@ -491,6 +493,7 @@ export default async function handler(req, res) {
           if (inv.error) return res.status(400).json({ error: inv.error });
           body.invitados = inv.lista;
         }
+        if ('programa' in body) body.programa = String(body.programa ?? '').trim().slice(0, 100) || null;
         // Si cambia la coordinación o la persona asignada, queda registrado quién lo hizo
         const cambio =
           ('coord_id' in body && String(body.coord_id ?? '') !== String(actual.coord_id ?? '')) ||

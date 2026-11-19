@@ -63,14 +63,16 @@ async function submitTarea(existingId){
     link:               document.getElementById('f-link').value,
     ...extraData
   };
-  // Producción Programa: invitados del capítulo (filas completas: nombre, género y origen)
+  // Producción Programa: programa e invitados del capítulo (filas completas: nombre, género, origen y tipo)
   if(invitadosVisibles()){
     const inv = leerInvitados();
     if(inv.errores.length){
-      showToast(`Invitados: falta nombre, género u origen (fila${inv.errores.length>1?'s':''} ${inv.errores.join(', ')})`);
+      showToast(`Invitados: falta nombre, género, origen o tipo de contenido (fila${inv.errores.length>1?'s':''} ${inv.errores.join(', ')})`);
       return;
     }
     body.invitados = inv.lista;
+    body.programa = programaElegido();
+    if(!body.programa){ showToast('Falta elegir el programa del capítulo'); return; }
   }
 
   closeModal();

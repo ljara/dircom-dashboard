@@ -37,6 +37,7 @@ function renderReportesView(){
       <div class="page-sub">Indicadores de gestión del ${formatDia(desde)} al ${formatDia(hasta)} · ${dias} día${dias!==1?'s':''}</div></div>
       <div class="topbar-actions">
         <button class="btn" onclick="exportarTareasCSV()">⬇ Exportar Excel (CSV)</button>
+        <button class="btn" onclick="exportarInvitadosCSV()" title="Una fila por invitado de los capítulos de programa del período">⬇ Invitados (CSV)</button>
         <button class="btn" onclick="generarReporte()" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a">📄 Generar PDF</button>
       </div>
     </div>
@@ -82,6 +83,14 @@ function renderReportesView(){
       <div class="section-header"><div class="section-title">🎙 Invitados en programas</div>
       <span style="font-size:12px;color:var(--text-muted)">capítulos de Producción Programa completados en el período</span></div>
       <div class="tabla-wrap">${invitadosReporteHTML(inv)}</div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-title">📻 Invitados por programa</div></div>
+      <div class="tabla-wrap">${invitadosGruposHTML(inv.porPrograma, 'Programa', true)}</div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-title">🗂 Invitados por tipo de contenido</div></div>
+      <div class="tabla-wrap">${invitadosGruposHTML(inv.porTipo, 'Tipo de contenido', false)}</div>
     </div>` : ''; })()}
 
     <div class="rep-tres">

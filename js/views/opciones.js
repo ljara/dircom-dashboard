@@ -5,12 +5,14 @@ function renderOpcionesView(){
   const tipos = Object.keys(state.opciones).length
     ? Object.keys(state.opciones)
     : ['tipo_requerimiento','categoria'];
-  // Campaña siempre aparece, aunque todavía no tenga opciones
-  if(!tipos.includes('campana')) tipos.push('campana');
+  // Campaña, Programa y Tipo de contenido siempre aparecen, aunque todavía no tengan opciones
+  ['campana','programa','tipo_contenido'].forEach(t=>{ if(!tipos.includes(t)) tipos.push(t); });
 
   const tipoLabel = t => t==='tipo_requerimiento'?'Tipo de requerimiento':
                          t==='categoria'?'Categoría':
-                         t==='campana'?'Campaña':t;
+                         t==='campana'?'Campaña':
+                         t==='programa'?'Programa (UFROmedios)':
+                         t==='tipo_contenido'?'Tipo de contenido (UFROmedios)':t;
 
   return `
     <div class="topbar">
@@ -26,6 +28,8 @@ function renderOpcionesView(){
             <span style="font-size:12px;color:var(--text-muted)">${valores.length} opciones</span>
           </div>
           ${tipo==='campana'?`<div style="padding:8px 14px 0;font-size:12px;color:var(--text-muted)">Macroprocesos institucionales (ej. Admisión 2027). Es opcional en cada tarea. Si quitas una, las tareas que la tienen la conservan.</div>`:''}
+          ${tipo==='programa'?`<div style="padding:8px 14px 0;font-size:12px;color:var(--text-muted)">Programas de UFROmedios. Se elige en cada capítulo (tareas de tipo Producción Programa). Si quitas uno, los capítulos que lo tienen lo conservan.</div>`:''}
+          ${tipo==='tipo_contenido'?`<div style="padding:8px 14px 0;font-size:12px;color:var(--text-muted)">Tema de cada invitado de un capítulo (ej. Salud, Deportes). Si quitas uno, los invitados que lo tienen lo conservan.</div>`:''}
           <div style="padding:8px 0">
             ${valores.length===0
               ? `<div class="empty" style="padding:16px"><p>Sin opciones aún</p></div>`
@@ -68,7 +72,7 @@ async function agregarOpcion(tipo){
 }
 
 async function deleteOpcion(tipo, valor){
-  const nombres={tipo_requerimiento:'Tipo de requerimiento', categoria:'Categoría', campana:'Campaña'};
+  const nombres={tipo_requerimiento:'Tipo de requerimiento', categoria:'Categoría', campana:'Campaña', programa:'Programa', tipo_contenido:'Tipo de contenido'};
   if(!confirm(`¿Eliminar "${valor}" de ${nombres[tipo]||tipo}?`)) return;
   setSyncing(true);
   try{
