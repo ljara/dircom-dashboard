@@ -79,20 +79,6 @@ function renderReportesView(){
       <div class="tabla-wrap">${tablaGruposHTML(met.porCampana, 'Campaña')}</div>
     </div>`:''}
 
-    ${(()=>{ const inv = metricasInvitados(met.filas); return inv.capitulos ? `<div class="section">
-      <div class="section-header"><div class="section-title">🎙 Invitados en programas</div>
-      <span style="font-size:12px;color:var(--text-muted)">capítulos de Producción Programa completados en el período</span></div>
-      <div class="tabla-wrap">${invitadosReporteHTML(inv)}</div>
-    </div>
-    <div class="section">
-      <div class="section-header"><div class="section-title">📻 Invitados por programa</div></div>
-      <div class="tabla-wrap">${invitadosGruposHTML(inv.porPrograma, 'Programa', true)}</div>
-    </div>
-    <div class="section">
-      <div class="section-header"><div class="section-title">🗂 Invitados por tipo de contenido</div></div>
-      <div class="tabla-wrap">${invitadosGruposHTML(inv.porTipo, 'Tipo de contenido', false)}</div>
-    </div>` : ''; })()}
-
     <div class="rep-tres">
       <div class="section">
         <div class="section-header"><div class="section-title">📋 Por tipo de requerimiento</div></div>
@@ -107,6 +93,20 @@ function renderReportesView(){
         <div class="tabla-wrap">${tablaGruposHTML(met.porSolicitante, 'Solicitante', {completa:false, max:10})}</div>
       </div>
     </div>
+
+    ${(()=>{ const inv = metricasInvitados(met.filas); return inv.capitulos ? `<div class="section">
+      <div class="section-header"><div class="section-title">🎙 UFROmedios · Invitados en programas</div>
+      <span style="font-size:12px;color:var(--text-muted)">capítulos de Producción Programa completados en el período</span></div>
+      <div class="tabla-wrap">${invitadosReporteHTML(inv)}</div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-title">📻 UFROmedios · Invitados por programa</div></div>
+      <div class="tabla-wrap">${invitadosGruposHTML(inv.porPrograma, 'Programa', true)}</div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-title">🗂 UFROmedios · Invitados por tipo de contenido</div></div>
+      <div class="tabla-wrap">${invitadosGruposHTML(inv.porTipo, 'Tipo de contenido', false)}</div>
+    </div>` : ''; })()}
 
     <div class="rep-glosario">
       <strong>Cómo se calcula:</strong> <em>Creadas</em> y <em>Completadas</em> cuentan las tareas cuya fecha de creación o de término cae en el período.
