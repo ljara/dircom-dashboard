@@ -203,7 +203,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
-- **v2.17.1** — Reportes y PDF: los bloques de UFROmedios (invitados en programas, por programa y por tipo de contenido) van al final. Programas y tipos de contenido con mayúscula inicial (programas sin puntos suspensivos)
+- **v2.17.1** — Reportes y PDF: los bloques de UFROmedios (invitados en programas, por programa y por tipo de contenido) van al final. Programas y tipos de contenido con mayúscula inicial (programas sin puntos suspensivos). Opciones en orden fijo: Campaña, Categoría, Tipo de requerimiento, Programa, Tipo de contenido
 - **v2.17.0** — Programas UFROmedios: cada capítulo elige su **programa** y cada invitado su **tipo de contenido** (listas en Opciones, administradas por la directora). Reportes y PDF: invitados por programa y por tipo de contenido. Nuevo botón "⬇ Invitados (CSV)": una fila por invitado, con las columnas de la planilla antigua más el origen. Sin importar el historial de la planilla: se parte desde noviembre 2026
 - **v2.16.0** — Invitados de programas (UFROmedios): cuando el tipo de requerimiento es "Producción Programa", la tarea (un capítulo) registra cada invitado con nombre, cargo o institución, género (Mujer, Hombre, Otro) y origen (UFRO o externo). Lo llenan quienes pueden editar la tarea (no integrantes). Totales en el detalle y la lista; bloque "Invitados en programas" en Reportes y el PDF; columnas en el Excel (`tareas.invitados`, jsonb)
 - **v2.15.1** — Unificar solicitantes: "✋ Unificar a mano" (cualquier combinación de nombres, con buscador), "🚫 Grupos descartados" con "Volver a mostrar", y la detección ignora el orden de las palabras y los títulos (Sr., Sra., Dr., Dra., Prof., etc.)

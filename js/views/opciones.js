@@ -2,11 +2,9 @@
 
 // ── Opciones ───────────────────────────────────────────────
 function renderOpcionesView(){
-  const tipos = Object.keys(state.opciones).length
-    ? Object.keys(state.opciones)
-    : ['tipo_requerimiento','categoria'];
-  // Campaña, Programa y Tipo de contenido siempre aparecen, aunque todavía no tengan opciones
-  ['campana','programa','tipo_contenido'].forEach(t=>{ if(!tipos.includes(t)) tipos.push(t); });
+  // Orden fijo (siempre aparecen, aunque todavía no tengan opciones); otras listas, al final
+  const ORDEN = ['campana','categoria','tipo_requerimiento','programa','tipo_contenido'];
+  const tipos = [...ORDEN, ...Object.keys(state.opciones).filter(t=>!ORDEN.includes(t))];
 
   const tipoLabel = t => t==='tipo_requerimiento'?'Tipo de requerimiento':
                          t==='categoria'?'Categoría':
