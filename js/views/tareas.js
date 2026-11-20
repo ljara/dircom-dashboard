@@ -8,8 +8,12 @@ function renderTareasView(){
   if(state.filterStatus!=='all') tasks=tasks.filter(t=>t.status===state.filterStatus);
   if(state.filterPersona) tasks=tasks.filter(t=>t.asignado===state.filterPersona);
   if(state.filterCampana) tasks=tasks.filter(t=>t.campana===state.filterCampana);
+  if(state.filterPrograma) tasks=tasks.filter(t=>t.programa===state.filterPrograma);
   // Campañas para el filtro: las de la lista y las que aún tienen tareas aunque se hayan quitado
   const campanas=[...new Set([...(state.opciones.campana||[]), ...activeTareas().map(t=>t.campana).filter(Boolean)])];
+  // Programas de UFROmedios (al final del mismo selector): filtran los capítulos por programa
+  const programas=[...new Set([...(state.opciones.programa||[]), ...activeTareas().map(t=>t.programa).filter(Boolean)])];
+  const filtroCP=state.filterCampana?'c:'+state.filterCampana:state.filterPrograma?'p:'+state.filterPrograma:'';
   if(state.busqueda){
     const q=state.busqueda.toLowerCase();
     tasks=tasks.filter(t=>
@@ -70,7 +74,7 @@ function renderTareasView(){
   return `
     <div class="topbar">
       <div><div class="page-title">${state.filterPersona?('👤 '+state.filterPersona):coord?(getCoordMeta(coord.id).icon+' '+coord.nombre):'Todas las tareas'}</div>
-      <div class="page-sub">${tasks.length} tarea${tasks.length!==1?'s':''}${state.filterCampana?` · campaña: ${escHtml(state.filterCampana)}`:''}${state.busqueda?` · búsqueda: "${state.busqueda}"`:''}</div></div>
+      <div class="page-sub">${tasks.length} tarea${tasks.length!==1?'s':''}${state.filterCampana?` · campaña: ${escHtml(state.filterCampana)}`:''}${state.filterPrograma?` · programa: ${escHtml(state.filterPrograma)}`:''}${state.busqueda?` · búsqueda: "${state.busqueda}"`:''}</div></div>
       <div class="topbar-actions">
         ${state.filterPersona?`<button class="btn btn-ghost btn-sm" onclick="state.filterPersona=null;render()">✕ Quitar filtro de persona</button>`:''}
         ${state.filterCoord?`<button class="btn btn-ghost btn-sm" onclick="state.filterCoord=null;render()">✕ Quitar filtro</button>`:''}
@@ -90,10 +94,19 @@ function renderTareasView(){
           <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none">🔍</span>
           ${state.busqueda?`<button onclick="state.busqueda='';render()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--text-muted)">✕</button>`:''}
         </div>
-        ${campanas.length?`<select onchange="state.filterCampana=this.value;render()" title="Filtrar por campaña"
+        ${state.busqueda?`<div title="Tareas que coinciden con la búsqueda (y los filtros aplicados)" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--radius-sm);background:var(--gray-light);flex-shrink:0;white-space:nowrap">
+          <span style="font-size:18px;font-weight:700;color:var(--text);line-height:1">${tasks.length}</span>
+          <span style="font-size:11px;color:var(--text-muted)">encontrada${tasks.length!==1?'s':''}</span>
+        </div>`:''}
+        ${campanas.length||programas.length?`<select onchange="elegirFiltroCampanaPrograma(this.value)" title="Filtrar por campaña o por programa de UFROmedios"
           style="padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;flex-shrink:0;max-width:180px">
-          <option value="">📣 Todas las campañas</option>
-          ${campanas.map(c=>`<option value="${escHtml(c)}"${state.filterCampana===c?' selected':''}>${escHtml(c)}</option>`).join('')}
+          <option value="">📣 Todas las campañas y programas</option>
+          ${campanas.length?`<optgroup label="📣 Campañas">
+            ${campanas.map(c=>`<option value="${escHtml('c:'+c)}"${filtroCP==='c:'+c?' selected':''}>${escHtml(c)}</option>`).join('')}
+          </optgroup>`:''}
+          ${programas.length?`<optgroup label="📻 Programas UFROmedios">
+            ${programas.map(p=>`<option value="${escHtml('p:'+p)}"${filtroCP==='p:'+p?' selected':''}>${escHtml(p)}</option>`).join('')}
+          </optgroup>`:''}
         </select>`:''}
         <select onchange="state.ordenTareas=this.value;render()"
           style="padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;flex-shrink:0">
@@ -112,4 +125,11 @@ function renderTareasView(){
       </div>
       ${taskListHTML(tasks)}
     </div>`;
+}
+
+// Selector de campaña o programa: "c:<campaña>" o "p:<programa>" (uno a la vez)
+function elegirFiltroCampanaPrograma(v){
+  state.filterCampana = v.startsWith('c:') ? v.slice(2) : '';
+  state.filterPrograma = v.startsWith('p:') ? v.slice(2) : '';
+  render();
 }

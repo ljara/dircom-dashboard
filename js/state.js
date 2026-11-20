@@ -6,7 +6,7 @@ let state = {
   tareasHeaders:[], personasHeaders:[],
   opciones:{},
   solicitantes:[], solicitantesIgnorados:[],   // formas escritas de cada solicitante [{nombre,n}] y grupos descartados
-  view:'dashboard', filterCoord:null, filterStatus:'all', filterPersona:null, filterCampana:'',
+  view:'dashboard', filterCoord:null, filterStatus:'all', filterPersona:null, filterCampana:'', filterPrograma:'',
   filtroPeriodo:'todo', urlCoord:null,   // urlCoord: coordinación de quien entró (la entrega el servidor)
   rol:null,   // lo define el servidor: 'directora' | 'gestor' | 'coordinador' | 'integrante'
   yo:null,    // persona que entró con Google: {nombre, correo}
