@@ -11,14 +11,14 @@ function onSidebarSearch(q){
     return;
   }
 
+  // Mismos campos que la búsqueda de "Todas las tareas", para que "Ver todas" muestre el mismo total
   const lower = q.toLowerCase();
-  const matches = activeTareas().filter(t=>
-    (t.titulo||'').toLowerCase().includes(lower)||
-    (t.solicitante||'').toLowerCase().includes(lower)||
-    (t.asignado||'').toLowerCase().includes(lower)||
-    (t.descripcion||'').toLowerCase().includes(lower)||
-    (t.campana||'').toLowerCase().includes(lower)
-  ).slice(0,8);
+  const todas = activeTareas().filter(t=>
+    ['titulo','solicitante','asignado','descripcion','tipo_requerimiento','categoria','campana','programa']
+      .some(c=>(t[c]||'').toLowerCase().includes(lower))
+  );
+  const MAX = 8;
+  const matches = todas.slice(0,MAX);
 
   if(!resultsEl) return;
 
@@ -29,7 +29,17 @@ function onSidebarSearch(q){
   }
 
   resultsEl.style.display='block';
-  resultsEl.innerHTML = matches.map(t=>{
+  const n = todas.length;
+  // Total encontrado como número destacado; queda fijo arriba al desplazar la lista
+  const total = `<div style="position:sticky;top:0;z-index:1;padding:6px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--gray-light)">
+      <span style="font-size:18px;font-weight:700;color:var(--text);line-height:1">${n}</span>
+      <span style="font-size:11px;color:var(--text-muted)">tarea${n!==1?'s':''} encontrada${n!==1?'s':''}${n>MAX?` · se muestran ${MAX}`:''}</span>
+    </div>`;
+  const verTodas = n>MAX ? `<div onclick="buscarEnTareas()" style="padding:8px 12px;cursor:pointer;font-size:12px;font-weight:500;color:var(--primary-dark,#00447F);text-align:center"
+      onmouseover="this.style.background='var(--gray-light)'" onmouseout="this.style.background='transparent'">
+      Ver los ${n} en Todas las tareas →
+    </div>` : '';
+  resultsEl.innerHTML = total + matches.map(t=>{
     const m=getCoordMeta(t.coordId);
     const hoy=new Date();hoy.setHours(0,0,0,0);
     const vencida=t.fecha&&t.status!=='done'&&(()=>{try{return fechaLocal(t.fecha)<hoy;}catch(e){return false;}})();
@@ -45,5 +55,16 @@ function onSidebarSearch(q){
         <span class="badge badge-${t.prioridad}" style="font-size:10px;padding:1px 6px">${priorLabel(t.prioridad)}</span>
       </div>
     </div>`;
-  }).join('');
+  }).join('') + verTodas;
+}
+
+// Lleva la búsqueda del buscador lateral a "Todas las tareas", sin otros filtros
+function buscarEnTareas(){
+  const input = document.getElementById('sidebar-search');
+  const q = input ? input.value : '';
+  if(input) input.value='';
+  onSidebarSearch('');
+  verTareas();
+  state.busqueda = q;
+  render();
 }
