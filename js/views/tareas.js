@@ -13,7 +13,6 @@ function renderTareasView(){
   const campanas=[...new Set([...(state.opciones.campana||[]), ...activeTareas().map(t=>t.campana).filter(Boolean)])];
   // Programas de UFROmedios (al final del mismo selector): filtran los capítulos por programa
   const programas=[...new Set([...(state.opciones.programa||[]), ...activeTareas().map(t=>t.programa).filter(Boolean)])];
-  const filtroCP=state.filterCampana?'c:'+state.filterCampana:state.filterPrograma?'p:'+state.filterPrograma:'';
   if(state.busqueda){
     const q=state.busqueda.toLowerCase();
     tasks=tasks.filter(t=>
@@ -98,25 +97,7 @@ function renderTareasView(){
           <span style="font-size:18px;font-weight:700;color:var(--text);line-height:1">${tasks.length}</span>
           <span style="font-size:11px;color:var(--text-muted)">encontrada${tasks.length!==1?'s':''}</span>
         </div>`:''}
-        ${campanas.length||programas.length?`<select onchange="elegirFiltroCampanaPrograma(this.value)" title="Filtrar por campaña o por programa de UFROmedios"
-          style="padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;flex-shrink:0;max-width:180px">
-          <option value="">📣 Todas las campañas y programas</option>
-          ${campanas.length?`<optgroup label="📣 Campañas">
-            ${campanas.map(c=>`<option value="${escHtml('c:'+c)}"${filtroCP==='c:'+c?' selected':''}>${escHtml(c)}</option>`).join('')}
-          </optgroup>`:''}
-          ${programas.length?`<optgroup label="📻 Programas UFROmedios">
-            ${programas.map(p=>`<option value="${escHtml('p:'+p)}"${filtroCP==='p:'+p?' selected':''}>${escHtml(p)}</option>`).join('')}
-          </optgroup>`:''}
-        </select>`:''}
-        <select onchange="state.ordenTareas=this.value;render()"
-          style="padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;flex-shrink:0">
-          <option value="created_desc"${state.ordenTareas==='created_desc'?' selected':''}>↓ Más recientes</option>
-          <option value="fecha_asc"${state.ordenTareas==='fecha_asc'?' selected':''}>📅 Fecha límite (próxima)</option>
-          <option value="fecha_desc"${state.ordenTareas==='fecha_desc'?' selected':''}>📅 Fecha límite (lejana)</option>
-          <option value="prioridad"${state.ordenTareas==='prioridad'?' selected':''}>🔴 Prioridad</option>
-          <option value="status"${state.ordenTareas==='status'?' selected':''}>⚡ Estado</option>
-          <option value="titulo"${state.ordenTareas==='titulo'?' selected':''}>🔤 Título A-Z</option>
-        </select>
+        ${selectorFiltrosHTML(campanas, programas)}
       </div>
       <div class="filters">
         ${['all','todo','progress','review','done'].map(s=>`<button class="filter-pill${state.filterStatus===s?' active':''}" onclick="state.filterStatus='${s}';render()">${s==='all'?'Todas':statusLabel(s)}</button>`).join('')}
@@ -127,9 +108,37 @@ function renderTareasView(){
     </div>`;
 }
 
-// Selector de campaña o programa: "c:<campaña>" o "p:<programa>" (uno a la vez)
-function elegirFiltroCampanaPrograma(v){
-  state.filterCampana = v.startsWith('c:') ? v.slice(2) : '';
-  state.filterPrograma = v.startsWith('p:') ? v.slice(2) : '';
+// Selector único "⚙ Filtros": orden, campaña y, al final, programas de UFROmedios.
+// Siempre muestra "⚙ Filtros"; lo elegido lleva ✓ y se aplica al cambiar.
+const ORDENES_TAREAS = [
+  ['created_desc','↓ Más recientes'], ['fecha_asc','📅 Fecha límite (próxima)'], ['fecha_desc','📅 Fecha límite (lejana)'],
+  ['prioridad','🔴 Prioridad'], ['status','⚡ Estado'], ['titulo','🔤 Título A-Z']
+];
+function selectorFiltrosHTML(campanas, programas){
+  const op = (valor, texto, activo) => `<option value="${escHtml(valor)}">${activo?'✓ ':' '}${escHtml(texto)}</option>`;
+  const n = (state.filterCampana?1:0) + (state.filterPrograma?1:0);
+  return `<select onchange="elegirFiltro(this.value)" title="Ordenar y filtrar por campaña o programa"
+      style="padding:7px 10px;border:1px solid ${n?'var(--primary)':'var(--border-md)'};border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:${n?'var(--primary-light)':'var(--bg)'};color:var(--text);cursor:pointer;flex-shrink:0;max-width:200px">
+    <option value="" selected>⚙ Filtros${n?` (${n})`:''}</option>
+    <optgroup label="Ordenar por">
+      ${ORDENES_TAREAS.map(([v,t])=>op('o:'+v, t, (state.ordenTareas||'created_desc')===v)).join('')}
+    </optgroup>
+    ${campanas.length?`<optgroup label="📣 Campaña">
+      ${op('c:', 'Todas las campañas', !state.filterCampana)}
+      ${campanas.map(c=>op('c:'+c, c, state.filterCampana===c)).join('')}
+    </optgroup>`:''}
+    ${programas.length?`<optgroup label="📻 Programas UFROmedios">
+      ${op('p:', 'Todos los programas', !state.filterPrograma)}
+      ${programas.map(p=>op('p:'+p, p, state.filterPrograma===p)).join('')}
+    </optgroup>`:''}
+  </select>`;
+}
+
+// "o:<orden>", "c:<campaña>" o "p:<programa>" (vacío después de ":" = quitar ese filtro)
+function elegirFiltro(v){
+  const tipo = v.slice(0,2), valor = v.slice(2);
+  if(tipo==='o:') state.ordenTareas = valor;
+  else if(tipo==='c:') state.filterCampana = valor;
+  else if(tipo==='p:') state.filterPrograma = valor;
   render();
 }
