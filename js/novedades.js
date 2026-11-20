@@ -89,6 +89,45 @@ function bannerNovedadesHTML(){
     </div>`;
 }
 
+// ── Tareas vencidas ────────────────────────────────────────
+// Pendientes (no completadas ni archivadas) con fecha límite anterior a hoy
+function tareasVencidas(){
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  return activeTareas().filter(t=>{
+    if(!t.fecha||t.status==='done') return false;
+    try{ return fechaLocal(t.fecha)<hoy; }catch(e){ return false; }
+  });
+}
+
+// Las que le tocan a quien mira: integrante, las suyas; coordinación, las de su coordinación;
+// Administración y quien gestiona tareas, las de toda la Dirección
+function vencidasParaMi(){
+  const v=tareasVencidas();
+  if(state.rol==='integrante') return v.filter(t=>t.asignado===state.yo?.nombre);
+  if(gestionaSuCoord()) return v.filter(t=>String(t.coordId)===String(state.urlCoord));
+  if(esDirector()||state.rol==='gestor') return v;
+  return [];
+}
+
+// Banner fijo: no se puede cerrar, desaparece cuando ya no quedan vencidas
+function bannerVencidasHTML(){
+  const n=vencidasParaMi().length;
+  if(!n) return '';
+  const s=n>1?'s':'';
+  const titulo = state.rol==='integrante' ? `Tienes ${n} tarea${s} vencida${s}`
+    : gestionaSuCoord() ? `Tu coordinación tiene ${n} tarea${s} vencida${s}`
+    : `Hay ${n} tarea${s} vencida${s} en la Dirección`;
+  return `
+    <div style="background:#FCEBEB;border:1px solid var(--red);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="mostrarVencidas(true)">
+      <span style="font-size:20px">⚠️</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:#791F1F">${titulo}</div>
+        <div style="font-size:11px;color:#A32D2D;margin-top:2px">Este aviso se mantiene hasta que se completen o se actualice su fecha límite</div>
+      </div>
+      <span style="font-size:12px;color:#791F1F;font-weight:500">Ver →</span>
+    </div>`;
+}
+
 function verNovedad(id){
   const t = state.tareas.find(x=>x.id===id);
   if(t) viewTask(t);

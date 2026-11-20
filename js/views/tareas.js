@@ -77,6 +77,7 @@ function renderTareasView(){
         ${puedeCrearTareas()?`<button class="btn btn-primary" onclick="openModal('tarea',null)">＋ Nueva tarea</button>`:''}
       </div>
     </div>
+    ${bannerVencidasHTML()}
     ${bannerNovedadesHTML()}
     ${bannerRevision}
     <div class="section">

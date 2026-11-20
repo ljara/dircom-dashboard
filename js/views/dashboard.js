@@ -111,6 +111,7 @@ function renderDashboard(){
         ${esDirector()?`<button class="btn" onclick="setView('reportes')" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a">📈 Reportes</button>`:''}
       </div>
     </div>
+    ${bannerVencidasHTML()}
     ${bannerNovedadesHTML()}
 
     <div class="metrics">
@@ -192,12 +193,10 @@ function renderDashboard(){
 }
 
 // Modal listado de vencidas
-function mostrarVencidas(){
+// soloMias: desde el banner, solo las que le tocan a quien mira
+function mostrarVencidas(soloMias){
   const hoy=new Date();hoy.setHours(0,0,0,0);
-  const vencidas=activeTareas().filter(t=>{
-    if(!t.fecha||t.status==='done') return false;
-    try{ return fechaLocal(t.fecha)<hoy; }catch(e){ return false; }
-  });
+  const vencidas=soloMias?vencidasParaMi():tareasVencidas();
   document.getElementById('modal').style.display='flex';
   document.getElementById('modal-inner').innerHTML=`
     <div class="modal-header">
