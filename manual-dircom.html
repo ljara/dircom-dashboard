@@ -3,9 +3,10 @@
 <head>
 <!--
   Manual de Uso — Dashboard DIRCOM UFRO
-  Versión: 2.19.0
-  Fecha: 2026-11-20
+  Versión: 2.20.0
+  Fecha: 2026-11-23
   Changelog:
+  - v2.20.0 (2026-11-23): La coordinación de la tarea se completa con la de la persona asignada; coordinadores/as asignan solo a su equipo
   - v2.19.0 (2026-11-20): Banner rojo fijo de tareas vencidas al entrar (no se cierra hasta ponerse al día)
   - v2.18.0 (2026-11-19): Programas UFROmedios: programa por capítulo, tipo de contenido por invitado, reportes por programa y tipo, exportar invitados
   - v2.17.0 (2026-11-18): Invitados de programas (UFROmedios): género y origen por capítulo, con totales en Reportes
@@ -130,7 +131,7 @@
   <div class="header">
     <div class="org">Universidad de La Frontera</div>
     <h1>Manual de Uso<br>Dashboard DIRCOM</h1>
-    <div class="sub">Guía para coordinadores/as y Administración · Versión 2.19 · 2026-11-20</div>
+    <div class="sub">Guía para coordinadores/as y Administración · Versión 2.20 · 2026-11-23</div>
   </div>
   <div class="stripe"></div>
 
@@ -180,7 +181,7 @@
           <div class="step-content">
             <div class="step-title">Recepción — ingresar al dashboard de inmediato</div>
             <div class="step-desc">Cuando llega un requerimiento a la coordinación (por correo, WhatsApp, reunión o cualquier canal), el coordinador o coordinadora lo ingresa al dashboard en ese momento. No después, no "cuando tenga tiempo".</div>
-            <div class="step-tip"><strong>Campos obligatorios:</strong> todos, salvo Descripción y Link: Título · Coordinación · Solicitante · Tipo de requerimiento · Categoría · Asignado a · Prioridad · Estado · Fecha límite. El dashboard no deja guardar la tarea si falta alguno, e indica cuál.</div>
+            <div class="step-tip"><strong>Campos obligatorios:</strong> todos, salvo Descripción y Link: Título · Asignado a · Coordinación · Solicitante · Tipo de requerimiento · Categoría · Prioridad · Estado · Fecha límite. El dashboard no deja guardar la tarea si falta alguno, e indica cuál.</div>
             <div class="step-tip"><strong>🙋 Solicitante:</strong> al escribir aparecen los solicitantes que ya existen (basta con una parte del nombre o del apellido). Elige uno de la lista para que se escriba siempre igual y se cuente bien en Reportes. Si es alguien nuevo, escríbelo completo.</div>
             <div class="step-tip"><strong>✍ Formato de la descripción:</strong> usa los botones <strong>B</strong> (negrita), <em>I</em> (cursiva) y <strong>• Lista</strong> sobre el cuadro, o escribe las marcas como en WhatsApp: <code>*negrita*</code>, <code>_cursiva_</code> y <code>- </code> al inicio de la línea para una lista. Una línea en blanco separa párrafos, y los enlaces https:// se pueden abrir con un clic.</div>
             <div class="step-tip"><strong>🎙 Programas (UFROmedios):</strong> si el tipo de requerimiento es <strong>Producción Programa</strong>, cada tarea es un capítulo y aparece la sección <strong>🎙 Capítulo</strong>: eliges el <strong>programa</strong> (obligatorio) y, con <strong>＋ Agregar invitado</strong>, registras a cada invitado: nombre, cargo o institución (opcional), género (Mujer, Hombre u Otro), origen (UFRO o externo) y tipo de contenido (ej. Salud, Deportes). La fecha del capítulo es la fecha de la tarea. Los totales se calculan solos. Solo quienes pueden editar la tarea registran invitados.</div>
@@ -192,6 +193,7 @@
           <div class="step-content">
             <div class="step-title">Asignación — directo al responsable</div>
             <div class="step-desc">Al ingresar la tarea, el coordinador/a asigna directamente a quien la ejecutará. Sin aprobaciones ni reuniones previas. Si no sabe aún quién la hará, se la asigna a sí mismo/a mientras tanto y la reasigna antes del fin del día (el dashboard no permite tareas sin persona asignada).</div>
+            <div class="step-tip"><strong>Coordinación automática:</strong> al elegir a la persona asignada, la tarea queda en la coordinación de esa persona, para que pueda verla y su coordinador/a sepa que la tiene. Cada coordinador/a asigna solo a su equipo. Si necesitas algo de otra coordinación, pídeselo a su coordinador/a o a Administración.</div>
             <div class="step-tip"><strong>La tarea aparece como "Por hacer"</strong> hasta que el responsable comience a trabajar en ella.</div>
           </div>
         </div>

@@ -72,16 +72,17 @@ function openModal(type, item){
         ${limitado?`<div class="aviso-limitado">Puedes cambiar el estado (hasta Revisión), la descripción y el link. Para lo demás, habla con tu coordinador/a.</div>`:''}
         <div class="form-group"><label>Título *</label><input id="f-titulo"${dis} value="${isEdit?escHtml(item.titulo||''):''}" placeholder="Nombre de la tarea"></div>
         <div class="form-group"><label>Descripción</label>${barraFormatoHTML()}<textarea id="f-desc" rows="5">${isEdit?escHtml(item.descripcion||''):''}</textarea></div>
+        <div class="form-group"><label>Asignado a *</label>
+          <select id="f-asig"${dis} onchange="coordDeAsignado(true)"><option value="">Seleccionar persona…</option>${personasAsignables(isEdit?item:null).map(p=>`<option value="${p.nombre}"${isEdit&&item.asignado===p.nombre?' selected':''}>${p.nombre}</option>`).join('')}</select>
+        </div>
         <div class="form-group"><label>Coordinación *</label>
-          <select id="f-coord"${dis}>${coordsFormTarea(isEdit?item:null).map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':(!isEdit&&String(state.filterCoord||state.urlCoord)===String(c.id)?' selected':'')}>${m.icon} ${m.name}</option>`;}).join('')}</select>
+          <select id="f-coord"${dis} onchange="coordDeAsignado(false)">${coordsFormTarea(isEdit?item:null).map(c=>{const m=getCoordMeta(c.id);return`<option value="${c.id}"${isEdit&&String(item.coordId)===String(c.id)?' selected':(!isEdit&&String(state.filterCoord||state.urlCoord)===String(c.id)?' selected':'')}>${m.icon} ${m.name}</option>`;}).join('')}</select>
+          <div style="font-size:11px;color:var(--text-faint);margin-top:4px">Se completa con la coordinación de la persona asignada.</div>
         </div>
         <div class="form-group"><label>Solicitante *</label>${campoSolicitanteHTML(isEdit?item.solicitante:'', dis)}</div>
         <div class="form-group"><label>Tipo de requerimiento *</label>${opSelect('tipo_requerimiento', isEdit?item.tipo_requerimiento:'', 'Seleccionar tipo…')}</div>
         <div class="form-group"><label>Categoría *</label>${opSelect('categoria', isEdit?item.categoria:'', 'Seleccionar categoría…')}</div>
         <div class="form-group"><label>Campaña</label>${campanaSelect(isEdit?item.campana:'', dis)}</div>
-        <div class="form-group"><label>Asignado a *</label>
-          <select id="f-asig"${dis}><option value="">Seleccionar persona…</option>${state.personas.map(p=>`<option value="${p.nombre}"${isEdit&&item.asignado===p.nombre?' selected':''}>${p.nombre}</option>`).join('')}</select>
-        </div>
         <div class="form-group"><label>Prioridad *</label>
           <select id="f-prior"${dis}>
             <option value="baja"${isEdit&&item.prioridad==='baja'?' selected':''}>Baja</option>
@@ -104,6 +105,7 @@ function openModal(type, item){
         <button class="btn" onclick="closeModal()">Cancelar</button>
         <button class="btn btn-primary" onclick="submitTarea(${isEdit?`'${item.id}'`:'null'})">${isEdit?'Guardar cambios':'Agregar tarea'}</button>
       </div>`;
+    coordDeAsignado(false);
 
   } else if(type==='persona'){
     const extras = extraFields(state.personasHeaders, SYSTEM_FIELDS_PERSONA);
@@ -165,6 +167,24 @@ function permisoPersona(p){
 function coordsFormTarea(item){
   if(!gestionaSuCoord()) return state.coordinaciones;
   return state.coordinaciones.filter(c=>String(c.id)===String(state.urlCoord) || (item && String(c.id)===String(item.coordId)));
+}
+
+// Personas que se pueden asignar: el coordinador/a (y quien gestiona su coordinación) solo a su equipo.
+// Se mantiene la persona actual de una tarea antigua, aunque sea de otra coordinación
+function personasAsignables(item){
+  if(!gestionaSuCoord()) return state.personas;
+  return state.personas.filter(p=>String(p.coordId)===String(state.urlCoord) || (item && p.nombre===item.asignado));
+}
+
+// La coordinación de la tarea es la de la persona asignada y queda bloqueada mientras coincidan.
+// Si no coinciden (tarea antigua) o la persona no tiene coordinación, se puede elegir a mano
+function coordDeAsignado(autocompletar){
+  const asig=document.getElementById('f-asig'), coord=document.getElementById('f-coord');
+  if(!asig || !coord || asig.disabled) return;
+  const persona=state.personas.find(p=>p.nombre===asig.value);
+  const suya=persona?.coordId ? String(persona.coordId) : '';
+  if(autocompletar && suya && [...coord.options].some(o=>o.value===suya)) coord.value=suya;
+  coord.disabled = !!suya && coord.value===suya;
 }
 
 // ── Vista detallada de tarea ───────────────────────────────

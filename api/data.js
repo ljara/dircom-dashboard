@@ -224,6 +224,15 @@ function limpiarInvitados(v) {
 
 const errorObligatorios = campos => 'Falta completar: ' + campos.map(c => NOMBRES_CAMPOS[c]).join(', ');
 
+// La tarea va en la coordinación de la persona asignada. No se valida si la persona
+// no tiene coordinación o ya no está en Equipo (tareas antiguas)
+async function errorCoordAsignado(asignado, coordId) {
+  if (vacio(asignado) || vacio(coordId)) return null;
+  const filas = await sbGet('personas', `nombre=eq.${encodeURIComponent(asignado)}&select=coord_id`);
+  if (!filas.length || filas.some(p => vacio(p.coord_id) || String(p.coord_id) === String(coordId))) return null;
+  return `${asignado} pertenece a otra coordinación: la tarea debe quedar en la coordinación de la persona asignada`;
+}
+
 // Quién asignó la tarea y cuándo (para avisar a la coordinación cuando asigna la directora):
 // 'directora' o 'persona:<id>'
 function registroAsignacion(acceso) {
@@ -463,6 +472,8 @@ export default async function handler(req, res) {
         if (motivo) return res.status(403).json({ error: motivo });
         const faltan = OBLIGATORIOS_TAREA.filter(c => vacio(body[c]));
         if (faltan.length) return res.status(400).json({ error: errorObligatorios(faltan) });
+        const errorCoord = await errorCoordAsignado(body.asignado, body.coord_id);
+        if (errorCoord) return res.status(400).json({ error: errorCoord });
         if ('invitados' in body) {
           const inv = limpiarInvitados(body.invitados);
           if (inv.error) return res.status(400).json({ error: inv.error });
@@ -498,7 +509,13 @@ export default async function handler(req, res) {
         const cambio =
           ('coord_id' in body && String(body.coord_id ?? '') !== String(actual.coord_id ?? '')) ||
           ('asignado' in body && String(body.asignado ?? '') !== String(actual.asignado ?? ''));
-        if (cambio) Object.assign(body, registroAsignacion(acceso));
+        if (cambio) {
+          const errorCoord = await errorCoordAsignado(
+            'asignado' in body ? body.asignado : actual.asignado,
+            'coord_id' in body ? body.coord_id : actual.coord_id);
+          if (errorCoord) return res.status(400).json({ error: errorCoord });
+          Object.assign(body, registroAsignacion(acceso));
+        }
         await sbPatch('tareas', id, body);
         await syncCompletedAt(id, body.status);
         const tarea = { id, ...actual, ...body };

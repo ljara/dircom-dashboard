@@ -203,6 +203,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.19.0** (2026-11-23) — Al elegir la persona asignada, la tarea toma su coordinación y ese campo queda bloqueado mientras coincidan. Coordinador/a y "Gestiona tareas de su coordinación" asignan solo a su equipo. El servidor rechaza combinaciones nuevas de persona y coordinación que no coincidan; las tareas antiguas se pueden seguir editando
 - **v2.18.0** (2026-11-20) — Banner rojo fijo de tareas vencidas en Dashboard y Tareas: no se puede cerrar y desaparece cuando ya no quedan vencidas. Integrante ve las suyas; coordinador/a y "Gestiona tareas de su coordinación", las de su coordinación; Administración y "Gestiona tareas", las de toda la Dirección. Clic: listado de esas vencidas
 - **v2.17.1** (2026-11-19) — Reportes y PDF: los bloques de UFROmedios (invitados en programas, por programa y por tipo de contenido) van al final. Programas y tipos de contenido con mayúscula inicial (programas sin puntos suspensivos). Opciones en orden fijo: Campaña, Categoría, Tipo de requerimiento, Programa, Tipo de contenido
 - **v2.17.0** (2026-11-19) — Programas UFROmedios: cada capítulo elige su **programa** y cada invitado su **tipo de contenido** (listas en Opciones, administradas por la directora). Reportes y PDF: invitados por programa y por tipo de contenido. Nuevo botón "⬇ Invitados (CSV)": una fila por invitado, con las columnas de la planilla antigua más el origen. Sin importar el historial de la planilla: se parte desde noviembre 2026
