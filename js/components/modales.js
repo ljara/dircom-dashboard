@@ -96,6 +96,14 @@ function openModal(type, item){
           </select>
         </div>
         <div class="form-group"><label>Fecha límite *</label><input type="date" id="f-fecha"${dis} required value="${isEdit?(item.fecha||''):''}"></div>
+        <div class="form-group"><label>Hora (opcional)</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="time" id="f-hora-ini"${dis} value="${isEdit?(item.horaInicio||''):''}" aria-label="Hora de inicio" style="flex:1">
+            <span style="color:var(--text-muted);font-size:13px">a</span>
+            <input type="time" id="f-hora-fin"${dis} value="${isEdit?(item.horaFin||''):''}" aria-label="Hora de término (opcional)" style="flex:1">
+          </div>
+          <div style="font-size:11px;color:var(--text-faint);margin-top:4px">Por ejemplo, a qué hora sale y vuelve a la oficina. La hora de término también es opcional.</div>
+        </div>
         <div class="form-group"><label>Link</label><input id="f-link" type="url" value="${isEdit?escHtml(item.link||''):''}" placeholder="https://"></div>
         ${seccionInvitadosHTML(isEdit?item:null, dis)}
         ${extras.length?`<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;margin-top:4px;text-transform:uppercase;letter-spacing:.05em">Campos adicionales</div>`:''}
@@ -239,7 +247,7 @@ function viewTask(t){
         ${field('Categoría', t.categoria ? escHtml(String(t.categoria)) : '<span style="color:var(--text-faint)">—</span>')}
         ${field('Campaña', t.campana ? `<span class="badge badge-campana">📣 ${escHtml(String(t.campana))}</span>` : '<span style="color:var(--text-faint)">—</span>')}
         ${field('Fecha de creación', formatDate(t.created))}
-        ${field('Fecha límite', t.fecha ? `📅 ${formatFecha(t.fecha)}` : '<span style="color:var(--text-faint)">Sin fecha</span>')}
+        ${field('Fecha límite', t.fecha ? `📅 ${formatFecha(t.fecha)}${horaTexto(t)?` · 🕙 ${horaTexto(t)}`:''}` : '<span style="color:var(--text-faint)">Sin fecha</span>')}
         ${t.status==='done' ? field('Fecha de término', t.completado ? formatDate(t.completado) : '<span style="color:var(--text-faint)">No registrada</span>') : ''}
         ${field('Asignado a', t.asignado
           ? `<span style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:22px;border-radius:50%;background:${avatarColor(t.asignado)}22;color:${avatarColor(t.asignado)};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">${getInitials(t.asignado)}</span>${escHtml(t.asignado)}</span>`

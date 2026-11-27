@@ -148,6 +148,18 @@ su **tipo de contenido** (`tipo`, lista `tipo_contenido` en Opciones):
 alter table tareas add column if not exists programa text;
 ```
 
+### Hora de la tarea
+
+Desde v2.20.0 la tarea puede llevar una **hora opcional** junto a la fecha límite: inicio y, si se quiere, término
+(ej. a qué hora sale y vuelve a la oficina un audiovisualista con equipos). Se ve en la tarjeta, el detalle, el
+calendario (antes del título, ordenadas por hora), el correo de aviso y el Excel. El servidor valida el formato
+y que la de término sea posterior a la de inicio:
+
+```sql
+alter table tareas add column if not exists hora_inicio time;
+alter table tareas add column if not exists hora_fin time;
+```
+
 ## Reportes
 
 Vista **📈 Reportes**: período configurable (atajos o fechas desde/hasta), filtro por coordinación
@@ -203,6 +215,7 @@ tablero de muestra desenfocado. Desde v2.10.0 no hay otra forma de entrar (se re
 
 ## Historial de versiones
 
+- **v2.20.0** (2026-11-27) — Hora opcional en la tarea (inicio y término, ambos opcionales) junto a la fecha límite. Se ve en la tarjeta, el detalle, el calendario (ordenado por hora), el correo de aviso y el Excel
 - **v2.19.0** (2026-11-23) — Al elegir la persona asignada, la tarea toma su coordinación y ese campo queda bloqueado mientras coincidan. Coordinador/a y "Gestiona tareas de su coordinación" asignan solo a su equipo. El servidor rechaza combinaciones nuevas de persona y coordinación que no coincidan; las tareas antiguas se pueden seguir editando
 - **v2.18.0** (2026-11-20) — Banner rojo fijo de tareas vencidas en Dashboard y Tareas: no se puede cerrar y desaparece cuando ya no quedan vencidas. Integrante ve las suyas; coordinador/a y "Gestiona tareas de su coordinación", las de su coordinación; Administración y "Gestiona tareas", las de toda la Dirección. Clic: listado de esas vencidas
 - **v2.17.1** (2026-11-19) — Reportes y PDF: los bloques de UFROmedios (invitados en programas, por programa y por tipo de contenido) van al final. Programas y tipos de contenido con mayúscula inicial (programas sin puntos suspensivos). Opciones en orden fijo: Campaña, Categoría, Tipo de requerimiento, Programa, Tipo de contenido

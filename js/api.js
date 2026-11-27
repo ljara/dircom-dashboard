@@ -43,6 +43,8 @@ function normalizeTarea(t){
     status:             t.status||'todo',
     prioridad:          t.prioridad||'media',
     fecha:              t.fecha||'',
+    horaInicio:         String(t.hora_inicio||'').slice(0,5),
+    horaFin:            String(t.hora_fin||'').slice(0,5),
     link:               t.link||'',
     created:            t.created_at||'',
     completado:         t.completed_at||'',

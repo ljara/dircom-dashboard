@@ -20,7 +20,7 @@ function taskListHTML(tasks){
           <span>${m.icon} ${m.name}</span>
           ${t.solicitante?`<span>📋 ${t.solicitante}</span>`:'<span style="color:var(--text-faint)">Sin solicitante</span>'}
           ${t.asignado?`<span>👤 ${t.asignado}</span>`:'<span style="color:var(--text-faint)">Sin asignar</span>'}
-          ${t.fecha?`<span>📅 ${formatFecha(t.fecha)}</span>`:'<span style="color:var(--text-faint)">Sin fecha</span>'}
+          ${t.fecha?`<span>📅 ${formatFecha(t.fecha)}${horaTexto(t)?` · 🕙 ${horaTexto(t)}`:''}</span>`:'<span style="color:var(--text-faint)">Sin fecha</span>'}
           ${chipInvitados(t)}
         </div>
       </div>

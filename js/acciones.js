@@ -44,6 +44,12 @@ async function submitTarea(existingId){
     return;
   }
 
+  // Hora opcional: la de término solo junto a la de inicio, y después de ella
+  const horaIni=document.getElementById('f-hora-ini')?.value||'';
+  const horaFin=document.getElementById('f-hora-fin')?.value||'';
+  if(horaFin && !horaIni){ showToast('Falta la hora de inicio (o borra la de término)'); document.getElementById('f-hora-ini').focus(); return; }
+  if(horaIni && horaFin && horaFin<=horaIni){ showToast('La hora de término debe ser posterior a la de inicio'); document.getElementById('f-hora-fin').focus(); return; }
+
   const extras = extraFields(state.tareasHeaders, SYSTEM_FIELDS_TAREA);
   const extraData = {};
   extras.forEach(f=>{ const el=document.getElementById('f-extra-'+f); if(el) extraData[f]=el.value; });
@@ -60,6 +66,8 @@ async function submitTarea(existingId){
     prioridad:          document.getElementById('f-prior').value,
     status:             document.getElementById('f-status').value,
     fecha:              document.getElementById('f-fecha').value||null,
+    hora_inicio:        horaIni||null,
+    hora_fin:           horaFin||null,
     link:               document.getElementById('f-link').value,
     ...extraData
   };

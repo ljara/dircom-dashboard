@@ -64,6 +64,11 @@ function renderCalendario(){
     }catch(e){}
   });
 
+  // Dentro de cada día, primero las que tienen hora, de la más temprana a la más tardía
+  Object.values(tareasPorFecha).forEach(l=>l.sort((a,b)=>claveHora(a).localeCompare(claveHora(b))));
+  // Hora delante del título (solo si la tarea la tiene)
+  const conHora = t => horaTexto(t) ? `<strong>${horaTexto(t)}</strong> ${t.titulo}` : t.titulo;
+
   const STATUS_COLORS = {
     todo:     {bg:'#F1EFE8',text:'#444'},
     progress: {bg:'#E6F1FB',text:'#0C447C'},
@@ -127,7 +132,7 @@ function renderCalendario(){
               const key = dia.toISOString().slice(0,10);
               const tareasDia = tareasPersona.filter(t=>{
                 try{ return new Date(t.fecha).toISOString().slice(0,10)===key; }catch(e){return false;}
-              });
+              }).sort((a,b)=>claveHora(a).localeCompare(claveHora(b)));
               const esHoy = dia.toDateString()===hoy.toDateString();
               return `<div class="persona-day-cell${tareasDia.length?' has-tasks':''}${esHoy?' today':''}">
                 <div class="persona-day-label" style="${esHoy?'color:var(--primary-dark);font-weight:700':''}">
@@ -135,7 +140,7 @@ function renderCalendario(){
                 </div>
                 ${tareasDia.map(t=>{
                   const sc=STATUS_COLORS[t.status]||STATUS_COLORS.todo;
-                  return `<div class="persona-day-task" style="background:${sc.bg};color:${sc.text}" title="${t.titulo}" onclick='viewTask(${jsonAttr(t)})'>${t.titulo}</div>`;
+                  return `<div class="persona-day-task" style="background:${sc.bg};color:${sc.text}" title="${horaTexto(t)?horaTexto(t)+' · ':''}${t.titulo}" onclick='viewTask(${jsonAttr(t)})'>${conHora(t)}</div>`;
                 }).join('')}
                 ${!tareasDia.length?`<div style="font-size:10px;color:var(--text-faint);text-align:center;margin-top:8px">libre</div>`:''}
               </div>`;
@@ -175,8 +180,8 @@ function renderCalendario(){
           ${tareas.slice(0,MAX_VISIBLE).map(t=>{
             const sc=STATUS_COLORS[t.status]||STATUS_COLORS.todo;
             return `<div class="cal-task" style="background:${sc.bg};color:${sc.text};border-left:3px solid ${coordColor(t.coordId)}"
-              title="${t.titulo}${t.asignado?' · '+t.asignado:''}"
-              onclick='viewTask(${jsonAttr(t)})'>${t.titulo}</div>`;
+              title="${horaTexto(t)?horaTexto(t)+' · ':''}${t.titulo}${t.asignado?' · '+t.asignado:''}"
+              onclick='viewTask(${jsonAttr(t)})'>${conHora(t)}</div>`;
           }).join('')}
           ${tareas.length>MAX_VISIBLE?`<div class="cal-more" onclick="state.calPersonaFiltro='all';state.filterStatus='all';state.busqueda='';setView('tareas')">+${tareas.length-MAX_VISIBLE} más</div>`:''}
         </div>`;

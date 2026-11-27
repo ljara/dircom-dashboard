@@ -206,6 +206,21 @@ const NOMBRES_CAMPOS = { titulo: 'título', coord_id: 'coordinación', solicitan
   tipo_requerimiento: 'tipo de requerimiento', categoria: 'categoría', asignado: 'persona asignada',
   prioridad: 'prioridad', status: 'estado', fecha: 'fecha límite' };
 const vacio = v => v === undefined || v === null || String(v).trim() === '';
+// Hora opcional de la tarea ("HH:MM", o null para quitarla). Devuelve un error o null
+function limpiarHoras(body) {
+  for (const c of ['hora_inicio', 'hora_fin']) {
+    if (!(c in body)) continue;
+    const v = String(body[c] ?? '').trim().slice(0, 5);
+    if (v && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) return 'Hora no válida';
+    body[c] = v || null;
+  }
+  if ('hora_inicio' in body && 'hora_fin' in body && body.hora_fin) {
+    if (!body.hora_inicio) return 'Falta la hora de inicio';
+    if (body.hora_fin <= body.hora_inicio) return 'La hora de término debe ser posterior a la de inicio';
+  }
+  return null;
+}
+
 // Invitados de un capítulo de programa: lista limpia [{nombre, cargo, genero, ufro, tipo}] o error
 function limpiarInvitados(v) {
   if (v === null || v === undefined) return { lista: null };
@@ -303,6 +318,8 @@ async function destinatarios(evento) {
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fechaCorta = f => { const d = new Date(String(f).slice(0, 10) + 'T12:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }); };
 
+const horaCorreo = t => t.hora_inicio ? String(t.hora_inicio).slice(0, 5) + (t.hora_fin ? '–' + String(t.hora_fin).slice(0, 5) : '') : '';
+
 function armarCorreo(evento, tarea, coordNombre, dest, url) {
   const por = evento.actor_nombre || 'Alguien';
   const paraTi = evento.para && evento.para === dest.nombre;
@@ -318,7 +335,7 @@ function armarCorreo(evento, tarea, coordNombre, dest, url) {
   <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin:16px 0">
     <div style="font-size:16px;font-weight:bold;margin-bottom:8px">${esc(tarea.titulo)}</div>
     <table style="font-size:13px;border-collapse:collapse">
-      ${fila('Coordinación', coordNombre)}${fila('Solicitante', tarea.solicitante)}${fila('Asignada a', tarea.asignado)}${fila('Fecha límite', fechaCorta(tarea.fecha))}
+      ${fila('Coordinación', coordNombre)}${fila('Solicitante', tarea.solicitante)}${fila('Asignada a', tarea.asignado)}${fila('Fecha límite', fechaCorta(tarea.fecha))}${fila('Hora', horaCorreo(tarea))}
     </table>
   </div>
   <p><a href="${url}" style="background:#00447F;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;display:inline-block">Ver en dashboard</a></p>
@@ -328,7 +345,7 @@ function armarCorreo(evento, tarea, coordNombre, dest, url) {
   const texto = [
     `Hola ${dest.nombre},`, '', frase.replace(/<[^>]+>/g, '').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'), '',
     tarea.titulo,
-    ...[['Coordinación', coordNombre], ['Solicitante', tarea.solicitante], ['Asignada a', tarea.asignado], ['Fecha límite', fechaCorta(tarea.fecha)]]
+    ...[['Coordinación', coordNombre], ['Solicitante', tarea.solicitante], ['Asignada a', tarea.asignado], ['Fecha límite', fechaCorta(tarea.fecha)], ['Hora', horaCorreo(tarea)]]
       .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`),
     '', `Ver en dashboard: ${url}`, '', 'Aviso automático de DirCom — Gestión de tareas. No respondas este correo.'
   ].join('\n');
@@ -474,6 +491,8 @@ export default async function handler(req, res) {
         if (faltan.length) return res.status(400).json({ error: errorObligatorios(faltan) });
         const errorCoord = await errorCoordAsignado(body.asignado, body.coord_id);
         if (errorCoord) return res.status(400).json({ error: errorCoord });
+        const errorHora = limpiarHoras(body);
+        if (errorHora) return res.status(400).json({ error: errorHora });
         if ('invitados' in body) {
           const inv = limpiarInvitados(body.invitados);
           if (inv.error) return res.status(400).json({ error: inv.error });
@@ -499,6 +518,8 @@ export default async function handler(req, res) {
         if (motivo) return res.status(403).json({ error: motivo });
         const quitados = vacios.filter(c => !vacio(actual[c]));
         if (quitados.length) return res.status(400).json({ error: errorObligatorios(quitados) });
+        const errorHora = limpiarHoras(body);
+        if (errorHora) return res.status(400).json({ error: errorHora });
         if ('invitados' in body) {
           const inv = limpiarInvitados(body.invitados);
           if (inv.error) return res.status(400).json({ error: inv.error });

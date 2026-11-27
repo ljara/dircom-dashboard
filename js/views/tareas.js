@@ -38,12 +38,12 @@ function renderTareasView(){
         if(!a.fecha && !b.fecha) return 0;
         if(!a.fecha) return 1;
         if(!b.fecha) return -1;
-        return new Date(a.fecha) - new Date(b.fecha);
+        return (new Date(a.fecha) - new Date(b.fecha)) || claveHora(a).localeCompare(claveHora(b));
       case 'fecha_desc':
         if(!a.fecha && !b.fecha) return 0;
         if(!a.fecha) return 1;
         if(!b.fecha) return -1;
-        return new Date(b.fecha) - new Date(a.fecha);
+        return (new Date(b.fecha) - new Date(a.fecha)) || claveHora(a).localeCompare(claveHora(b));
       case 'prioridad':
         return (PRIORIDAD_ORDEN[a.prioridad]??1) - (PRIORIDAD_ORDEN[b.prioridad]??1);
       case 'status':

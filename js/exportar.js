@@ -77,6 +77,7 @@ function exportarTareasCSV(){
     ['Estado actual',         f=>statusLabel(f.t.status)],
     ['Fecha creación',        f=>f.creada],
     ['Fecha límite',          f=>f.limite],
+    ['Hora',                  f=>horaTexto(f.t)],
     ['Fecha término',         f=>f.completada],
     ['Días de resolución',    f=>f.diasResolucion],
     ['Completada a tiempo',   f=>siNo(f.aTiempo)],

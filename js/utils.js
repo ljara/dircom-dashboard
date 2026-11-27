@@ -51,6 +51,14 @@ function fechaLocal(f){
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(f||''));
   return m ? new Date(+m[1], m[2]-1, +m[3]) : new Date(f);
 }
+// Hora opcional de la tarea: "10:00" o "10:00–13:00" ('' si no tiene)
+function horaTexto(t){
+  if(!t||!t.horaInicio) return '';
+  return t.horaInicio + (t.horaFin ? '–'+t.horaFin : '');
+}
+// Para ordenar dentro de un mismo día: primero las que tienen hora, de la más temprana a la más tardía
+function claveHora(t){ return (t&&t.horaInicio) || '99:99'; }
+
 function formatFecha(d){
   if(!d) return '—';
   try{
